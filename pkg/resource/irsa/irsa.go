@@ -1,0 +1,57 @@
+package irsa
+
+import (
+	"eksdemo/pkg/cmd"
+	"eksdemo/pkg/eksctl"
+	"eksdemo/pkg/resource"
+	"eksdemo/pkg/template"
+)
+
+func NewResource() *resource.Resource {
+	res := &resource.Resource{
+		Command: cmd.Command{
+			Name:        "irsa",
+			Description: "IAM Role for a Service Account",
+		},
+
+		Manager: &eksctl.ResourceManager{
+			Resource: "iamserviceaccount",
+			Template: &template.TextTemplate{
+				Template: eksctl.EksctlHeader + eksctlIamHeader + EksctlTemplate,
+			},
+			ApproveCreate: true,
+			ApproveDelete: true,
+		},
+	}
+	return addOptions(res)
+}
+
+const eksctlIamHeader = `
+iam:
+  withOIDC: true
+  serviceAccounts:
+`
+
+const EksctlTemplate = `
+  - metadata:
+      name: {{ .Name }}
+      namespace: {{ .Namespace }}
+    roleName: eksdemo.{{ .ClusterName }}.{{ .Namespace }}.{{ .Name }}
+    roleOnly: true
+{{- if .PolicyType | .IsPolicyDocument }}
+    attachPolicy:
+{{- first .Policy | indent 6 }}
+{{- end }}
+{{- if .PolicyType | .IsPolicyARN }}
+    attachPolicyARNs:
+  {{- range .Policy }}
+    - {{ . }}
+  {{- end }}
+{{- end }}
+{{- if .PolicyType | .IsWellKnownPolicy }}
+    wellKnownPolicies:
+    {{- range .Policy }}
+      {{ . }}: true
+    {{- end }}
+{{- end -}}
+`
