@@ -51,4 +51,4 @@ Statement:
   - "logs:PutLogEvents"
   - "logs:PutRetentionPolicy"
   Resource: '*'
-  `
+`

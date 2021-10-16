@@ -3,7 +3,6 @@ package eksctl
 import (
 	"eksdemo/pkg/resource"
 	"eksdemo/pkg/template"
-	"fmt"
 )
 
 const EksctlHeader = `
@@ -45,9 +44,6 @@ func (e *ResourceManager) Create(options resource.Options) error {
 		args = append(args, "--approve")
 	}
 
-	fmt.Println("eksctl create")
-	fmt.Println(eksctlConfig)
-
 	return Command(args, eksctlConfig)
 }
 
@@ -69,9 +65,6 @@ func (e *ResourceManager) Delete(options resource.Options) error {
 	if e.ApproveDelete {
 		args = append(args, "--approve")
 	}
-
-	fmt.Println("eksctl delete")
-	fmt.Println(eksctlConfig)
 
 	return Command(args, eksctlConfig)
 }
