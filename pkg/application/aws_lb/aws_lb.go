@@ -4,6 +4,7 @@ import (
 	"eksdemo/pkg/application"
 	"eksdemo/pkg/cmd"
 	"eksdemo/pkg/helm"
+	"eksdemo/pkg/resource"
 	"eksdemo/pkg/resource/irsa"
 	"eksdemo/pkg/template"
 )
@@ -22,9 +23,11 @@ func NewApp() *application.Application {
 			Aliases:     []string{"awslb"},
 		},
 
-		IamPolicy: &application.IamPolicy{
-			PolicyType: irsa.WellKnown,
-			Policy:     []string{"awsLoadBalancerController"},
+		Dependencies: []*resource.Resource{
+			irsa.NewResourceWithOptions(&irsa.IrsaOptions{
+				PolicyType: irsa.WellKnown,
+				Policy:     []string{"awsLoadBalancerController"},
+			}),
 		},
 
 		Options: &application.ApplicationOptions{

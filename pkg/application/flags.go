@@ -43,10 +43,11 @@ func (o *ApplicationOptions) NewClusterFlag(action Action) *cmd.StringFlag {
 func (o *ApplicationOptions) NewDeleteRoleFlag() *cmd.BoolFlag {
 	flag := &cmd.BoolFlag{
 		CommandFlag: cmd.CommandFlag{
-			Name:        "delete-role",
-			Description: "also delete IAM role",
+			Name:        "delete-dependencies",
+			Description: "delete application dependencies",
+			Shorthand:   "D",
 		},
-		Option: &o.DeleteRole,
+		Option: &o.DeleteDependencies,
 	}
 	return flag
 }

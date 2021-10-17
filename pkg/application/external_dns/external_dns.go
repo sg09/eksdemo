@@ -4,6 +4,7 @@ import (
 	"eksdemo/pkg/application"
 	"eksdemo/pkg/cmd"
 	"eksdemo/pkg/helm"
+	"eksdemo/pkg/resource"
 	"eksdemo/pkg/resource/irsa"
 	"eksdemo/pkg/template"
 )
@@ -21,9 +22,11 @@ func NewApp() *application.Application {
 			Aliases:     []string{"edns"},
 		},
 
-		IamPolicy: &application.IamPolicy{
-			PolicyType: irsa.WellKnown,
-			Policy:     []string{"externalDNS"},
+		Dependencies: []*resource.Resource{
+			irsa.NewResourceWithOptions(&irsa.IrsaOptions{
+				PolicyType: irsa.WellKnown,
+				Policy:     []string{"externalDNS"},
+			}),
 		},
 
 		Options: &application.ApplicationOptions{

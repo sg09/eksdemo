@@ -4,6 +4,7 @@ import (
 	"eksdemo/pkg/application"
 	"eksdemo/pkg/cmd"
 	"eksdemo/pkg/helm"
+	"eksdemo/pkg/resource"
 	"eksdemo/pkg/resource/irsa"
 	"eksdemo/pkg/template"
 )
@@ -22,9 +23,11 @@ func NewApp() *application.Application {
 			Aliases:     []string{"fluentbit", "fb"},
 		},
 
-		IamPolicy: &application.IamPolicy{
-			PolicyType: irsa.PolicyDocument,
-			Policy:     []string{policyDocument},
+		Dependencies: []*resource.Resource{
+			irsa.NewResourceWithOptions(&irsa.IrsaOptions{
+				PolicyType: irsa.PolicyDocument,
+				Policy:     []string{policyDocument},
+			}),
 		},
 
 		Installer: &helm.HelmInstaller{

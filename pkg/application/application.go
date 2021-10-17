@@ -2,6 +2,7 @@ package application
 
 import (
 	"eksdemo/pkg/cmd"
+	"eksdemo/pkg/resource"
 
 	"github.com/spf13/cobra"
 )
@@ -11,7 +12,7 @@ type Application struct {
 	cmd.Flags
 	Options
 
-	*IamPolicy
+	Dependencies []*resource.Resource
 	Installer
 }
 
@@ -27,10 +28,8 @@ func (a *Application) NewInstallCmd() *cobra.Command {
 			}
 			cmd.SilenceUsage = true
 
-			if a.IamPolicy != nil {
-				if err := a.IamPolicy.Create(a.Options); err != nil {
-					return err
-				}
+			if err := a.CreateDependencies(); err != nil {
+				return err
 			}
 
 			if err := a.Install(a.Options); err != nil {
@@ -57,8 +56,8 @@ func (a *Application) NewUninstallCmd() *cobra.Command {
 			}
 			cmd.SilenceUsage = true
 
-			if a.Options.Common().DeleteRole {
-				if err := a.IamPolicy.Delete(a.Options); err != nil {
+			if a.Options.Common().DeleteDependencies {
+				if err := a.DeleteDependencies(); err != nil {
 					return err
 				}
 			}
@@ -66,7 +65,7 @@ func (a *Application) NewUninstallCmd() *cobra.Command {
 			return a.Uninstall(a.Options)
 		},
 	}
-	a.Flags = a.Options.AddUninstallFlags(cmd, a.Flags, a.IamPolicy != nil)
+	a.Flags = a.Options.AddUninstallFlags(cmd, a.Flags, a.Dependencies != nil)
 
 	return cmd
 }

@@ -23,7 +23,7 @@ type ApplicationOptions struct {
 	Version        string
 
 	DefaultVersion
-	DeleteRole                bool
+	DeleteDependencies        bool
 	DisableNamespaceFlag      bool
 	DisableServiceAccountFlag bool
 	UsePrevious               bool

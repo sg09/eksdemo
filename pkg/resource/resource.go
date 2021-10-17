@@ -15,6 +15,14 @@ type Resource struct {
 	Manager
 }
 
+func (r *Resource) Create() error {
+	return r.Manager.Create(r.Options)
+}
+
+func (r *Resource) Delete() error {
+	return r.Manager.Delete(r.Options)
+}
+
 func (r *Resource) NewCreateCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     r.Command.Name + " NAME",
@@ -42,7 +50,7 @@ func (r *Resource) NewCreateCmd() *cobra.Command {
 				return fmt.Errorf("feature not yet implemented")
 			}
 
-			return r.Create(r.Options)
+			return r.Create()
 		},
 	}
 	r.Flags = r.Options.AddCreateFlags(cmd, r.Flags)
@@ -69,7 +77,7 @@ func (r *Resource) NewDeleteCmd() *cobra.Command {
 				return fmt.Errorf("feature not yet implemented")
 			}
 
-			return r.Delete(r.Options)
+			return r.Delete()
 		},
 	}
 	r.Flags = r.Options.AddDeleteFlags(cmd, r.Flags)

@@ -4,6 +4,7 @@ import (
 	"eksdemo/pkg/application"
 	"eksdemo/pkg/cmd"
 	"eksdemo/pkg/kustomize"
+	"eksdemo/pkg/resource"
 	"eksdemo/pkg/resource/irsa"
 	"eksdemo/pkg/template"
 )
@@ -59,9 +60,11 @@ func (o *ContainerInsightsOptions) PostInstall() error { //include app in params
 	fluentBit := &application.Application{
 		Options: o,
 
-		IamPolicy: &application.IamPolicy{
-			PolicyType: irsa.PolicyARNs,
-			Policy:     []string{"arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"},
+		Dependencies: []*resource.Resource{
+			irsa.NewResourceWithOptions(&irsa.IrsaOptions{
+				PolicyType: irsa.PolicyARNs,
+				Policy:     []string{"arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"},
+			}),
 		},
 
 		Installer: &kustomize.KustomizeInstaller{
@@ -74,7 +77,7 @@ func (o *ContainerInsightsOptions) PostInstall() error { //include app in params
 		},
 	}
 
-	if err := fluentBit.IamPolicy.Create(fluentBit.Options); err != nil {
+	if err := fluentBit.CreateDependencies(); err != nil {
 		return err
 	}
 

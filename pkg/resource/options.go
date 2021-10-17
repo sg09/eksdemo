@@ -10,6 +10,7 @@ import (
 type Options interface {
 	AddCreateFlags(*cobra.Command, cmd.Flags) cmd.Flags
 	AddDeleteFlags(*cobra.Command, cmd.Flags) cmd.Flags
+	Common() *CommonOptions
 	GetClusterName() string
 	SetName(string)
 	PreCreate() error
@@ -68,6 +69,10 @@ func (o *CommonOptions) AddDeleteFlags(cobraCmd *cobra.Command, _ cmd.Flags) cmd
 	}
 
 	return flags
+}
+
+func (o *CommonOptions) Common() *CommonOptions {
+	return o
 }
 
 func (o *CommonOptions) GetClusterName() string {

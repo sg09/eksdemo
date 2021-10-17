@@ -26,6 +26,12 @@ func NewResource() *resource.Resource {
 	return addOptions(res)
 }
 
+func NewResourceWithOptions(options *IrsaOptions) *resource.Resource {
+	res := NewResource()
+	res.Options = options
+	return res
+}
+
 const eksctlIamHeader = `
 iam:
   withOIDC: true

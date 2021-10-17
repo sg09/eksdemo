@@ -4,6 +4,7 @@ import (
 	"eksdemo/pkg/application"
 	"eksdemo/pkg/cmd"
 	"eksdemo/pkg/kustomize"
+	"eksdemo/pkg/resource"
 	"eksdemo/pkg/resource/irsa"
 	"eksdemo/pkg/template"
 )
@@ -22,9 +23,11 @@ func NewApp() *application.Application {
 			Aliases:     []string{"ci"},
 		},
 
-		IamPolicy: &application.IamPolicy{
-			PolicyType: irsa.PolicyARNs,
-			Policy:     []string{"arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"},
+		Dependencies: []*resource.Resource{
+			irsa.NewResourceWithOptions(&irsa.IrsaOptions{
+				PolicyType: irsa.PolicyARNs,
+				Policy:     []string{"arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"},
+			}),
 		},
 
 		Installer: &kustomize.KustomizeInstaller{
