@@ -17,10 +17,7 @@ type Options interface {
 }
 
 type ApplicationOptions struct {
-	ClusterName    string
-	Namespace      string
-	ServiceAccount string
-	Version        string
+	Version string
 
 	DefaultVersion
 	DeleteDependencies        bool
@@ -28,10 +25,13 @@ type ApplicationOptions struct {
 	DisableServiceAccountFlag bool
 	UsePrevious               bool
 
-	Account     string
-	Region      string
-	eksCluster  *eks.Cluster
-	kubeContext string
+	Account        string
+	ClusterName    string
+	Namespace      string
+	Region         string
+	ServiceAccount string
+	eksCluster     *eks.Cluster
+	kubeContext    string
 }
 
 type Action string

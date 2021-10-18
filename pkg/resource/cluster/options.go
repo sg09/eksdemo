@@ -80,16 +80,17 @@ func (o *ClusterOptions) PreCreate() error {
 	o.Account = aws.AccountId()
 	o.NodegroupOptions.KubernetesVersion = o.KubernetesVersion
 
-	// Add ClusterName to the Applications used to pre-create IRSA roles and
-	// Rreate IRSA Resources that can be used to render the role for eksctl
+	// For apps we want to pre-create IRSA for, find the IRSA dependency
 	for _, app := range o.appsForIrsa {
-		app.Common().ClusterName = o.ClusterName
-
 		for _, res := range app.Dependencies {
 			if res.Name != "irsa" {
 				continue
 			}
+			// Populate the IRSA Resource with data (Cluster, Namespace, ServiceAccount)
 			app.AssignCommonResourceOptions(res)
+			res.SetName(app.Common().ServiceAccount)
+			res.Common().ClusterName = o.ClusterName
+
 			o.IrsaRoles = append(o.IrsaRoles, res)
 		}
 	}

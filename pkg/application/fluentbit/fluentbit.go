@@ -25,6 +25,9 @@ func NewApp() *application.Application {
 
 		Dependencies: []*resource.Resource{
 			irsa.NewResourceWithOptions(&irsa.IrsaOptions{
+				CommonOptions: resource.CommonOptions{
+					Name: "fluent-bit-irsa",
+				},
 				PolicyType: irsa.PolicyDocument,
 				Policy:     []string{policyDocument},
 			}),

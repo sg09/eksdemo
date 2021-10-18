@@ -24,6 +24,9 @@ func NewApp() *application.Application {
 
 		Dependencies: []*resource.Resource{
 			irsa.NewResourceWithOptions(&irsa.IrsaOptions{
+				CommonOptions: resource.CommonOptions{
+					Name: "external-dns-irsa",
+				},
 				PolicyType: irsa.WellKnown,
 				Policy:     []string{"externalDNS"},
 			}),

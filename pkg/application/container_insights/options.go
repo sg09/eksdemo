@@ -62,6 +62,9 @@ func (o *ContainerInsightsOptions) PostInstall() error { //include app in params
 
 		Dependencies: []*resource.Resource{
 			irsa.NewResourceWithOptions(&irsa.IrsaOptions{
+				CommonOptions: resource.CommonOptions{
+					Name: "fluent-bit-irsa",
+				},
 				PolicyType: irsa.PolicyARNs,
 				Policy:     []string{"arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"},
 			}),

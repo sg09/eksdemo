@@ -40,9 +40,9 @@ iam:
 
 const EksctlTemplate = `
   - metadata:
-      name: {{ .Name }}
+      name: {{ .ServiceAccount }}
       namespace: {{ .Namespace }}
-    roleName: eksdemo.{{ .ClusterName }}.{{ .Namespace }}.{{ .Name }}
+    roleName: eksdemo.{{ .ClusterName }}.{{ .Namespace }}.{{ .ServiceAccount }}
     roleOnly: true
 {{- if .PolicyType | .IsPolicyDocument }}
     attachPolicy:

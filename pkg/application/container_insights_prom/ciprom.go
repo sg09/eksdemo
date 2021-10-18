@@ -25,6 +25,9 @@ func NewApp() *application.Application {
 
 		Dependencies: []*resource.Resource{
 			irsa.NewResourceWithOptions(&irsa.IrsaOptions{
+				CommonOptions: resource.CommonOptions{
+					Name: "container-insights-prometheus-irsa",
+				},
 				PolicyType: irsa.PolicyARNs,
 				Policy:     []string{"arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"},
 			}),

@@ -24,6 +24,9 @@ func NewApp() *application.Application {
 
 		Dependencies: []*resource.Resource{
 			irsa.NewResourceWithOptions(&irsa.IrsaOptions{
+				CommonOptions: resource.CommonOptions{
+					Name: "cluster-autoscaler-irsa",
+				},
 				PolicyType: irsa.WellKnown,
 				Policy:     []string{"autoScaler"},
 			}),

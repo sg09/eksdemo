@@ -25,6 +25,9 @@ func NewApp() *application.Application {
 
 		Dependencies: []*resource.Resource{
 			irsa.NewResourceWithOptions(&irsa.IrsaOptions{
+				CommonOptions: resource.CommonOptions{
+					Name: "aws-load-balancer-controller-irsa",
+				},
 				PolicyType: irsa.WellKnown,
 				Policy:     []string{"awsLoadBalancerController"},
 			}),

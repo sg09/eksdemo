@@ -101,6 +101,10 @@ func (o *IrsaOptions) PrepForDelete() {
 	o.Policy = []string{"autoScaler"}
 }
 
+func (o *IrsaOptions) SetName(name string) {
+	o.ServiceAccount = name
+}
+
 func (o *IrsaOptions) Validate() error {
 	if o.PolicyType == None {
 		return fmt.Errorf("a single policy type must be used")

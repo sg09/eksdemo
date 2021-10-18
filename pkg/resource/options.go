@@ -12,24 +12,27 @@ type Options interface {
 	AddDeleteFlags(*cobra.Command, cmd.Flags) cmd.Flags
 	Common() *CommonOptions
 	GetClusterName() string
-	SetName(string)
+	GetKubeContext() string
 	PreCreate() error
 	PrepForDelete()
+	SetName(string)
 	Validate() error
 }
 
 type CommonOptions struct {
-	Account           string
-	ClusterName       string
-	Name              string
-	Namespace         string
-	Region            string
-	KubernetesVersion string
-
+	Name               string
 	DisableClusterFlag bool
 	NamespaceFlag      bool
 
-	Cluster *eks.Cluster
+	Account           string
+	ClusterName       string
+	KubernetesVersion string
+	Namespace         string
+	Region            string
+	ServiceAccount    string
+
+	eksCluster  *eks.Cluster
+	KubeContext string
 }
 
 type Action string
@@ -77,6 +80,10 @@ func (o *CommonOptions) Common() *CommonOptions {
 
 func (o *CommonOptions) GetClusterName() string {
 	return o.ClusterName
+}
+
+func (o *CommonOptions) GetKubeContext() string {
+	return o.KubeContext
 }
 
 func (o *CommonOptions) PreCreate() error {
