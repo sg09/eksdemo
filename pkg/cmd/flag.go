@@ -51,7 +51,12 @@ func (f *CommandFlag) GetName() string {
 
 // Boolean flag methods
 func (f *BoolFlag) AddFlagToCommand(cmd *cobra.Command) {
-	cmd.Flags().BoolVar(f.Option, f.Name, *f.Option, f.Description)
+	if f.Shorthand != "" {
+		cmd.Flags().BoolVarP(f.Option, f.Name, f.Shorthand, *f.Option, f.Description)
+	} else {
+		cmd.Flags().BoolVar(f.Option, f.Name, *f.Option, f.Description)
+	}
+
 	if f.Required {
 		cmd.MarkFlagRequired(f.Name)
 	}
@@ -66,7 +71,12 @@ func (f *BoolFlag) ValidateFlag() error {
 
 // Int flag methods
 func (f *IntFlag) AddFlagToCommand(cmd *cobra.Command) {
-	cmd.Flags().IntVarP(f.Option, f.Name, f.Shorthand, *f.Option, f.Description)
+	if f.Shorthand != "" {
+		cmd.Flags().IntVarP(f.Option, f.Name, f.Shorthand, *f.Option, f.Description)
+	} else {
+		cmd.Flags().IntVar(f.Option, f.Name, *f.Option, f.Description)
+	}
+
 	if f.Required {
 		cmd.MarkFlagRequired(f.Name)
 	}
@@ -81,7 +91,12 @@ func (f *IntFlag) ValidateFlag() error {
 
 // String flag methods
 func (f *StringFlag) AddFlagToCommand(cmd *cobra.Command) {
-	cmd.Flags().StringVarP(f.Option, f.Name, f.Shorthand, *f.Option, f.Description)
+	if f.Shorthand != "" {
+		cmd.Flags().StringVarP(f.Option, f.Name, f.Shorthand, *f.Option, f.Description)
+	} else {
+		cmd.Flags().StringVar(f.Option, f.Name, *f.Option, f.Description)
+	}
+
 	if f.Required {
 		cmd.MarkFlagRequired(f.Name)
 	}
