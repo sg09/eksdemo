@@ -18,7 +18,7 @@ func (o *CommonOptions) NewClusterFlag(action Action) *cmd.StringFlag {
 				if err != nil {
 					return err
 				}
-				o.Cluster = cluster
+				o.eksCluster = cluster
 				o.KubernetesVersion = aws.StringValue(cluster.Version)
 
 				o.Account = aws.AccountId()
