@@ -22,17 +22,16 @@ type Options interface {
 type CommonOptions struct {
 	Name               string
 	DisableClusterFlag bool
+	KubeContext        string
 	NamespaceFlag      bool
 
 	Account           string
+	Cluster           *eks.Cluster
 	ClusterName       string
 	KubernetesVersion string
 	Namespace         string
 	Region            string
 	ServiceAccount    string
-
-	eksCluster  *eks.Cluster
-	KubeContext string
 }
 
 type Action string

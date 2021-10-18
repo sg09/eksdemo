@@ -44,6 +44,7 @@ func (a *Application) AssignCommonResourceOptions(res *resource.Resource) {
 	r := res.Common()
 
 	r.Account = aws.AccountId()
+	r.Cluster = a.Common().Cluster
 	r.ClusterName = a.Common().ClusterName
 	r.KubeContext = a.KubeContext()
 	r.Namespace = a.Common().Namespace

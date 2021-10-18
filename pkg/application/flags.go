@@ -28,7 +28,7 @@ func (o *ApplicationOptions) NewClusterFlag(action Action) *cmd.StringFlag {
 					return fmt.Errorf("cluster \"%s\" not found in Kubeconfig", o.ClusterName)
 				}
 
-				o.eksCluster = cluster
+				o.Cluster = cluster
 				o.Account = aws.AccountId()
 				o.Region = aws.Region()
 
@@ -108,12 +108,12 @@ func (o *ApplicationOptions) NewVersionFlag() *cmd.StringFlag {
 				}
 
 				if o.UsePrevious {
-					o.Version = o.PreviousVersion(*o.eksCluster.Version)
+					o.Version = o.PreviousVersion(*o.Cluster.Version)
 					return nil
 				}
 
 				if o.Version == "" {
-					o.Version = o.LatestVersion(*o.eksCluster.Version)
+					o.Version = o.LatestVersion(*o.Cluster.Version)
 				}
 
 				return nil

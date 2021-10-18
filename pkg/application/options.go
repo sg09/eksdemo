@@ -30,7 +30,7 @@ type ApplicationOptions struct {
 	Namespace      string
 	Region         string
 	ServiceAccount string
-	eksCluster     *eks.Cluster
+	Cluster        *eks.Cluster
 	kubeContext    string
 }
 
