@@ -1,8 +1,6 @@
 package application
 
 import (
-	"eksdemo/pkg/aws"
-	"eksdemo/pkg/resource"
 	"fmt"
 )
 
@@ -38,16 +36,4 @@ func (a *Application) DeleteDependencies() error {
 		}
 	}
 	return nil
-}
-
-func (a *Application) AssignCommonResourceOptions(res *resource.Resource) {
-	r := res.Common()
-
-	r.Account = aws.AccountId()
-	r.Cluster = a.Common().Cluster
-	r.ClusterName = a.Common().ClusterName
-	r.KubeContext = a.KubeContext()
-	r.Namespace = a.Common().Namespace
-	r.Region = aws.Region()
-	r.ServiceAccount = a.Common().ServiceAccount
 }

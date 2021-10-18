@@ -1,7 +1,9 @@
 package application
 
 import (
+	"eksdemo/pkg/aws"
 	"eksdemo/pkg/cmd"
+	"eksdemo/pkg/resource"
 	"fmt"
 
 	"github.com/aws/aws-sdk-go/service/eks"
@@ -11,6 +13,7 @@ import (
 type Options interface {
 	AddInstallFlags(*cobra.Command, cmd.Flags) cmd.Flags
 	AddUninstallFlags(*cobra.Command, cmd.Flags, bool) cmd.Flags
+	AssignCommonResourceOptions(*resource.Resource)
 	Common() *ApplicationOptions
 	KubeContext() string
 	PostInstall() error
@@ -75,6 +78,18 @@ func (o *ApplicationOptions) AddUninstallFlags(cobraCmd *cobra.Command, _ cmd.Fl
 	}
 
 	return flags
+}
+
+func (o *ApplicationOptions) AssignCommonResourceOptions(res *resource.Resource) {
+	r := res.Common()
+
+	r.Account = aws.AccountId()
+	r.Cluster = o.Cluster
+	r.ClusterName = o.ClusterName
+	r.KubeContext = o.kubeContext
+	r.Namespace = o.Namespace
+	r.Region = aws.Region()
+	r.ServiceAccount = o.ServiceAccount
 }
 
 func (o *ApplicationOptions) Common() *ApplicationOptions {

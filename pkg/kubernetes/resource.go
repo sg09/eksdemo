@@ -3,11 +3,9 @@ package kubernetes
 import (
 	"eksdemo/pkg/resource"
 	"eksdemo/pkg/template"
-	"fmt"
 )
 
 type ResourceManager struct {
-	Resource string
 	template.Template
 }
 
@@ -17,10 +15,7 @@ func (m *ResourceManager) Create(options resource.Options) error {
 		return err
 	}
 
-	fmt.Println(manifest)
-
-	// return CreateResources(options.KubeContext(), yaml)
-	return nil
+	return CreateResources(options.GetKubeContext(), manifest)
 }
 
 func (m *ResourceManager) Delete(options resource.Options) error {
