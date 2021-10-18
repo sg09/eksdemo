@@ -76,18 +76,18 @@ func EksListNodegroups(clusterName string) ([]*string, error) {
 	return nodegroups.Nodegroups, nil
 }
 
-func EksOptimizedAmi(version string) (string, error) {
+func EksOptimizedAmi(eksVersion string) (string, error) {
 	sess := GetSession()
 	svc := ssm.New(sess)
 
 	input := ssm.GetParameterInput{
-		Name: aws.String("/aws/service/eks/optimized-ami/" + version + "/amazon-linux-2/recommended/image_id"),
+		Name: aws.String("/aws/service/eks/optimized-ami/" + eksVersion + "/amazon-linux-2/recommended/image_id"),
 	}
 
-	out, err := svc.GetParameter(&input)
+	result, err := svc.GetParameter(&input)
 	if err != nil {
 		return "", fmt.Errorf("ssm failed to lookup EKS Optimized AMI: %s", err)
 	}
 
-	return aws.StringValue(out.Parameter.Value), nil
+	return aws.StringValue(result.Parameter.Value), nil
 }
