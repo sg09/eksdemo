@@ -7,6 +7,7 @@ import (
 	"eksdemo/pkg/application/container_insights_prom"
 	"eksdemo/pkg/application/external_dns"
 	"eksdemo/pkg/application/fluentbit"
+	"eksdemo/pkg/application/karpenter"
 	"eksdemo/pkg/application/kube_prometheus"
 	"eksdemo/pkg/application/metrics_server"
 
@@ -16,7 +17,7 @@ import (
 func newCmdInstall() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "install",
-		Short:   "install application (and create IAM role if required)",
+		Short:   "install application and any required dependencies",
 		Aliases: []string{"inst"},
 	}
 
@@ -29,6 +30,7 @@ func newCmdInstall() *cobra.Command {
 	cmd.AddCommand(container_insights_prom.NewApp().NewInstallCmd())
 	cmd.AddCommand(external_dns.NewApp().NewInstallCmd())
 	cmd.AddCommand(fluentbit.NewApp().NewInstallCmd())
+	cmd.AddCommand(karpenter.NewApp().NewInstallCmd())
 	cmd.AddCommand(kube_prometheus.NewApp().NewInstallCmd())
 	cmd.AddCommand(metrics_server.NewApp().NewInstallCmd())
 

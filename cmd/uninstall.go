@@ -7,6 +7,7 @@ import (
 	"eksdemo/pkg/application/container_insights_prom"
 	"eksdemo/pkg/application/external_dns"
 	"eksdemo/pkg/application/fluentbit"
+	"eksdemo/pkg/application/karpenter"
 	"eksdemo/pkg/application/kube_prometheus"
 	"eksdemo/pkg/application/metrics_server"
 
@@ -16,7 +17,7 @@ import (
 func newCmdUninstall() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "uninstall",
-		Short:   "uninstall application (and delete IAM role if requested)",
+		Short:   "uninstall application and delete dependencies",
 		Aliases: []string{"uninst"},
 	}
 
@@ -29,6 +30,7 @@ func newCmdUninstall() *cobra.Command {
 	cmd.AddCommand(container_insights_prom.NewApp().NewUninstallCmd())
 	cmd.AddCommand(external_dns.NewApp().NewUninstallCmd())
 	cmd.AddCommand(fluentbit.NewApp().NewUninstallCmd())
+	cmd.AddCommand(karpenter.NewApp().NewUninstallCmd())
 	cmd.AddCommand(kube_prometheus.NewApp().NewUninstallCmd())
 	cmd.AddCommand(metrics_server.NewApp().NewUninstallCmd())
 
