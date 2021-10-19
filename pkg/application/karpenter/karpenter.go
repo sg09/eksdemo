@@ -3,8 +3,10 @@ package karpenter
 import (
 	"eksdemo/pkg/application"
 	"eksdemo/pkg/cmd"
+	"eksdemo/pkg/eksctl"
 	"eksdemo/pkg/helm"
 	"eksdemo/pkg/resource"
+	"eksdemo/pkg/resource/iam_auth"
 	"eksdemo/pkg/resource/irsa"
 	"eksdemo/pkg/template"
 )
@@ -31,17 +33,16 @@ func NewApp() *application.Application {
 				Policy:     []string{irsaPolicyDocument},
 			}),
 			karpenterNodeRole(),
-		},
-
-		Options: &KarpenterOptions{
-			application.ApplicationOptions{
-				Namespace:      "karpenter",
-				ServiceAccount: "karpenter",
-				DefaultVersion: &application.LatestPrevious{
-					Latest:   "v0.4.0",
-					Previous: "v0.3.4",
+			iam_auth.NewResourceWithOptions(&iam_auth.IamAuthOptions{
+				CommonOptions: resource.CommonOptions{
+					Name: "karpenter-node-iam-auth",
 				},
-			},
+				IamAuth: eksctl.IamAuth{
+					Arn:      "arn:aws:iam::{{ .Account }}:role/KarpenterNodeRole-{{ .ClusterName }}",
+					Groups:   []string{"system:bootstrappers", "system:nodes"},
+					Username: "system:node:{{EC2PrivateDNSName}}",
+				},
+			}),
 		},
 
 		Installer: &helm.HelmInstaller{
@@ -53,6 +54,8 @@ func NewApp() *application.Application {
 			},
 		},
 	}
+	app.Options, app.Flags = NewOptions()
+
 	return app
 }
 
