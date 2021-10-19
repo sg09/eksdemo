@@ -28,6 +28,10 @@ func (a *Application) NewInstallCmd() *cobra.Command {
 			}
 			cmd.SilenceUsage = true
 
+			if err := a.PreInstall(); err != nil {
+				return err
+			}
+
 			if err := a.CreateDependencies(); err != nil {
 				return err
 			}
