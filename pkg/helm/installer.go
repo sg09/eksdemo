@@ -13,6 +13,7 @@ type HelmInstaller struct {
 	RepositoryURL  string
 	ValuesTemplate template.Template
 	VersionField   string
+	Wait           bool
 }
 
 func (h *HelmInstaller) Install(options application.Options) error {
@@ -29,6 +30,7 @@ func (h *HelmInstaller) Install(options application.Options) error {
 		ReleaseName:   h.ReleaseName,
 		RepositoryURL: h.RepositoryURL,
 		ValuesFile:    valuesFile,
+		Wait:          h.Wait,
 	}
 
 	if h.DryRun {

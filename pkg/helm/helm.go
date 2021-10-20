@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/pkg/errors"
 	"helm.sh/helm/v3/pkg/action"
@@ -24,6 +25,7 @@ type InstallConfiguration struct {
 	ReleaseName   string
 	RepositoryURL string
 	ValuesFile    string
+	Wait          bool
 }
 
 func initialize(kubeContext, namespace string) (*action.Configuration, error) {
@@ -112,6 +114,8 @@ func Install(ic *InstallConfiguration, kubeContext string) error {
 	instAction.ReleaseName = ic.ReleaseName
 	instAction.CreateNamespace = true
 	instAction.IsUpgrade = true
+	instAction.Wait = ic.Wait
+	instAction.Timeout = 60 * time.Second
 	chart.Metadata.AppVersion = ic.AppVersion
 
 	// Install the chart
