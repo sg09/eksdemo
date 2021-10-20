@@ -31,6 +31,7 @@ type ApplicationOptions struct {
 
 	Account        string
 	ClusterName    string
+	DryRun         bool
 	Namespace      string
 	Region         string
 	ServiceAccount string
@@ -45,7 +46,7 @@ const Uninstall Action = "uninstall"
 
 func (o *ApplicationOptions) AddInstallFlags(cobraCmd *cobra.Command, flags cmd.Flags) cmd.Flags {
 	// Cluster flag has to be ordered before Version flag as it depends on the EKS cluster version
-	flags = append(flags, o.NewClusterFlag(Install), o.NewVersionFlag(), o.NewUsePreviousFlag())
+	flags = append(flags, o.NewClusterFlag(Install), o.NewDryRunFlag(), o.NewVersionFlag(), o.NewUsePreviousFlag())
 
 	if !o.DisableNamespaceFlag {
 		flags = append(flags, o.NewNamespaceFlag(Install))
@@ -82,6 +83,10 @@ func (o *ApplicationOptions) AddUninstallFlags(cobraCmd *cobra.Command, _ cmd.Fl
 }
 
 func (o *ApplicationOptions) AssignCommonResourceOptions(res *resource.Resource) {
+	if o.DryRun {
+		res.SetDryRun()
+	}
+
 	r := res.Common()
 
 	r.Account = aws.AccountId()

@@ -28,6 +28,7 @@ type CommonOptions struct {
 	Account           string
 	Cluster           *eks.Cluster
 	ClusterName       string
+	DryRun            bool
 	KubernetesVersion string
 	Namespace         string
 	Region            string
@@ -40,6 +41,8 @@ const Create Action = "create"
 const Delete Action = "delete"
 
 func (o *CommonOptions) AddCreateFlags(cobraCmd *cobra.Command, flags cmd.Flags) cmd.Flags {
+	flags = append(flags, o.NewDryRunFlag())
+
 	if !o.DisableClusterFlag {
 		flags = append(flags, o.NewClusterFlag(Create))
 	}

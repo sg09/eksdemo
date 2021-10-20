@@ -8,6 +8,7 @@ import (
 
 type HelmInstaller struct {
 	ChartName      string
+	DryRun         bool
 	ReleaseName    string
 	RepositoryURL  string
 	ValuesTemplate template.Template
@@ -30,7 +31,17 @@ func (h *HelmInstaller) Install(options application.Options) error {
 		ValuesFile:    valuesFile,
 	}
 
+	if h.DryRun {
+		fmt.Println("\nHelm Installer Dry Run:")
+		fmt.Printf("%+v\n", ic)
+		return nil
+	}
+
 	return Install(ic, options.KubeContext())
+}
+
+func (h *HelmInstaller) SetDryRun() {
+	h.DryRun = true
 }
 
 func (h *HelmInstaller) Uninstall(options application.Options) error {

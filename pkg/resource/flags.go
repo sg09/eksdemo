@@ -32,6 +32,17 @@ func (o *CommonOptions) NewClusterFlag(action Action) *cmd.StringFlag {
 	return flag
 }
 
+func (o *CommonOptions) NewDryRunFlag() *cmd.BoolFlag {
+	flag := &cmd.BoolFlag{
+		CommandFlag: cmd.CommandFlag{
+			Name:        "dry-run",
+			Description: "don't create, just print out all creation steps",
+		},
+		Option: &o.DryRun,
+	}
+	return flag
+}
+
 func (o *CommonOptions) NewNamespaceFlag(action Action) *cmd.StringFlag {
 	flag := &cmd.StringFlag{
 		CommandFlag: cmd.CommandFlag{

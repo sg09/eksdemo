@@ -42,6 +42,10 @@ func (r *Resource) NewCreateCmd() *cobra.Command {
 			cmd.SilenceUsage = true
 			r.SetName(args[0])
 
+			if r.Common().DryRun {
+				r.SetDryRun()
+			}
+
 			if err := r.PreCreate(); err != nil {
 				return err
 			}

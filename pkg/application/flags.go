@@ -52,6 +52,17 @@ func (o *ApplicationOptions) NewDeleteRoleFlag() *cmd.BoolFlag {
 	return flag
 }
 
+func (o *ApplicationOptions) NewDryRunFlag() *cmd.BoolFlag {
+	flag := &cmd.BoolFlag{
+		CommandFlag: cmd.CommandFlag{
+			Name:        "dry-run",
+			Description: "don't install, just print out all installation steps",
+		},
+		Option: &o.DryRun,
+	}
+	return flag
+}
+
 func (o *ApplicationOptions) NewNamespaceFlag(action Action) *cmd.StringFlag {
 	var desc string
 

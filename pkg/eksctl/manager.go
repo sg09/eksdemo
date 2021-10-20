@@ -27,6 +27,7 @@ type ResourceManager struct {
 	Template      template.Template
 	ApproveCreate bool
 	ApproveDelete bool
+	DryRun        bool
 	*IamAuth
 }
 
@@ -73,6 +74,12 @@ func (e *ResourceManager) CreateIamAuth(options resource.Options) error {
 		options.Common().ClusterName,
 	}
 
+	if e.DryRun {
+		fmt.Println("\nEksctl Resource Manager Dry Run:")
+		fmt.Println("eksctl " + strings.Join(args, " "))
+		return nil
+	}
+
 	return Command(args, "")
 }
 
@@ -92,6 +99,13 @@ func (e *ResourceManager) CreateWithConfigFile(options resource.Options) error {
 
 	if e.ApproveCreate {
 		args = append(args, "--approve")
+	}
+
+	if e.DryRun {
+		fmt.Println("\nEksctl Resource Manager Dry Run:")
+		fmt.Println("eksctl " + strings.Join(args, " "))
+		fmt.Println(eksctlConfig)
+		return nil
 	}
 
 	return Command(args, eksctlConfig)
@@ -175,4 +189,8 @@ func (e *ResourceManager) IamAuthExists(renderedArn, cluster string) (bool, erro
 	}
 
 	return len(jsonSlice) > 0, nil
+}
+
+func (e *ResourceManager) SetDryRun() {
+	e.DryRun = true
 }

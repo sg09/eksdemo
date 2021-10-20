@@ -14,12 +14,13 @@ type ResourceManager struct {
 	Resource string
 
 	Capabilities []aws.Capability
+	DryRun       bool
 	Parameters   map[string]string
 	Template     template.Template
 }
 
 // eksdemo-<clusterName>-<resourceName>
-const stackName = "eksdemo-%s-%s"
+const stackNameTemplate = "eksdemo-%s-%s"
 
 func (m *ResourceManager) Create(options resource.Options) error {
 	cfTemplate, err := m.Template.Render(options)
@@ -27,7 +28,14 @@ func (m *ResourceManager) Create(options resource.Options) error {
 		return err
 	}
 
-	stackName := fmt.Sprintf(stackName, options.Common().ClusterName, options.Common().Name)
+	stackName := fmt.Sprintf(stackNameTemplate, options.Common().ClusterName, options.Common().Name)
+
+	if m.DryRun {
+		fmt.Println("\nCloudFormation Resource Manager Dry Run:")
+		fmt.Printf("Stack name %q template:\n", stackName)
+		fmt.Println(cfTemplate)
+		return nil
+	}
 
 	fmt.Printf("Creating Cloudformation stack %q (can take 30+ seconds)...", stackName)
 	err = aws.CloudFormationCreateStack(stackName, cfTemplate, m.Parameters, m.Capabilities)
@@ -52,9 +60,13 @@ func (m *ResourceManager) Create(options resource.Options) error {
 func (m *ResourceManager) Delete(options resource.Options) error {
 	options.PrepForDelete()
 
-	stackName := fmt.Sprintf(stackName, options.Common().ClusterName, options.Common().Name)
+	stackName := fmt.Sprintf(stackNameTemplate, options.Common().ClusterName, options.Common().Name)
 
 	fmt.Printf("Deleting Cloudformation stack %q\n", stackName)
 
 	return aws.CloudFormationDeleteStack(stackName)
+}
+
+func (m *ResourceManager) SetDryRun() {
+	m.DryRun = true
 }
