@@ -4,8 +4,8 @@ import (
 	"eksdemo/pkg/application"
 	"eksdemo/pkg/cmd"
 	"eksdemo/pkg/util"
+	"errors"
 	"fmt"
-	"log"
 )
 
 type KarpenterOptions struct {
@@ -44,13 +44,12 @@ func (o *KarpenterOptions) PreInstall() error {
 	}
 
 	if err := util.CheckSubnets(o.ClusterName); err != nil {
-		fmt.Printf("Error: %s\n", err)
-		fmt.Printf("\nKarpenter requires subnets tagged with %q to perform subnet discovery\n",
+		errMsg := err.Error()
+		errMsg += fmt.Sprintf("\n\nKarpenter requires subnets tagged with %q to perform subnet discovery\n",
 			fmt.Sprintf(util.K8stag, o.ClusterName))
-		fmt.Printf("Either run `eksdemo util tag-subnets -c %s` or use the `--skip-subnet-check` flag\n", o.ClusterName)
+		errMsg += fmt.Sprintf("Either run `eksdemo util tag-subnets -c %s` or use the `--skip-subnet-check` flag", o.ClusterName)
+		return errors.New(errMsg)
 	}
-
-	log.Fatal("here")
 
 	return nil
 }

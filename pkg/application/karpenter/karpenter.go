@@ -52,6 +52,7 @@ func NewApp() *application.Application {
 			ValuesTemplate: &template.TextTemplate{
 				Template: valuesTemplate,
 			},
+			Wait: true,
 		},
 	}
 	app.Options, app.Flags = NewOptions()
