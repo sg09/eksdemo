@@ -5,6 +5,7 @@ import (
 	"eksdemo/pkg/application/cluster_autoscaler"
 	"eksdemo/pkg/application/container_insights"
 	"eksdemo/pkg/application/container_insights_prom"
+	"eksdemo/pkg/application/ebs_csi"
 	"eksdemo/pkg/application/external_dns"
 	"eksdemo/pkg/application/fluentbit"
 	"eksdemo/pkg/application/karpenter"
@@ -28,6 +29,7 @@ func newCmdUninstall() *cobra.Command {
 	cmd.AddCommand(cluster_autoscaler.NewApp().NewUninstallCmd())
 	cmd.AddCommand(container_insights.NewApp().NewUninstallCmd())
 	cmd.AddCommand(container_insights_prom.NewApp().NewUninstallCmd())
+	cmd.AddCommand(ebs_csi.NewApp().NewUninstallCmd())
 	cmd.AddCommand(external_dns.NewApp().NewUninstallCmd())
 	cmd.AddCommand(fluentbit.NewApp().NewUninstallCmd())
 	cmd.AddCommand(karpenter.NewApp().NewUninstallCmd())

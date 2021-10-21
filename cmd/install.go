@@ -5,6 +5,7 @@ import (
 	"eksdemo/pkg/application/cluster_autoscaler"
 	"eksdemo/pkg/application/container_insights"
 	"eksdemo/pkg/application/container_insights_prom"
+	"eksdemo/pkg/application/ebs_csi"
 	"eksdemo/pkg/application/external_dns"
 	"eksdemo/pkg/application/fluentbit"
 	"eksdemo/pkg/application/karpenter"
@@ -28,6 +29,7 @@ func newCmdInstall() *cobra.Command {
 	cmd.AddCommand(cluster_autoscaler.NewApp().NewInstallCmd())
 	cmd.AddCommand(container_insights.NewApp().NewInstallCmd())
 	cmd.AddCommand(container_insights_prom.NewApp().NewInstallCmd())
+	cmd.AddCommand(ebs_csi.NewApp().NewInstallCmd())
 	cmd.AddCommand(external_dns.NewApp().NewInstallCmd())
 	cmd.AddCommand(fluentbit.NewApp().NewInstallCmd())
 	cmd.AddCommand(karpenter.NewApp().NewInstallCmd())
