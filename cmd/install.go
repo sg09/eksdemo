@@ -9,6 +9,7 @@ import (
 	"eksdemo/pkg/application/efs_csi"
 	"eksdemo/pkg/application/external_dns"
 	"eksdemo/pkg/application/fluentbit"
+	"eksdemo/pkg/application/fsx_lustre_csi"
 	"eksdemo/pkg/application/karpenter"
 	"eksdemo/pkg/application/kube_prometheus"
 	"eksdemo/pkg/application/metrics_server"
@@ -34,6 +35,7 @@ func newCmdInstall() *cobra.Command {
 	cmd.AddCommand(efs_csi.NewApp().NewInstallCmd())
 	cmd.AddCommand(external_dns.NewApp().NewInstallCmd())
 	cmd.AddCommand(fluentbit.NewApp().NewInstallCmd())
+	cmd.AddCommand(fsx_lustre_csi.NewApp().NewInstallCmd())
 	cmd.AddCommand(karpenter.NewApp().NewInstallCmd())
 	cmd.AddCommand(kube_prometheus.NewApp().NewInstallCmd())
 	cmd.AddCommand(metrics_server.NewApp().NewInstallCmd())
