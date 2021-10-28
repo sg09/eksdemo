@@ -16,13 +16,14 @@ func NewResource() *resource.Resource {
 		},
 
 		Manager: &kubernetes.ResourceManager{
-			Resource: "service",
 			Template: &template.TextTemplate{
 				Template: yamlTemplate,
 			},
 		},
 
-		Options: &resource.CommonOptions{},
+		Options: &resource.CommonOptions{
+			Name: "service-loadbalancer",
+		},
 	}
 
 	return res
