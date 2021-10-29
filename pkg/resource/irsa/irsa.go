@@ -14,6 +14,8 @@ func NewResource() *resource.Resource {
 			Description: "IAM Role for a Service Account",
 		},
 
+		Getter: &Getter{},
+
 		Manager: &eksctl.ResourceManager{
 			Resource: "iamserviceaccount",
 			Template: &template.TextTemplate{

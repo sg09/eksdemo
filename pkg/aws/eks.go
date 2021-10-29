@@ -50,7 +50,7 @@ func EksListClusters() ([]*string, error) {
 		func(page *eks.ListClustersOutput, lastPage bool) bool {
 			pageNum++
 			clusters = append(clusters, page.Clusters...)
-			return pageNum <= 3
+			return pageNum <= maxPages
 		},
 	)
 

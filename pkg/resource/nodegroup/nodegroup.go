@@ -15,6 +15,8 @@ func NewResource() *resource.Resource {
 			Aliases:     []string{"ng", "mng"},
 		},
 
+		Getter: &Getter{},
+
 		Manager: &eksctl.ResourceManager{
 			Resource: "nodegroup",
 			Template: &template.TextTemplate{

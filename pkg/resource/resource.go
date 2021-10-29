@@ -2,6 +2,7 @@ package resource
 
 import (
 	"eksdemo/pkg/cmd"
+	"eksdemo/pkg/printer"
 	"fmt"
 
 	"github.com/spf13/cobra"
@@ -12,6 +13,7 @@ type Resource struct {
 	cmd.Flags
 	Options
 
+	Getter
 	Manager
 }
 
@@ -87,4 +89,38 @@ func (r *Resource) NewDeleteCmd() *cobra.Command {
 	r.Flags = r.Options.AddDeleteFlags(cmd, r.Flags)
 
 	return cmd
+}
+
+func (r *Resource) NewGetCmd() *cobra.Command {
+	var output printer.Output
+
+	cobraCmd := &cobra.Command{
+		Use:     r.Command.Name + " NAME",
+		Short:   r.Description,
+		Long:    "Get " + r.Description,
+		Aliases: r.Aliases,
+		Args:    cobra.RangeArgs(0, 1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if err := r.Flags.ValidateFlags(); err != nil {
+				return err
+			}
+			cmd.SilenceUsage = true
+
+			if r.Getter == nil {
+				return fmt.Errorf("feature not yet implemented")
+			}
+
+			name := ""
+			if len(args) > 0 {
+				name = args[0]
+			}
+
+			return r.Getter.Get(name, output, r.Common())
+		},
+	}
+	cobraCmd.Flags().VarP(cmd.NewOutputFlag(&output), "output", "o", "output format (json|table|yaml)")
+
+	r.Flags = r.Options.AddGetFlags(cobraCmd, r.Flags)
+
+	return cobraCmd
 }

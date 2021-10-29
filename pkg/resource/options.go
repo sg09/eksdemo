@@ -10,6 +10,7 @@ import (
 type Options interface {
 	AddCreateFlags(*cobra.Command, cmd.Flags) cmd.Flags
 	AddDeleteFlags(*cobra.Command, cmd.Flags) cmd.Flags
+	AddGetFlags(*cobra.Command, cmd.Flags) cmd.Flags
 	Common() *CommonOptions
 	GetClusterName() string
 	GetKubeContext() string
@@ -39,6 +40,7 @@ type Action string
 
 const Create Action = "create"
 const Delete Action = "delete"
+const Get Action = "get"
 
 func (o *CommonOptions) AddCreateFlags(cobraCmd *cobra.Command, flags cmd.Flags) cmd.Flags {
 	flags = append(flags, o.NewDryRunFlag())
@@ -67,6 +69,20 @@ func (o *CommonOptions) AddDeleteFlags(cobraCmd *cobra.Command, _ cmd.Flags) cmd
 
 	if o.NamespaceFlag {
 		flags = append(flags, o.NewNamespaceFlag(Delete))
+	}
+
+	for _, f := range flags {
+		f.AddFlagToCommand(cobraCmd)
+	}
+
+	return flags
+}
+
+func (o *CommonOptions) AddGetFlags(cobraCmd *cobra.Command, _ cmd.Flags) cmd.Flags {
+	flags := cmd.Flags{}
+
+	if !o.DisableClusterFlag {
+		flags = append(flags, o.NewClusterFlag(Get))
 	}
 
 	for _, f := range flags {

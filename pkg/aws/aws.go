@@ -7,6 +7,8 @@ import (
 	"github.com/aws/aws-sdk-go/service/eks"
 )
 
+const maxPages = 3
+
 func FormatError(err error) error {
 	if err != nil {
 		if awsErr, ok := err.(awserr.Error); ok {

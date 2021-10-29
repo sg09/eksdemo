@@ -2,23 +2,29 @@ package irsa
 
 import (
 	"eksdemo/pkg/aws"
+	"eksdemo/pkg/printer"
+	"eksdemo/pkg/resource"
 	"fmt"
 	"net/url"
+	"os"
 	"strings"
 
-	"github.com/aws/aws-sdk-go/service/eks"
 	"github.com/aws/aws-sdk-go/service/iam"
 )
 
-func Get(cluster *eks.Cluster) ([]*iam.Role, error) {
+type Getter struct{}
+
+func (g *Getter) Get(name string, output printer.Output, options resource.Options) error {
+	cluster := options.Common().Cluster
+
 	allRoles, err := aws.IamListRoles()
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	oidcProviders, err := aws.IamListOpenIDConnectProviders()
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	providerARN := ""
@@ -26,7 +32,7 @@ func Get(cluster *eks.Cluster) ([]*iam.Role, error) {
 	for _, p := range oidcProviders {
 		provider, err := aws.IamGetOpenIDConnectProviders(aws.StringValue(p.Arn))
 		if err != nil {
-			return nil, err
+			return err
 		}
 
 		if strings.Contains(aws.StringValue(cluster.Identity.Oidc.Issuer), aws.StringValue(provider.Url)) {
@@ -35,7 +41,7 @@ func Get(cluster *eks.Cluster) ([]*iam.Role, error) {
 	}
 
 	if providerARN == "" {
-		return nil, fmt.Errorf("cluster %q has no IAM OIDC identity provider configured", aws.StringValue(cluster.Name))
+		return fmt.Errorf("cluster %q has no IAM OIDC identity provider configured", aws.StringValue(cluster.Name))
 	}
 
 	roles := make([]*iam.Role, 0, len(allRoles))
@@ -44,17 +50,20 @@ func Get(cluster *eks.Cluster) ([]*iam.Role, error) {
 
 		doc, err := url.QueryUnescape(*r.AssumeRolePolicyDocument)
 		if err != nil {
-			return nil, fmt.Errorf("cannot unescape role policy document: %s", err)
+			return fmt.Errorf("cannot unescape role policy document: %s", err)
 		}
 
 		if strings.Contains(doc, providerARN) {
 			role, err := aws.IamGetRole(*r.RoleName)
 			if err != nil {
-				return nil, err
+				return err
+			}
+			if name != "" && name != *r.RoleName {
+				continue
 			}
 			roles = append(roles, role)
 		}
 	}
 
-	return roles, nil
+	return output.Print(os.Stdout, NewPrinter(roles))
 }

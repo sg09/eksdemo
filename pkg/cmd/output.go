@@ -23,5 +23,5 @@ func (o *OutputFlag) Set(outputType string) error {
 }
 
 func (o *OutputFlag) Type() string {
-	return "output"
+	return "string"
 }

@@ -2,9 +2,7 @@ package cmd
 
 import (
 	"eksdemo/pkg/eksctl"
-	"eksdemo/pkg/resource/cluster"
 	"fmt"
-	"log"
 
 	"github.com/spf13/cobra"
 	"k8s.io/client-go/tools/clientcmd"
@@ -32,8 +30,8 @@ var useContextCmd = &cobra.Command{
 				raw.CurrentContext = name
 				// TODO: check error
 				clientcmd.ModifyConfig(config.ConfigAccess(), raw, false)
-				log.Printf("Context switched to: %s", name)
-				cluster.Get()
+				fmt.Printf("Context switched to: %s\n", name)
+				// cluster.Get()
 				return nil
 			}
 		}

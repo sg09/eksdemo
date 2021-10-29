@@ -15,6 +15,8 @@ func NewResource() *resource.Resource {
 			Description: "EKS Cluster",
 		},
 
+		Getter: &Getter{},
+
 		Manager: &eksctl.ResourceManager{
 			Resource: "cluster",
 			Template: &template.TextTemplate{
