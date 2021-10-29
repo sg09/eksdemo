@@ -1,6 +1,7 @@
 package printer
 
 import (
+	"fmt"
 	"io"
 
 	"github.com/olekukonko/tablewriter"
@@ -25,6 +26,10 @@ func (p *TablePrinter) SetHeader(header []string) {
 }
 
 func (p *TablePrinter) Print(writer io.Writer) {
+	if len(p.data) == 0 {
+		fmt.Println("No resources found.")
+		return
+	}
 	table := tablewriter.NewWriter(writer)
 	table.SetAutoFormatHeaders(false)
 
