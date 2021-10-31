@@ -13,6 +13,7 @@ import (
 	"eksdemo/pkg/application/karpenter"
 	"eksdemo/pkg/application/kube_prometheus"
 	"eksdemo/pkg/application/metrics_server"
+	"eksdemo/pkg/application/prometheus_amp"
 
 	"github.com/spf13/cobra"
 )
@@ -39,6 +40,7 @@ func newCmdUninstall() *cobra.Command {
 	cmd.AddCommand(karpenter.NewApp().NewUninstallCmd())
 	cmd.AddCommand(kube_prometheus.NewApp().NewUninstallCmd())
 	cmd.AddCommand(metrics_server.NewApp().NewUninstallCmd())
+	cmd.AddCommand(prometheus_amp.NewApp().NewUninstallCmd())
 
 	return cmd
 }

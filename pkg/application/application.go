@@ -32,11 +32,15 @@ func (a *Application) NewInstallCmd() *cobra.Command {
 				a.SetDryRun()
 			}
 
-			if err := a.PreInstall(); err != nil {
+			if err := a.PreDependencies(); err != nil {
 				return err
 			}
 
 			if err := a.CreateDependencies(); err != nil {
+				return err
+			}
+
+			if err := a.PreInstall(); err != nil {
 				return err
 			}
 

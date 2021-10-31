@@ -38,7 +38,7 @@ func NewOptions() (options *KarpenterOptions, flags cmd.Flags) {
 	return
 }
 
-func (o *KarpenterOptions) PreInstall() error {
+func (o *KarpenterOptions) PreDependencies() error {
 	if o.skipSubnetCheck {
 		return nil
 	}

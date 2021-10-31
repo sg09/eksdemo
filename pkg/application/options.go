@@ -16,6 +16,7 @@ type Options interface {
 	AssignCommonResourceOptions(*resource.Resource)
 	Common() *ApplicationOptions
 	KubeContext() string
+	PreDependencies() error
 	PreInstall() error
 	PostInstall() error
 }
@@ -109,6 +110,10 @@ func (o *ApplicationOptions) IrsaAnnotation() string {
 
 func (o *ApplicationOptions) KubeContext() string {
 	return o.kubeContext
+}
+
+func (o *ApplicationOptions) PreDependencies() error {
+	return nil
 }
 
 func (o *ApplicationOptions) PreInstall() error {
