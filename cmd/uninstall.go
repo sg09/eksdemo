@@ -10,6 +10,7 @@ import (
 	"eksdemo/pkg/application/external_dns"
 	"eksdemo/pkg/application/fluentbit"
 	"eksdemo/pkg/application/fsx_lustre_csi"
+	"eksdemo/pkg/application/grafana_amp"
 	"eksdemo/pkg/application/karpenter"
 	"eksdemo/pkg/application/kube_prometheus"
 	"eksdemo/pkg/application/metrics_server"
@@ -36,6 +37,7 @@ func newCmdUninstall() *cobra.Command {
 	cmd.AddCommand(efs_csi.NewApp().NewUninstallCmd())
 	cmd.AddCommand(external_dns.NewApp().NewUninstallCmd())
 	cmd.AddCommand(fluentbit.NewApp().NewUninstallCmd())
+	cmd.AddCommand(grafana_amp.NewApp().NewUninstallCmd())
 	cmd.AddCommand(fsx_lustre_csi.NewApp().NewUninstallCmd())
 	cmd.AddCommand(karpenter.NewApp().NewUninstallCmd())
 	cmd.AddCommand(kube_prometheus.NewApp().NewUninstallCmd())

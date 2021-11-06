@@ -45,7 +45,7 @@ func (o *PrometheusAmpOptions) PreInstall() error {
 	}
 	ampGetter := amp.Getter{}
 
-	workspace, err := ampGetter.GetAmpByAlias(fmt.Sprintf("%s-%s", o.ClusterName, ampName))
+	workspace, err := ampGetter.GetAmpByAlias(fmt.Sprintf("%s-%s", o.ClusterName, AmpName))
 	if err != nil {
 		return fmt.Errorf("failed to lookup AMP endpoint to use in Helm chart for remoteWrite url: %w", err)
 	}

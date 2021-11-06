@@ -16,7 +16,7 @@ import (
 // Repo:    quay.io/prometheus/prometheus
 // Version: Latest is v2.30.3 (as of 10/28/21)
 
-const ampName = "amp"
+const AmpName = "amp"
 
 func NewApp() *application.Application {
 	app := &application.Application{
@@ -37,7 +37,7 @@ func NewApp() *application.Application {
 				CommonOptions: resource.CommonOptions{
 					Name: "amazon-managed-prometheus",
 				},
-				AmpName: ampName,
+				AmpName: AmpName,
 			}),
 		},
 
@@ -86,4 +86,10 @@ server:
       capacity: 2500
 pushgateway:
   enabled: {{ .PushGateway }}
+alertmanager:
+  fullnameOverride: alertmanager
+kube-state-metrics:
+  fullnameOverride: kube-state-metrics
+nodeExporter:
+  fullnameOverride: node-exporter
 `

@@ -40,7 +40,7 @@ global:
     pspEnabled: false
 grafana:
   adminPassword: {{ .GrafanaAdminPassword }}
-  fullnameOverride: grafana
+  fullnameOverride: kprom-grafana
   ingress:
     enabled: {{ not .DisableIngress }}
     annotations:
@@ -56,7 +56,7 @@ grafana:
   rbac:
     pspEnabled: false
 kube-state-metrics:
-  fullnameOverride: kube-state-metrics
+  fullnameOverride: kprom-kube-state-metrics
   podSecurityPolicy:
     enabled: false
 prometheus-node-exporter:
