@@ -1,19 +1,23 @@
 package helm
 
 import (
+	"bytes"
 	"eksdemo/pkg/application"
+	"eksdemo/pkg/kustomize"
 	"eksdemo/pkg/template"
 	"fmt"
 )
 
 type HelmInstaller struct {
-	ChartName      string
-	DryRun         bool
-	ReleaseName    string
-	RepositoryURL  string
-	ValuesTemplate template.Template
-	VersionField   string
-	Wait           bool
+	ChartName           string
+	DryRun              bool
+	PostRenderKustomize template.Template
+	ReleaseName         string
+	RepositoryURL       string
+	ValuesTemplate      template.Template
+	VersionField        string
+	Wait                bool
+	application.Options
 }
 
 func (h *HelmInstaller) Install(options application.Options) error {
@@ -39,6 +43,11 @@ func (h *HelmInstaller) Install(options application.Options) error {
 		return nil
 	}
 
+	if h.PostRenderKustomize != nil {
+		h.Options = options
+		ic.PostRenderer = h
+	}
+
 	return Install(ic, options.KubeContext())
 }
 
@@ -56,4 +65,19 @@ func (h *HelmInstaller) Uninstall(options application.Options) error {
 
 	fmt.Println("Status validated. Uninstalling...")
 	return Uninstall(o.KubeContext(), h.ReleaseName, o.Namespace)
+}
+
+// PostRender
+func (h *HelmInstaller) Run(renderedManifests *bytes.Buffer) (modifiedManifests *bytes.Buffer, err error) {
+	kustomization, err := h.PostRenderKustomize.Render(h.Options)
+	if err != nil {
+		return nil, err
+	}
+
+	yaml, err := kustomize.Kustomize(renderedManifests.String(), kustomization)
+	if err != nil {
+		return nil, err
+	}
+
+	return bytes.NewBufferString(yaml), nil
 }

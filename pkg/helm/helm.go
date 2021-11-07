@@ -13,6 +13,7 @@ import (
 	"helm.sh/helm/v3/pkg/cli"
 	"helm.sh/helm/v3/pkg/downloader"
 	"helm.sh/helm/v3/pkg/getter"
+	"helm.sh/helm/v3/pkg/postrender"
 	"helm.sh/helm/v3/pkg/release"
 	"helm.sh/helm/v3/pkg/repo"
 	"sigs.k8s.io/yaml"
@@ -22,6 +23,7 @@ type InstallConfiguration struct {
 	AppVersion    string
 	ChartName     string
 	Namespace     string
+	PostRenderer  postrender.PostRenderer
 	ReleaseName   string
 	RepositoryURL string
 	ValuesFile    string
@@ -114,6 +116,7 @@ func Install(ic *InstallConfiguration, kubeContext string) error {
 	instAction.ReleaseName = ic.ReleaseName
 	instAction.CreateNamespace = true
 	instAction.IsUpgrade = true
+	instAction.PostRenderer = ic.PostRenderer
 	instAction.Wait = ic.Wait
 	instAction.Timeout = 60 * time.Second
 	chart.Metadata.AppVersion = ic.AppVersion
