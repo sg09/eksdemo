@@ -41,7 +41,7 @@ func CloudFormationDeleteStack(stackName string) error {
 	sess := GetSession()
 	svc := cloudformation.New(sess)
 
-	_, err := CloudFormationDescribeStack(stackName)
+	_, err := CloudFormationDescribeStacks(stackName)
 	if err != nil {
 		return err
 	}
@@ -56,19 +56,22 @@ func CloudFormationDeleteStack(stackName string) error {
 	return nil
 }
 
-func CloudFormationDescribeStack(stackName string) (*cloudformation.Stack, error) {
+func CloudFormationDescribeStacks(stackName string) ([]*cloudformation.Stack, error) {
 	sess := GetSession()
 	svc := cloudformation.New(sess)
 
-	result, err := svc.DescribeStacks(&cloudformation.DescribeStacksInput{
-		StackName: aws.String(stackName),
-	})
-
-	if err != nil {
-		return nil, err
+	input := &cloudformation.DescribeStacksInput{}
+	if stackName != "" {
+		input.StackName = aws.String(stackName)
 	}
 
-	return result.Stacks[0], nil
+	result, err := svc.DescribeStacks(input)
+
+	if err != nil {
+		return nil, FormatError(err)
+	}
+
+	return result.Stacks, nil
 }
 
 func createCloudFormationParameters(tags map[string]string) (cfParams []*cloudformation.Parameter) {
