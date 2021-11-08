@@ -10,11 +10,11 @@ import (
 	"eksdemo/pkg/template"
 )
 
-// Docs:    https://prometheus.io/docs/introduction/overview/
-// GitHub:  https://github.com/prometheus/prometheus
-// Helm:    https://github.com/prometheus-community/helm-charts/tree/main/charts/prometheus
-// Repo:    quay.io/prometheus/prometheus
-// Version: Latest is v2.30.3 (as of 10/28/21)
+// Docs:    https://github.com/prometheus-operator/kube-prometheus/tree/main/docs
+// GitHub:  https://github.com/prometheus-operator/kube-prometheus
+// Helm:    https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
+// Repo:    https://quay.io/prometheus-operator/prometheus-operator
+// Version: Latest is v0.52.0 (as of 11/7/21)
 
 const AmpName = "amp"
 
@@ -42,8 +42,8 @@ func NewApp() *application.Application {
 		},
 
 		Installer: &helm.HelmInstaller{
-			ChartName:     "prometheus",
-			ReleaseName:   "prometheus",
+			ChartName:     "kube-prometheus-stack",
+			ReleaseName:   "prometheus-amp",
 			RepositoryURL: "https://prometheus-community.github.io/helm-charts",
 			ValuesTemplate: &template.TextTemplate{
 				Template: valuesTemplate,
@@ -68,28 +68,52 @@ Statement:
 `
 
 const valuesTemplate = `
-serviceAccounts:
-  server:
+fullnameOverride: prometheus
+defaultRules:
+  rules:
+    alertmanager: false
+global:
+  rbac:
+    pspEnabled: false
+alertmanager:
+  enabled: false
+grafana:
+  enabled: false
+kubeControllerManager:
+  enabled: false
+kubeEtcd:
+  enabled: false
+kubeScheduler:
+  enabled: false
+kube-state-metrics:
+  fullnameOverride: kube-state-metrics-amp
+  podSecurityPolicy:
+    enabled: false
+  prometheusScrape: false
+prometheus-node-exporter:
+  fullnameOverride: node-exporter
+  rbac:
+    pspEnabled: false
+  service:
+    annotations:
+      # Remove with null when https://github.com/helm/helm/issues/9136 is fixed
+      prometheus.io/scrape: "false"
+prometheusOperator:
+  image:
+    tag: {{ .Version }}
+prometheus:
+  serviceAccount:
     name: {{ .ServiceAccount }}
     annotations:
       {{ .IrsaAnnotation }}
-server:
-  image:
-    tag: {{ .Version }}
-  remoteWrite:
-  - url: {{ .AmpEndpoint }}api/v1/remote_write
-    sigv4:
-      region: {{ .Region }}
-    queue_config:
-      max_samples_per_send: 1000
-      max_shards: 200
-      capacity: 2500
-pushgateway:
-  enabled: {{ .PushGateway }}
-alertmanager:
-  fullnameOverride: alertmanager
-kube-state-metrics:
-  fullnameOverride: kube-state-metrics
-nodeExporter:
-  fullnameOverride: node-exporter
+  prometheusSpec:
+    remoteWrite:
+    - url: {{ .AmpEndpoint }}api/v1/remote_write
+      sigv4:
+        region: {{ .Region }}
+      queueConfig:
+        maxSamplesPerSend: 1000
+        maxShards: 200
+        capacity: 2500
+    scrapeInterval: 30s
 `
