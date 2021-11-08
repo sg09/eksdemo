@@ -48,6 +48,9 @@ func NewApp() *application.Application {
 			ValuesTemplate: &template.TextTemplate{
 				Template: valuesTemplate,
 			},
+			PostRenderKustomize: &template.TextTemplate{
+				Template: postRenderKustomize,
+			},
 		},
 	}
 	app.Options, app.Flags = NewOptions()
@@ -119,4 +122,22 @@ prometheus:
         maxShards: 200
         capacity: 2500
     scrapeInterval: 30s
+`
+
+const postRenderKustomize = `
+resources:
+- manifest.yaml
+patches:
+# Create a kubelet service that all prometheus installs use, to prevent duplicate 
+# kubelet services that cause issues with the prometheus recording rules
+- patch: |-
+    - op: replace
+      path: /spec/template/spec/containers/0/args/0
+      value: "--kubelet-service=kube-system/prometheus-kubelet"
+  target:
+    group: apps
+    version: v1
+    kind: Deployment
+    namespace: {{ .Namespace }}
+    name: prometheus-amp-operator
 `
