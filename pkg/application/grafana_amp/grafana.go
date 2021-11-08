@@ -109,7 +109,7 @@ grafana:
     annotations:
       {{ .IrsaAnnotation }}
 kubeApiServer:
-  # Enable to create the Kubelet dashboard, ServiceMonitor deleted in Post Render
+  # Enable to create the API Server dashboard, ServiceMonitor deleted in Post Render
   enabled: true
 kubelet:
   # Enable to create the Kubelet dashboard, ServiceMonitor deleted in Post Render
