@@ -11,7 +11,7 @@ import (
 // GitHub:  https://github.com/prometheus-operator/kube-prometheus
 // Helm:    https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
 // Repo:    https://quay.io/prometheus-operator/prometheus-operator
-// Version: Latest is v0.50.0 (as of 9/23/21)
+// Version: Latest is v0.52.0 (as of 11/7/21)
 
 func NewApp() *application.Application {
 	app := &application.Application{
@@ -40,7 +40,7 @@ global:
     pspEnabled: false
 grafana:
   adminPassword: {{ .GrafanaAdminPassword }}
-  fullnameOverride: kprom-grafana
+  fullnameOverride: grafana
   ingress:
     enabled: {{ not .DisableIngress }}
     annotations:
@@ -55,14 +55,25 @@ grafana:
     {{- end }}
   rbac:
     pspEnabled: false
+kubeControllerManager:
+  enabled: false
+kubeEtcd:
+  enabled: false
+kubeScheduler:
+  enabled: false
 kube-state-metrics:
-  fullnameOverride: kprom-kube-state-metrics
+  fullnameOverride: kube-state-metrics
   podSecurityPolicy:
     enabled: false
+    prometheusScrape: false
 prometheus-node-exporter:
   fullnameOverride: node-exporter
   rbac:
     pspEnabled: false
+  service:
+    annotations:
+      # Remove with null when https://github.com/helm/helm/issues/9136 is fixed
+      prometheus.io/scrape: "false"
 prometheusOperator:
   image:
     tag: {{ .Version }}
