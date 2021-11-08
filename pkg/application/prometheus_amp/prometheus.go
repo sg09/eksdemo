@@ -68,7 +68,7 @@ Statement:
 `
 
 const valuesTemplate = `
-fullnameOverride: prometheus
+fullnameOverride: prometheus-amp
 defaultRules:
   rules:
     alertmanager: false
@@ -98,6 +98,9 @@ prometheus-node-exporter:
     annotations:
       # Remove with null when https://github.com/helm/helm/issues/9136 is fixed
       prometheus.io/scrape: "false"
+    # Don't conflict with kube-prometheus install
+    port: 9101
+    targetPort: 9101
 prometheusOperator:
   image:
     tag: {{ .Version }}
