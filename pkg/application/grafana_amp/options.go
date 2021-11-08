@@ -8,21 +8,22 @@ import (
 	"fmt"
 )
 
-type PrometheusAmpOptions struct {
+type GrafanaAmpOptions struct {
 	application.ApplicationOptions
 
 	AmpEndpoint          string
 	DisableIngress       bool
 	GrafanaAdminPassword string
+	TLSHost              string
 }
 
-func NewOptions() (options *PrometheusAmpOptions, flags cmd.Flags) {
-	options = &PrometheusAmpOptions{
+func NewOptions() (options *GrafanaAmpOptions, flags cmd.Flags) {
+	options = &GrafanaAmpOptions{
 		ApplicationOptions: application.ApplicationOptions{
 			Namespace:      "grafana",
 			ServiceAccount: "grafana",
 			DefaultVersion: &application.LatestPrevious{
-				Latest:   "8.2.2",
+				Latest:   "8.2.3",
 				Previous: "8.1.7",
 			},
 		},
@@ -44,18 +45,18 @@ func NewOptions() (options *PrometheusAmpOptions, flags cmd.Flags) {
 			},
 			Option: &options.DisableIngress,
 		},
-		// &cmd.StringFlag{
-		// 	CommandFlag: cmd.CommandFlag{
-		// 		Name:        "tls-host",
-		// 		Description: "FQDN of host to secure with TLS (requires ExternalDNS for cert discovery) ",
-		// 	},
-		// 	Option: &options.TLSHost,
-		// },
+		&cmd.StringFlag{
+			CommandFlag: cmd.CommandFlag{
+				Name:        "tls-host",
+				Description: "FQDN of host to secure with TLS (requires ExternalDNS for cert discovery) ",
+			},
+			Option: &options.TLSHost,
+		},
 	}
 	return
 }
 
-func (o *PrometheusAmpOptions) PreDependencies() error {
+func (o *GrafanaAmpOptions) PreDependencies() error {
 	ampGetter := amp.Getter{}
 
 	workspace, err := ampGetter.GetAmpByAlias(fmt.Sprintf("%s-%s", o.ClusterName, prometheus_amp.AmpName))
