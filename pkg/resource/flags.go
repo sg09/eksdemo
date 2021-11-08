@@ -6,14 +6,23 @@ import (
 	"fmt"
 )
 
-func (o *CommonOptions) NewClusterFlag(action Action) *cmd.StringFlag {
+func (o *CommonOptions) NewClusterFlag(action Action, required bool) *cmd.StringFlag {
+	desc := fmt.Sprintf("cluster to %s resource", action)
+	if required {
+		desc += " (required)"
+	}
+
 	flag := &cmd.StringFlag{
 		CommandFlag: cmd.CommandFlag{
 			Name:        "cluster",
-			Description: fmt.Sprintf("cluster to %s resource (required)", action),
+			Description: desc,
 			Shorthand:   "c",
-			Required:    true,
+			Required:    required,
 			Validate: func() error {
+				if !required && o.ClusterName == "" {
+					return nil
+				}
+
 				cluster, err := aws.EksDescribeCluster(o.ClusterName)
 				if err != nil {
 					return err

@@ -21,10 +21,11 @@ type Options interface {
 }
 
 type CommonOptions struct {
-	Name               string
-	DisableClusterFlag bool
-	KubeContext        string
-	NamespaceFlag      bool
+	Name                string
+	ClusterFlagDisabled bool
+	ClusterFlagOptional bool
+	KubeContext         string
+	NamespaceFlag       bool
 
 	Account           string
 	Cluster           *eks.Cluster
@@ -45,8 +46,8 @@ const Get Action = "get"
 func (o *CommonOptions) AddCreateFlags(cobraCmd *cobra.Command, flags cmd.Flags) cmd.Flags {
 	flags = append(flags, o.NewDryRunFlag())
 
-	if !o.DisableClusterFlag {
-		flags = append(flags, o.NewClusterFlag(Create))
+	if !o.ClusterFlagDisabled {
+		flags = append(flags, o.NewClusterFlag(Create, true))
 	}
 
 	if o.NamespaceFlag {
@@ -63,8 +64,8 @@ func (o *CommonOptions) AddCreateFlags(cobraCmd *cobra.Command, flags cmd.Flags)
 func (o *CommonOptions) AddDeleteFlags(cobraCmd *cobra.Command, _ cmd.Flags) cmd.Flags {
 	flags := cmd.Flags{}
 
-	if !o.DisableClusterFlag {
-		flags = append(flags, o.NewClusterFlag(Delete))
+	if !o.ClusterFlagDisabled {
+		flags = append(flags, o.NewClusterFlag(Delete, true))
 	}
 
 	if o.NamespaceFlag {
@@ -81,8 +82,10 @@ func (o *CommonOptions) AddDeleteFlags(cobraCmd *cobra.Command, _ cmd.Flags) cmd
 func (o *CommonOptions) AddGetFlags(cobraCmd *cobra.Command, _ cmd.Flags) cmd.Flags {
 	flags := cmd.Flags{}
 
-	if !o.DisableClusterFlag {
-		flags = append(flags, o.NewClusterFlag(Get))
+	if o.ClusterFlagOptional {
+		flags = append(flags, o.NewClusterFlag(Get, false))
+	} else if !o.ClusterFlagDisabled {
+		flags = append(flags, o.NewClusterFlag(Get, true))
 	}
 
 	for _, f := range flags {
