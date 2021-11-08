@@ -40,6 +40,15 @@ func (h *HelmInstaller) Install(options application.Options) error {
 	if h.DryRun {
 		fmt.Println("\nHelm Installer Dry Run:")
 		fmt.Printf("%+v\n", ic)
+
+		if h.PostRenderKustomize != nil {
+			kustomization, err := h.PostRenderKustomize.Render(options)
+			if err != nil {
+				return err
+			}
+			fmt.Println("\nHelm Installer Post Render Kustomize Dry Run:")
+			fmt.Printf("%s\n", kustomization)
+		}
 		return nil
 	}
 
