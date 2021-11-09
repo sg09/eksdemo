@@ -7,6 +7,7 @@ import (
 	"eksdemo/pkg/kubernetes"
 	"eksdemo/pkg/printer"
 	"eksdemo/pkg/resource/amp"
+	"eksdemo/pkg/resource/cloudformation"
 	"eksdemo/pkg/resource/cluster"
 	"eksdemo/pkg/resource/irsa"
 	"eksdemo/pkg/resource/nodegroup"
@@ -54,6 +55,7 @@ func init() {
 	rootCmd.AddCommand(getCmd)
 
 	getCmd.AddCommand(amp.NewResource().NewGetCmd())
+	getCmd.AddCommand(cloudformation.NewResource().NewGetCmd())
 	getCmd.AddCommand(cluster.NewResource().NewGetCmd())
 	getCmd.AddCommand(irsa.NewResource().NewGetCmd())
 	getCmd.AddCommand(nodegroup.NewResource().NewGetCmd())
