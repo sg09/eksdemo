@@ -58,8 +58,6 @@ func (m *ResourceManager) Create(options resource.Options) error {
 }
 
 func (m *ResourceManager) Delete(options resource.Options) error {
-	options.PrepForDelete()
-
 	stackName := fmt.Sprintf(stackNameTemplate, options.Common().ClusterName, options.Common().Name)
 
 	fmt.Printf("Deleting Cloudformation stack %q\n", stackName)

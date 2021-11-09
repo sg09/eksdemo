@@ -15,7 +15,7 @@ type Options interface {
 	GetClusterName() string
 	GetKubeContext() string
 	PreCreate() error
-	PrepForDelete()
+	PreDelete() error
 	SetName(string)
 	Validate() error
 }
@@ -111,7 +111,9 @@ func (o *CommonOptions) PreCreate() error {
 	return nil
 }
 
-func (o *CommonOptions) PrepForDelete() {}
+func (o *CommonOptions) PreDelete() error {
+	return nil
+}
 
 func (o *CommonOptions) SetName(name string) {
 	o.Name = name

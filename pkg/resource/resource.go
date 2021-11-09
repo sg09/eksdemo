@@ -79,6 +79,10 @@ func (r *Resource) NewDeleteCmd() *cobra.Command {
 
 			r.SetName(args[0])
 
+			if err := r.PreDelete(); err != nil {
+				return err
+			}
+
 			if r.Manager == nil {
 				return fmt.Errorf("feature not yet implemented")
 			}

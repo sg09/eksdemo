@@ -96,9 +96,10 @@ func (o *IrsaOptions) IsWellKnownPolicy(t PolicyType) bool {
 	return t == WellKnown
 }
 
-func (o *IrsaOptions) PrepForDelete() {
+func (o *IrsaOptions) PreDelete() error {
 	o.PolicyType = WellKnown
 	o.Policy = []string{"autoScaler"}
+	return nil
 }
 
 func (o *IrsaOptions) SetName(name string) {

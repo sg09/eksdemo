@@ -141,7 +141,6 @@ func (e *ResourceManager) DeleteIamAuth(options resource.Options) error {
 }
 
 func (e *ResourceManager) DeleteWithConfigFile(options resource.Options) error {
-	options.PrepForDelete()
 	eksctlConfig, err := e.Template.Render(options)
 
 	if err != nil {
