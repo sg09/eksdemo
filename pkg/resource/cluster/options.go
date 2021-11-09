@@ -8,9 +8,12 @@ import (
 	"eksdemo/pkg/aws"
 	"eksdemo/pkg/cmd"
 	"eksdemo/pkg/resource"
+	"eksdemo/pkg/resource/cloudformation"
 	"eksdemo/pkg/resource/irsa"
 	"eksdemo/pkg/resource/nodegroup"
 	"eksdemo/pkg/template"
+	"fmt"
+	"strings"
 )
 
 type ClusterOptions struct {
@@ -96,6 +99,27 @@ func (o *ClusterOptions) PreCreate() error {
 	}
 
 	return o.NodegroupOptions.PreCreate()
+}
+
+func (o *ClusterOptions) PreDelete() error {
+	getter := cloudformation.Getter{}
+	stacks, err := getter.GetStacksByCluster(o.ClusterName, "")
+	if err != nil {
+		return err
+	}
+
+	for _, stack := range stacks {
+		stackName := aws.StringValue(stack.StackName)
+		if strings.HasPrefix(stackName, "eksdemo-") {
+			fmt.Printf("Deleting Cloudformation stack %q\n", stackName)
+			err := aws.CloudFormationDeleteStack(stackName)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
 }
 
 func (o *ClusterOptions) SetName(name string) {
