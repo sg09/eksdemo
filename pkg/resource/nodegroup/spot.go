@@ -13,6 +13,7 @@ func NewSpotResource() *resource.Resource {
 			Name:        "nodegroup-spot",
 			Description: "Managed Nodegroup with Spot Instances",
 			Aliases:     []string{"spot", "ngspot", "ng-spot"},
+			Args:        []string{"NAME"},
 		},
 
 		Manager: &eksctl.ResourceManager{

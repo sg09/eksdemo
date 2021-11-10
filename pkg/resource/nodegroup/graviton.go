@@ -11,6 +11,7 @@ func NewGravitonResource() *resource.Resource {
 			Name:        "nodegroup-graviton",
 			Description: "Managed Nodegroup with Graviton Instances",
 			Aliases:     []string{"graviton", "ng-graviton"},
+			Args:        []string{"NAME"},
 		},
 	}
 

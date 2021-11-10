@@ -20,6 +20,7 @@ func NewResourceWithOptions(options *AmpOptions) *resource.Resource {
 		Command: cmd.Command{
 			Name:        "amp",
 			Description: "Amazon Managed Prometheus",
+			Args:        []string{"NAME"},
 		},
 
 		Getter: &Getter{},

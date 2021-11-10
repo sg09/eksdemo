@@ -4,6 +4,7 @@ import (
 	"eksdemo/pkg/cmd"
 	"eksdemo/pkg/printer"
 	"fmt"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -26,12 +27,17 @@ func (r *Resource) Delete() error {
 }
 
 func (r *Resource) NewCreateCmd() *cobra.Command {
+	use := r.Command.Name
+	if len(r.Args) > 0 {
+		use += " " + strings.Join(r.Args, " ")
+	}
+
 	cmd := &cobra.Command{
-		Use:     r.Command.Name + " NAME",
+		Use:     use,
 		Short:   r.Description,
 		Long:    "Create " + r.Description,
 		Aliases: r.Aliases,
-		Args:    cobra.MinimumNArgs(1),
+		Args:    cobra.ExactArgs(len(r.Args)),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if err := r.Flags.ValidateFlags(); err != nil {
 				return err
@@ -42,7 +48,9 @@ func (r *Resource) NewCreateCmd() *cobra.Command {
 			}
 
 			cmd.SilenceUsage = true
-			r.SetName(args[0])
+			if len(r.Args) > 0 {
+				r.SetName(args[0])
+			}
 
 			if r.Common().DryRun {
 				r.SetDryRun()
@@ -65,19 +73,26 @@ func (r *Resource) NewCreateCmd() *cobra.Command {
 }
 
 func (r *Resource) NewDeleteCmd() *cobra.Command {
+	use := r.Command.Name
+	if len(r.Args) > 0 {
+		use += " " + strings.Join(r.Args, " ")
+	}
+
 	cmd := &cobra.Command{
-		Use:     r.Command.Name + " NAME",
+		Use:     use,
 		Short:   r.Description,
 		Long:    "Delete " + r.Description,
 		Aliases: r.Aliases,
-		Args:    cobra.MinimumNArgs(1),
+		Args:    cobra.ExactArgs(len(r.Args)),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if err := r.Flags.ValidateFlags(); err != nil {
 				return err
 			}
-			cmd.SilenceUsage = true
 
-			r.SetName(args[0])
+			cmd.SilenceUsage = true
+			if len(r.Args) > 0 {
+				r.SetName(args[0])
+			}
 
 			if err := r.PreDelete(); err != nil {
 				return err
@@ -99,7 +114,7 @@ func (r *Resource) NewGetCmd() *cobra.Command {
 	var output printer.Output
 
 	cobraCmd := &cobra.Command{
-		Use:     r.Command.Name + " NAME",
+		Use:     r.Command.Name + " " + strings.Join(r.Args, " "),
 		Short:   r.Description,
 		Long:    "Get " + r.Description,
 		Aliases: r.Aliases,

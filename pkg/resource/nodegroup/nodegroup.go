@@ -13,6 +13,7 @@ func NewResource() *resource.Resource {
 			Name:        "nodegroup",
 			Description: "Managed Nodegroup",
 			Aliases:     []string{"ng", "mng"},
+			Args:        []string{"NAME"},
 		},
 
 		Getter: &Getter{},

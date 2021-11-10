@@ -12,6 +12,7 @@ func NewResource() *resource.Resource {
 		Command: cmd.Command{
 			Name:        "irsa",
 			Description: "IAM Role for a Service Account",
+			Args:        []string{"SERVICEACCOUNT"},
 		},
 
 		Getter: &Getter{},

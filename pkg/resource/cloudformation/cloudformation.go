@@ -19,6 +19,7 @@ func NewResourceWithOptions(options *CloudFormationOptions) *resource.Resource {
 			Name:        "cloudformation",
 			Description: "CloudFormation Stacks",
 			Aliases:     []string{"cf"},
+			Args:        []string{"NAME"},
 		},
 
 		Getter: &Getter{},

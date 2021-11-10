@@ -13,6 +13,7 @@ func NewResource() *resource.Resource {
 			Name:        "servicelb",
 			Description: "Kubernetes Service of type LoadBalancer",
 			Aliases:     []string{"ng", "mng"},
+			Args:        []string{"NAME"},
 		},
 
 		Manager: &kubernetes.ResourceManager{
