@@ -11,6 +11,7 @@ import (
 	"eksdemo/pkg/resource/cluster"
 	"eksdemo/pkg/resource/irsa"
 	"eksdemo/pkg/resource/nodegroup"
+	"eksdemo/pkg/resource/organization"
 	"fmt"
 	"os"
 
@@ -59,6 +60,7 @@ func init() {
 	getCmd.AddCommand(cluster.NewResource().NewGetCmd())
 	getCmd.AddCommand(irsa.NewResource().NewGetCmd())
 	getCmd.AddCommand(nodegroup.NewResource().NewGetCmd())
+	getCmd.AddCommand(organization.NewResource().NewGetCmd())
 
 	getHelmCmd.Flags().StringVarP(&clusterName, "cluster", "c", "", "cluster (required)")
 	getHelmCmd.MarkFlagRequired("cluster")
