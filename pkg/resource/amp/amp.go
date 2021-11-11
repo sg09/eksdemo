@@ -1,10 +1,8 @@
 package amp
 
 import (
-	"eksdemo/pkg/cloudformation"
 	"eksdemo/pkg/cmd"
 	"eksdemo/pkg/resource"
-	"eksdemo/pkg/template"
 )
 
 func NewResource() *resource.Resource {
@@ -25,23 +23,10 @@ func NewResourceWithOptions(options *AmpOptions) *resource.Resource {
 
 		Getter: &Getter{},
 
-		Manager: &cloudformation.ResourceManager{
-			Resource: "amp",
-			Template: &template.TextTemplate{
-				Template: cloudformationTemplate,
-			},
-		},
+		Manager: &Manager{},
 	}
 
 	res.Options = options
 
 	return res
 }
-
-const cloudformationTemplate = `
-Resources:
-  APSWorkspace:
-    Type: AWS::APS::Workspace
-    Properties:
-      Alias: {{ .Alias }}
-`

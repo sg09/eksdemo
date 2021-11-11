@@ -5,6 +5,39 @@ import (
 	"github.com/aws/aws-sdk-go/service/prometheusservice"
 )
 
+func AmpCreateWorkspace(alias string) (*prometheusservice.CreateWorkspaceOutput, error) {
+	sess := GetSession()
+	svc := prometheusservice.New(sess)
+
+	input := prometheusservice.CreateWorkspaceInput{}
+
+	if alias != "" {
+		input.Alias = aws.String(alias)
+	}
+
+	result, err := svc.CreateWorkspace(&input)
+	if err != nil {
+		return nil, err
+	}
+
+	err = svc.WaitUntilWorkspaceActive(&prometheusservice.DescribeWorkspaceInput{
+		WorkspaceId: result.WorkspaceId,
+	})
+
+	return result, err
+}
+
+func AmpDeleteWorkspace(id string) error {
+	sess := GetSession()
+	svc := prometheusservice.New(sess)
+
+	_, err := svc.DeleteWorkspace(&prometheusservice.DeleteWorkspaceInput{
+		WorkspaceId: aws.String(id),
+	})
+
+	return FormatError(err)
+}
+
 func AmpDescribeWorkspace(workspaceId string) (*prometheusservice.WorkspaceDescription, error) {
 	sess := GetSession()
 	svc := prometheusservice.New(sess)

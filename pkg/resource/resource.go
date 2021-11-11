@@ -74,7 +74,10 @@ func (r *Resource) NewCreateCmd() *cobra.Command {
 
 func (r *Resource) NewDeleteCmd() *cobra.Command {
 	use := r.Command.Name
-	if len(r.Args) > 0 {
+
+	if r.Options.Common().DeleteById {
+		use += " " + "ID"
+	} else if len(r.Args) > 0 {
 		use += " " + strings.Join(r.Args, " ")
 	}
 

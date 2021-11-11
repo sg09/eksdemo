@@ -24,6 +24,7 @@ type CommonOptions struct {
 	Name                string
 	ClusterFlagDisabled bool
 	ClusterFlagOptional bool
+	DeleteById          bool
 	KubeContext         string
 	NamespaceFlag       bool
 

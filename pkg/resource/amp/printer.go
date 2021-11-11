@@ -1,6 +1,7 @@
 package amp
 
 import (
+	"eksdemo/pkg/aws"
 	"eksdemo/pkg/printer"
 	"io"
 	"time"
@@ -28,7 +29,7 @@ func (p *AmpPrinter) PrintTable(writer io.Writer) error {
 		table.AppendRow([]string{
 			age.String(),
 			*w.Status.StatusCode,
-			*w.Alias,
+			aws.StringValue(w.Alias),
 			*w.WorkspaceId,
 		})
 	}
