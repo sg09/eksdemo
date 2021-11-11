@@ -16,9 +16,14 @@ import (
 // Repo:    https://quay.io/prometheus-operator/prometheus-operator
 // Version: Latest is v0.52.0 (as of 11/7/21)
 
-const AmpName = "amp"
-
 func NewApp() *application.Application {
+	options, flags := NewOptions()
+	options.AmpOptions = &amp.AmpOptions{
+		CommonOptions: resource.CommonOptions{
+			Name: "amazon-managed-prometheus",
+		},
+	}
+
 	app := &application.Application{
 		Command: cmd.Command{
 			Name:        "prometheus-amp",
@@ -33,12 +38,7 @@ func NewApp() *application.Application {
 				PolicyType: irsa.PolicyDocument,
 				Policy:     []string{irsaPolicyDocument},
 			}),
-			amp.NewResourceWithOptions(&amp.AmpOptions{
-				CommonOptions: resource.CommonOptions{
-					Name: "amazon-managed-prometheus",
-				},
-				AmpName: AmpName,
-			}),
+			amp.NewResourceWithOptions(options.AmpOptions),
 		},
 
 		Installer: &helm.HelmInstaller{
@@ -53,7 +53,9 @@ func NewApp() *application.Application {
 			},
 		},
 	}
-	app.Options, app.Flags = NewOptions()
+
+	app.Options = options
+	app.Flags = flags
 
 	return app
 }

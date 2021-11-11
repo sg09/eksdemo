@@ -20,7 +20,7 @@ func NewResourceWithOptions(options *AmpOptions) *resource.Resource {
 		Command: cmd.Command{
 			Name:        "amp",
 			Description: "Amazon Managed Prometheus",
-			Args:        []string{"NAME"},
+			Args:        []string{"ALIAS"},
 		},
 
 		Getter: &Getter{},
@@ -43,5 +43,5 @@ Resources:
   APSWorkspace:
     Type: AWS::APS::Workspace
     Properties:
-      Alias: {{ .ClusterName }}-{{ .AmpName }}
+      Alias: {{ .Alias }}
 `

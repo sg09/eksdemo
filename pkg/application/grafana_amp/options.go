@@ -59,7 +59,7 @@ func NewOptions() (options *GrafanaAmpOptions, flags cmd.Flags) {
 func (o *GrafanaAmpOptions) PreDependencies() error {
 	ampGetter := amp.Getter{}
 
-	workspace, err := ampGetter.GetAmpByAlias(fmt.Sprintf("%s-%s", o.ClusterName, prometheus_amp.AmpName))
+	workspace, err := ampGetter.GetAmpByAlias(fmt.Sprintf("%s-%s", o.ClusterName, prometheus_amp.AmpAliasSuffix))
 	if err != nil {
 		return fmt.Errorf("failed to lookup AMP endpoint, install prometheus-amp first: %w", err)
 	}

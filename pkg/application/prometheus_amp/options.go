@@ -7,11 +7,14 @@ import (
 	"fmt"
 )
 
+const AmpAliasSuffix = "prometheus-amp"
+
 type PrometheusAmpOptions struct {
 	application.ApplicationOptions
 
 	AmpEndpoint string
 	PushGateway bool
+	*amp.AmpOptions
 }
 
 func NewOptions() (options *PrometheusAmpOptions, flags cmd.Flags) {
@@ -38,6 +41,11 @@ func NewOptions() (options *PrometheusAmpOptions, flags cmd.Flags) {
 	return
 }
 
+func (o *PrometheusAmpOptions) PreDependencies() error {
+	o.AmpOptions.Alias = fmt.Sprintf("%s-%s", o.ClusterName, AmpAliasSuffix)
+	return nil
+}
+
 func (o *PrometheusAmpOptions) PreInstall() error {
 	if o.DryRun {
 		o.AmpEndpoint = "<amp-endpoint-goes-here>"
@@ -45,7 +53,7 @@ func (o *PrometheusAmpOptions) PreInstall() error {
 	}
 	ampGetter := amp.Getter{}
 
-	workspace, err := ampGetter.GetAmpByAlias(fmt.Sprintf("%s-%s", o.ClusterName, AmpName))
+	workspace, err := ampGetter.GetAmpByAlias(fmt.Sprintf("%s-%s", o.ClusterName, AmpAliasSuffix))
 	if err != nil {
 		return fmt.Errorf("failed to lookup AMP endpoint to use in Helm chart for remoteWrite url: %w", err)
 	}

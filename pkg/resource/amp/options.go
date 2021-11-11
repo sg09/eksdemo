@@ -8,7 +8,7 @@ import (
 type AmpOptions struct {
 	resource.CommonOptions
 
-	AmpName string
+	Alias string
 }
 
 func NewOptions() (options *AmpOptions, flags cmd.Flags) {
@@ -24,5 +24,5 @@ func NewOptions() (options *AmpOptions, flags cmd.Flags) {
 }
 
 func (o *AmpOptions) SetName(name string) {
-	o.AmpName = name
+	o.Alias = name
 }
