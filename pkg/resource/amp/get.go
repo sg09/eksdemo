@@ -32,16 +32,20 @@ func (g *Getter) Get(alias string, output printer.Output, options resource.Optio
 }
 
 func (g *Getter) GetAmpByAlias(alias string) (*prometheusservice.WorkspaceDescription, error) {
-	ampSummary, err := aws.AmpListWorkspaces(alias)
+	found, err := aws.AmpListWorkspaces(alias)
 	if err != nil {
 		return nil, err
 	}
 
-	if len(ampSummary) == 0 {
+	if len(found) == 0 {
 		return nil, fmt.Errorf("workspace alias %q not found", alias)
 	}
 
-	workspace, err := aws.AmpDescribeWorkspace(aws.StringValue(ampSummary[0].WorkspaceId))
+	if len(found) > 1 {
+		return nil, fmt.Errorf("multiple workspaces found with alias: %s", alias)
+	}
+
+	workspace, err := aws.AmpDescribeWorkspace(aws.StringValue(found[0].WorkspaceId))
 	if err != nil {
 		return nil, err
 	}

@@ -20,15 +20,7 @@ func NewOptions() (options *AmpOptions, flags cmd.Flags) {
 		},
 	}
 
-	flags = cmd.Flags{
-		&cmd.StringFlag{
-			CommandFlag: cmd.CommandFlag{
-				Name:        "alias",
-				Description: "workspace alias",
-			},
-			Option: &options.Alias,
-		},
-	}
+	flags = cmd.Flags{}
 
 	return
 }
