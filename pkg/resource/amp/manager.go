@@ -25,7 +25,7 @@ func (m *Manager) Create(options resource.Options) error {
 	}
 
 	if len(found) > 1 {
-		return fmt.Errorf("multiple workspaces exist with alias %q, please delete duplicates before installing", amp.Alias)
+		return fmt.Errorf("multiple workspaces found with alias: %s", amp.Alias)
 	}
 
 	fmt.Printf("Creating AMP with Alias: %s...", amp.Alias)

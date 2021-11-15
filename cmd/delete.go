@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"eksdemo/pkg/resource/amg"
 	"eksdemo/pkg/resource/amp"
 	"eksdemo/pkg/resource/cloudformation"
 	"eksdemo/pkg/resource/cluster"
@@ -20,6 +21,7 @@ func newCmdDelete() *cobra.Command {
 	// Don't show flag errors for delete without a subcommand
 	cmd.DisableFlagParsing = true
 
+	cmd.AddCommand(amg.NewResource().NewDeleteCmd())
 	cmd.AddCommand(amp.NewResource().NewDeleteCmd())
 	cmd.AddCommand(cloudformation.NewResource().NewDeleteCmd())
 	cmd.AddCommand(cluster.NewResource().NewDeleteCmd())

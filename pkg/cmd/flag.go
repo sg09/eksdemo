@@ -41,7 +41,8 @@ type StringFlag struct {
 
 type StringSliceFlag struct {
 	CommandFlag
-	Option *[]string
+	Choices []string
+	Option  *[]string
 }
 
 // Command flag methods
@@ -133,10 +134,28 @@ func (f *StringSliceFlag) AddFlagToCommand(cmd *cobra.Command) {
 }
 
 func (f *StringSliceFlag) ValidateFlag() error {
-	if f.Validate == nil {
-		return nil
+	if len(f.Choices) > 0 {
+
+		for _, flag := range *f.Option {
+			found := false
+
+			for _, choice := range f.Choices {
+				if strings.EqualFold(choice, flag) {
+					found = true
+				}
+			}
+
+			if !found {
+				return fmt.Errorf("--%s can only contain: %s", f.Name, strings.Join(f.Choices, ", "))
+			}
+		}
 	}
-	return f.Validate()
+
+	if f.Validate != nil {
+		return f.Validate()
+	}
+
+	return nil
 }
 
 // Flags (list of flags) methods

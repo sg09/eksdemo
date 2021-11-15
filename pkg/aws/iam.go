@@ -5,6 +5,37 @@ import (
 	"github.com/aws/aws-sdk-go/service/iam"
 )
 
+func IamCreateRole(assumeRolePolicy, name, path string) (*iam.Role, error) {
+	sess := GetSession()
+	svc := iam.New(sess)
+
+	if path == "" {
+		path = "/"
+	}
+
+	result, err := svc.CreateRole(&iam.CreateRoleInput{
+		AssumeRolePolicyDocument: aws.String(assumeRolePolicy),
+		RoleName:                 aws.String(name),
+		Path:                     aws.String(path),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return result.Role, nil
+}
+
+func IamDeleteRole(name string) error {
+	sess := GetSession()
+	svc := iam.New(sess)
+
+	_, err := svc.DeleteRole(&iam.DeleteRoleInput{
+		RoleName: aws.String(name),
+	})
+
+	return err
+}
+
 func IamGetOpenIDConnectProviders(arn string) (*iam.GetOpenIDConnectProviderOutput, error) {
 	sess := GetSession()
 	svc := iam.New(sess)

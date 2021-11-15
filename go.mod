@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/Masterminds/sprig v2.22.0+incompatible
-	github.com/aws/aws-sdk-go v1.40.41
+	github.com/aws/aws-sdk-go v1.42.2
 	github.com/hako/durafmt v0.0.0-20210608085754-5c1018a4e16b
 	github.com/hashicorp/go-version v1.3.0
 	github.com/olekukonko/tablewriter v0.0.5
