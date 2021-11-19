@@ -6,18 +6,18 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/request"
 
-	"github.com/aws/aws-sdk-go/service/managedgrafana"
+	amg "github.com/aws/aws-sdk-go/service/managedgrafana"
 )
 
-func AmgCreateWorkspace(name string, auth []string, roleArn string) (*managedgrafana.WorkspaceDescription, error) {
+func AmgCreateWorkspace(name string, auth []string, roleArn string) (*amg.WorkspaceDescription, error) {
 	sess := GetSession()
-	svc := managedgrafana.New(sess)
+	svc := amg.New(sess)
 
-	result, err := svc.CreateWorkspace(&managedgrafana.CreateWorkspaceInput{
-		AccountAccessType:       aws.String(managedgrafana.AccountAccessTypeCurrentAccount),
+	result, err := svc.CreateWorkspace(&amg.CreateWorkspaceInput{
+		AccountAccessType:       aws.String(amg.AccountAccessTypeCurrentAccount),
 		AuthenticationProviders: aws.StringSlice(auth),
-		PermissionType:          aws.String(managedgrafana.PermissionTypeServiceManaged),
-		WorkspaceDataSources:    aws.StringSlice([]string{managedgrafana.DataSourceTypePrometheus}),
+		PermissionType:          aws.String(amg.PermissionTypeServiceManaged),
+		WorkspaceDataSources:    aws.StringSlice([]string{amg.DataSourceTypePrometheus}),
 		WorkspaceName:           aws.String(name),
 		WorkspaceRoleArn:        aws.String(roleArn),
 	})
@@ -26,7 +26,7 @@ func AmgCreateWorkspace(name string, auth []string, roleArn string) (*managedgra
 		return nil, FormatError(err)
 	}
 
-	err = waitUntilWorkspaceActive(svc, &managedgrafana.DescribeWorkspaceInput{
+	err = waitUntilWorkspaceActive(svc, &amg.DescribeWorkspaceInput{
 		WorkspaceId: result.Workspace.Id,
 	})
 
@@ -35,20 +35,20 @@ func AmgCreateWorkspace(name string, auth []string, roleArn string) (*managedgra
 
 func AmgDeleteWorkspace(id string) error {
 	sess := GetSession()
-	svc := managedgrafana.New(sess)
+	svc := amg.New(sess)
 
-	_, err := svc.DeleteWorkspace(&managedgrafana.DeleteWorkspaceInput{
+	_, err := svc.DeleteWorkspace(&amg.DeleteWorkspaceInput{
 		WorkspaceId: aws.String(id),
 	})
 
 	return FormatError(err)
 }
 
-func AmgDescribeWorkspace(id string) (*managedgrafana.WorkspaceDescription, error) {
+func AmgDescribeWorkspace(id string) (*amg.WorkspaceDescription, error) {
 	sess := GetSession()
-	svc := managedgrafana.New(sess)
+	svc := amg.New(sess)
 
-	result, err := svc.DescribeWorkspace(&managedgrafana.DescribeWorkspaceInput{
+	result, err := svc.DescribeWorkspace(&amg.DescribeWorkspaceInput{
 		WorkspaceId: aws.String(id),
 	})
 
@@ -59,15 +59,15 @@ func AmgDescribeWorkspace(id string) (*managedgrafana.WorkspaceDescription, erro
 	return result.Workspace, nil
 }
 
-func AmgListWorkspaces() ([]*managedgrafana.WorkspaceSummary, error) {
+func AmgListWorkspaces() ([]*amg.WorkspaceSummary, error) {
 	sess := GetSession()
-	svc := managedgrafana.New(sess)
+	svc := amg.New(sess)
 
-	workspaces := []*managedgrafana.WorkspaceSummary{}
+	workspaces := []*amg.WorkspaceSummary{}
 	pageNum := 0
 
-	err := svc.ListWorkspacesPages(&managedgrafana.ListWorkspacesInput{},
-		func(page *managedgrafana.ListWorkspacesOutput, lastPage bool) bool {
+	err := svc.ListWorkspacesPages(&amg.ListWorkspacesInput{},
+		func(page *amg.ListWorkspacesOutput, lastPage bool) bool {
 			pageNum++
 			workspaces = append(workspaces, page.Workspaces...)
 			return pageNum <= maxPages
@@ -81,23 +81,47 @@ func AmgListWorkspaces() ([]*managedgrafana.WorkspaceSummary, error) {
 	return workspaces, nil
 }
 
-func AmgUpdateWorkspace(id string) (*managedgrafana.WorkspaceDescription, error) {
+// func AmgUpdateWorkspace(id string) (*amg.WorkspaceDescription, error) {
+// 	sess := GetSession()
+// 	svc := amg.New(sess)
+
+// 	result, err := svc.UpdateWorkspace(&amg.UpdateWorkspaceInput{
+// 		WorkspaceDataSources: aws.StringSlice([]string{amg.DataSourceTypePrometheus}),
+// 		WorkspaceId:          aws.String(id),
+// 	})
+
+// 	if err != nil {
+// 		return nil, FormatError(err)
+// 	}
+
+// 	return result.Workspace, nil
+// }
+
+func AmgUpdateWorkspaceAuthentication(id, samlMetadataUrl string) error {
 	sess := GetSession()
-	svc := managedgrafana.New(sess)
+	svc := amg.New(sess)
 
-	result, err := svc.UpdateWorkspace(&managedgrafana.UpdateWorkspaceInput{
-		WorkspaceDataSources: aws.StringSlice([]string{managedgrafana.DataSourceTypePrometheus}),
-		WorkspaceId:          aws.String(id),
+	result, err := svc.DescribeWorkspace(&amg.DescribeWorkspaceInput{
+		WorkspaceId: aws.String(id),
 	})
-
 	if err != nil {
-		return nil, FormatError(err)
+		return err
 	}
 
-	return result.Workspace, nil
+	_, err = svc.UpdateWorkspaceAuthentication(&amg.UpdateWorkspaceAuthenticationInput{
+		AuthenticationProviders: result.Workspace.Authentication.Providers,
+		SamlConfiguration: &amg.SamlConfiguration{
+			IdpMetadata: &amg.IdpMetadata{
+				Url: aws.String(samlMetadataUrl),
+			},
+		},
+		WorkspaceId: aws.String(id),
+	})
+
+	return err
 }
 
-func waitUntilWorkspaceActive(svc *managedgrafana.ManagedGrafana, input *managedgrafana.DescribeWorkspaceInput, opts ...request.WaiterOption) error {
+func waitUntilWorkspaceActive(svc *amg.ManagedGrafana, input *amg.DescribeWorkspaceInput, opts ...request.WaiterOption) error {
 	ctx := aws.BackgroundContext()
 
 	w := request.Waiter{
@@ -123,7 +147,7 @@ func waitUntilWorkspaceActive(svc *managedgrafana.ManagedGrafana, input *managed
 		},
 		Logger: svc.Config.Logger,
 		NewRequest: func(opts []request.Option) (*request.Request, error) {
-			var inCpy *managedgrafana.DescribeWorkspaceInput
+			var inCpy *amg.DescribeWorkspaceInput
 			if input != nil {
 				tmp := *input
 				inCpy = &tmp
