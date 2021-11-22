@@ -118,7 +118,7 @@ func Install(ic *InstallConfiguration, kubeContext string) error {
 	instAction.IsUpgrade = true
 	instAction.PostRenderer = ic.PostRenderer
 	instAction.Wait = ic.Wait
-	instAction.Timeout = 60 * time.Second
+	instAction.Timeout = 300 * time.Second
 	chart.Metadata.AppVersion = ic.AppVersion
 
 	// Install the chart
