@@ -16,7 +16,7 @@ type Options interface {
 	AssignCommonResourceOptions(*resource.Resource)
 	Common() *ApplicationOptions
 	KubeContext() string
-	PreDependencies() error
+	PreDependencies(Action) error
 	PreInstall() error
 	PostInstall() error
 }
@@ -112,7 +112,7 @@ func (o *ApplicationOptions) KubeContext() string {
 	return o.kubeContext
 }
 
-func (o *ApplicationOptions) PreDependencies() error {
+func (o *ApplicationOptions) PreDependencies(Action) error {
 	return nil
 }
 

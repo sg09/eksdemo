@@ -32,7 +32,7 @@ func (a *Application) NewInstallCmd() *cobra.Command {
 				a.SetDryRun()
 			}
 
-			if err := a.PreDependencies(); err != nil {
+			if err := a.PreDependencies(Install); err != nil {
 				return err
 			}
 
@@ -67,6 +67,10 @@ func (a *Application) NewUninstallCmd() *cobra.Command {
 				return err
 			}
 			cmd.SilenceUsage = true
+
+			if err := a.PreDependencies(Uninstall); err != nil {
+				return err
+			}
 
 			if a.Options.Common().DeleteDependencies {
 				if err := a.DeleteDependencies(); err != nil {

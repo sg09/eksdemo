@@ -56,7 +56,11 @@ func NewOptions() (options *GrafanaAmpOptions, flags cmd.Flags) {
 	return
 }
 
-func (o *GrafanaAmpOptions) PreDependencies() error {
+func (o *GrafanaAmpOptions) PreDependencies(action application.Action) error {
+	if action == application.Uninstall {
+		return nil
+	}
+
 	ampGetter := amp.Getter{}
 
 	workspace, err := ampGetter.GetAmpByAlias(fmt.Sprintf("%s-%s", o.ClusterName, prometheus_amp.AmpAliasSuffix))

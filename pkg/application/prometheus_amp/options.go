@@ -41,7 +41,7 @@ func NewOptions() (options *PrometheusAmpOptions, flags cmd.Flags) {
 	return
 }
 
-func (o *PrometheusAmpOptions) PreDependencies() error {
+func (o *PrometheusAmpOptions) PreDependencies(application.Action) error {
 	o.AmpOptions.Alias = fmt.Sprintf("%s-%s", o.ClusterName, AmpAliasSuffix)
 	return nil
 }
