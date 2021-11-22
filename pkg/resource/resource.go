@@ -73,12 +73,19 @@ func (r *Resource) NewCreateCmd() *cobra.Command {
 }
 
 func (r *Resource) NewDeleteCmd() *cobra.Command {
+	var args cobra.PositionalArgs
 	use := r.Command.Name
 
-	if r.Options.Common().DeleteById {
-		use += " " + "ID"
+	if len(r.Args) > 0 && r.Common().DeleteById {
+		use += " " + "[" + r.Args[0] + "]"
 	} else if len(r.Args) > 0 {
 		use += " " + strings.Join(r.Args, " ")
+	}
+
+	if r.Common().DeleteById {
+		args = cobra.RangeArgs(0, len(r.Args))
+	} else {
+		args = cobra.ExactArgs(len(r.Args))
 	}
 
 	cmd := &cobra.Command{
@@ -86,14 +93,18 @@ func (r *Resource) NewDeleteCmd() *cobra.Command {
 		Short:   r.Description,
 		Long:    "Delete " + r.Description,
 		Aliases: r.Aliases,
-		Args:    cobra.ExactArgs(len(r.Args)),
+		Args:    args,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if err := r.Flags.ValidateFlags(); err != nil {
 				return err
 			}
 
+			if r.Common().DeleteById && r.Common().Id == "" && len(r.Args) > 0 && len(args) == 0 {
+				return fmt.Errorf("must include either %s or --id flag", r.Args[0])
+			}
 			cmd.SilenceUsage = true
-			if len(r.Args) > 0 {
+
+			if len(args) > 0 {
 				r.SetName(args[0])
 			}
 
@@ -114,14 +125,21 @@ func (r *Resource) NewDeleteCmd() *cobra.Command {
 }
 
 func (r *Resource) NewGetCmd() *cobra.Command {
+	var args cobra.PositionalArgs
 	var output printer.Output
+
+	if len(r.Args) == 0 {
+		args = cobra.NoArgs
+	} else {
+		args = cobra.RangeArgs(0, 1)
+	}
 
 	cobraCmd := &cobra.Command{
 		Use:     r.Command.Name + " " + strings.Join(r.Args, " "),
 		Short:   r.Description,
 		Long:    "Get " + r.Description,
 		Aliases: r.Aliases,
-		Args:    cobra.RangeArgs(0, 1),
+		Args:    args,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if err := r.Flags.ValidateFlags(); err != nil {
 				return err

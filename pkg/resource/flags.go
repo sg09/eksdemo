@@ -52,6 +52,17 @@ func (o *CommonOptions) NewDryRunFlag() *cmd.BoolFlag {
 	return flag
 }
 
+func (o *CommonOptions) NewIdFlag() *cmd.StringFlag {
+	flag := &cmd.StringFlag{
+		CommandFlag: cmd.CommandFlag{
+			Name:        "id",
+			Description: "delete by ID instead",
+		},
+		Option: &o.Id,
+	}
+	return flag
+}
+
 func (o *CommonOptions) NewNamespaceFlag(action Action) *cmd.StringFlag {
 	flag := &cmd.StringFlag{
 		CommandFlag: cmd.CommandFlag{

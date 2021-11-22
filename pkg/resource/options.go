@@ -32,6 +32,7 @@ type CommonOptions struct {
 	Cluster           *eks.Cluster
 	ClusterName       string
 	DryRun            bool
+	Id                string
 	KubernetesVersion string
 	Namespace         string
 	Region            string
@@ -67,6 +68,10 @@ func (o *CommonOptions) AddDeleteFlags(cobraCmd *cobra.Command, _ cmd.Flags) cmd
 
 	if !o.ClusterFlagDisabled {
 		flags = append(flags, o.NewClusterFlag(Delete, true))
+	}
+
+	if o.DeleteById {
+		flags = append(flags, o.NewIdFlag())
 	}
 
 	if o.NamespaceFlag {
