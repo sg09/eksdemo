@@ -3,6 +3,7 @@ package amg
 import (
 	"eksdemo/pkg/cmd"
 	"eksdemo/pkg/resource"
+	"eksdemo/pkg/template"
 )
 
 func NewResource() *resource.Resource {
@@ -23,10 +24,56 @@ func NewResourceWithOptions(options *AmgOptions) *resource.Resource {
 
 		Getter: &Getter{},
 
-		Manager: &Manager{},
+		Manager: &Manager{
+			AssumeRolePolicyTemplate: template.TextTemplate{
+				Template: assumeRolePolicyTemplate,
+			},
+		},
 	}
 
 	res.Options = options
 
 	return res
 }
+
+const assumeRolePolicyTemplate = `{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "grafana.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole",
+      "Condition": {
+        "StringEquals": {
+          "aws:SourceAccount": "{{ .Account }}"
+        },
+        "StringLike": {
+          "aws:SourceArn": "arn:aws:grafana:{{ .Region }}:{{ .Account }}:/workspaces/*"
+        }
+      }
+    }
+  ]
+}
+`
+const rolePolicName = `eksdemo-AMP-Policy`
+
+const rolePolicyDoc = `{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "aps:ListWorkspaces",
+        "aps:DescribeWorkspace",
+        "aps:QueryMetrics",
+        "aps:GetLabels",
+        "aps:GetSeries",
+        "aps:GetMetricMetadata"
+      ],
+      "Resource": "*"
+    }
+  ]
+}
+`

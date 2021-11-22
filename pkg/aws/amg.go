@@ -81,22 +81,6 @@ func AmgListWorkspaces() ([]*amg.WorkspaceSummary, error) {
 	return workspaces, nil
 }
 
-// func AmgUpdateWorkspace(id string) (*amg.WorkspaceDescription, error) {
-// 	sess := GetSession()
-// 	svc := amg.New(sess)
-
-// 	result, err := svc.UpdateWorkspace(&amg.UpdateWorkspaceInput{
-// 		WorkspaceDataSources: aws.StringSlice([]string{amg.DataSourceTypePrometheus}),
-// 		WorkspaceId:          aws.String(id),
-// 	})
-
-// 	if err != nil {
-// 		return nil, FormatError(err)
-// 	}
-
-// 	return result.Workspace, nil
-// }
-
 func AmgUpdateWorkspaceAuthentication(id, samlMetadataUrl string) error {
 	sess := GetSession()
 	svc := amg.New(sess)
@@ -113,6 +97,12 @@ func AmgUpdateWorkspaceAuthentication(id, samlMetadataUrl string) error {
 		SamlConfiguration: &amg.SamlConfiguration{
 			IdpMetadata: &amg.IdpMetadata{
 				Url: aws.String(samlMetadataUrl),
+			},
+			AssertionAttributes: &amg.AssertionAttributes{
+				Role: aws.String("role"),
+			},
+			RoleValues: &amg.RoleValues{
+				Admin: aws.StringSlice([]string{"admin"}),
 			},
 		},
 		WorkspaceId: aws.String(id),

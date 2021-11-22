@@ -19,7 +19,7 @@ func (g *Getter) Get(name string, output printer.Output, options resource.Option
 	if name == "" {
 		workspaces, err = g.GetAll()
 	} else {
-		workspaces, err = g.GetAmgByName(name)
+		workspaces, err = g.GetAllAmgByName(name)
 	}
 
 	if err != nil {
@@ -48,33 +48,54 @@ func (g *Getter) GetAll() ([]*managedgrafana.WorkspaceDescription, error) {
 	return workspaces, nil
 }
 
-func (g *Getter) GetAmgByName(name string) ([]*managedgrafana.WorkspaceDescription, error) {
-	all, err := aws.AmgListWorkspaces()
+func (g *Getter) GetAllAmgByName(name string) ([]*managedgrafana.WorkspaceDescription, error) {
+	summaries, err := aws.AmgListWorkspaces()
 	if err != nil {
 		return nil, err
 	}
 
-	ampIds := []string{}
+	workspaces := make([]*managedgrafana.WorkspaceDescription, 0, len(summaries))
 
-	for _, workspace := range all {
-		if aws.StringValue(workspace.Name) == name && aws.StringValue(workspace.Status) != "DELETING" {
-			ampIds = append(ampIds, aws.StringValue(workspace.Id))
+	for _, s := range summaries {
+		if aws.StringValue(s.Name) != name {
+			continue
 		}
-	}
 
-	if len(ampIds) == 0 {
-		return nil, fmt.Errorf("workspace name %q not found", name)
-	}
-
-	workspaces := make([]*managedgrafana.WorkspaceDescription, 0, len(ampIds))
-
-	for _, id := range ampIds {
-		result, err := aws.AmgDescribeWorkspace(id)
+		result, err := aws.AmgDescribeWorkspace(aws.StringValue(s.Id))
 		if err != nil {
 			return nil, err
 		}
 		workspaces = append(workspaces, result)
 	}
 
+	if len(workspaces) == 0 {
+		return nil, resource.NotFoundError(fmt.Sprintf("workspace name %q not found", name))
+	}
+
 	return workspaces, nil
+}
+
+func (g *Getter) GetAmgByName(name string) (*managedgrafana.WorkspaceDescription, error) {
+	workspaces, err := g.GetAllAmgByName(name)
+	if err != nil {
+		return nil, err
+	}
+
+	found := []*managedgrafana.WorkspaceDescription{}
+
+	for _, w := range workspaces {
+		if aws.StringValue(w.Status) != "DELETING" {
+			found = append(found, w)
+		}
+	}
+
+	if len(found) == 0 {
+		return nil, resource.NotFoundError(fmt.Sprintf("workspace name %q not found", name))
+	}
+
+	if len(found) > 1 {
+		return nil, fmt.Errorf("multiple workspaces found with name: %s", name)
+	}
+
+	return found[0], nil
 }

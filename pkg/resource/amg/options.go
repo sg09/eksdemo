@@ -3,6 +3,7 @@ package amg
 import (
 	"eksdemo/pkg/cmd"
 	"eksdemo/pkg/resource"
+	"fmt"
 	"strings"
 )
 
@@ -45,4 +46,8 @@ func NewOptions() (options *AmgOptions, flags cmd.Flags) {
 
 func (o *AmgOptions) SetName(name string) {
 	o.WorkspaceName = name
+}
+
+func (o *AmgOptions) iamRoleName() string {
+	return fmt.Sprintf("eksdemo.amg.%s", o.WorkspaceName)
 }
