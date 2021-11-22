@@ -26,7 +26,7 @@ func (g *Getter) Get(name string, output printer.Output, options resource.Option
 		return err
 	}
 
-	currentClusterUrl := kubernetes.GetCurrentContextClusterURL()
+	currentClusterUrl := kubernetes.ClusterURLForCurrentContext()
 
 	return output.Print(os.Stdout, NewPrinter(clusters, currentClusterUrl))
 }

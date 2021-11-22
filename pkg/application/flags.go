@@ -20,7 +20,7 @@ func (o *ApplicationOptions) NewClusterFlag(action Action) *cmd.StringFlag {
 					return err
 				}
 
-				o.kubeContext, err = kubernetes.GetKubeContextForCluster(cluster)
+				o.kubeContext, err = kubernetes.KubeContextForCluster(cluster)
 				if err != nil {
 					return err
 				}

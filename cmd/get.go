@@ -36,7 +36,7 @@ var getHelmCmd = &cobra.Command{
 			return err
 		}
 
-		kubeContext, err := kubernetes.GetKubeContextForCluster(cluster)
+		kubeContext, err := kubernetes.KubeContextForCluster(cluster)
 		if err != nil {
 			return err
 		}

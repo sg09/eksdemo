@@ -1,10 +1,9 @@
 package kubernetes
 
 import (
-	"log"
-
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/eks"
+	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
@@ -25,8 +24,23 @@ import (
 // }
 
 // Raw is clientcmdapi.Config -- represents kubeconfig
-func GetCurrentContextClusterURL() string {
-	raw, err := GetKubeconfig()
+
+func Client() (*kubernetes.Clientset, error) {
+	clientConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
+		clientcmd.NewDefaultClientConfigLoadingRules(),
+		&clientcmd.ConfigOverrides{},
+	)
+
+	restConfig, err := clientConfig.ClientConfig()
+	if err != nil {
+		return nil, err
+	}
+
+	return kubernetes.NewForConfig(restConfig)
+}
+
+func ClusterURLForCurrentContext() string {
+	raw, err := Kubeconfig()
 	if err != nil {
 		return ""
 	}
@@ -38,8 +52,8 @@ func GetCurrentContextClusterURL() string {
 	return raw.Clusters[raw.Contexts[raw.CurrentContext].Cluster].Server
 }
 
-func GetKubeContextForCluster(cluster *eks.Cluster) (string, error) {
-	raw, err := GetKubeconfig()
+func KubeContextForCluster(cluster *eks.Cluster) (string, error) {
+	raw, err := Kubeconfig()
 	if err != nil {
 		return "", err
 	}
@@ -58,7 +72,7 @@ func GetKubeContextForCluster(cluster *eks.Cluster) (string, error) {
 	return found, nil
 }
 
-func GetKubeconfig() (*clientcmdapi.Config, error) {
+func Kubeconfig() (*clientcmdapi.Config, error) {
 	config := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
 		clientcmd.NewDefaultClientConfigLoadingRules(),
 		&clientcmd.ConfigOverrides{},
@@ -70,30 +84,4 @@ func GetKubeconfig() (*clientcmdapi.Config, error) {
 	}
 
 	return &raw, nil
-}
-
-// TODO: Refactor below -- used only by pkg/cluster/list.go
-// TODO: use-context command should use this library
-
-func GetClientConfig() clientcmdapi.Config {
-	config := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
-		clientcmd.NewDefaultClientConfigLoadingRules(),
-		&clientcmd.ConfigOverrides{},
-	)
-
-	raw, err := config.RawConfig()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return raw
-}
-
-func GetClientConfigCurrentCluster() string {
-	raw := GetClientConfig()
-
-	if len(raw.Contexts) == 0 {
-		return ""
-	}
-	return raw.Contexts[raw.CurrentContext].Cluster
 }
