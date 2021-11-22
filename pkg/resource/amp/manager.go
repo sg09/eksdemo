@@ -9,27 +9,27 @@ import (
 type Manager struct{}
 
 func (m *Manager) Create(options resource.Options) error {
-	amp, ok := options.(*AmpOptions)
+	ampOptions, ok := options.(*AmpOptions)
 	if !ok {
 		return fmt.Errorf("internal error, unable to cast options to AmpOptions")
 	}
 
-	found, err := aws.AmpListWorkspaces(amp.Alias)
+	ampGetter := Getter{}
+	workspace, err := ampGetter.GetAmpByAlias(ampOptions.Alias)
 	if err != nil {
-		return err
+		if _, ok := err.(resource.NotFoundError); !ok {
+			// Return an error if it's anything other than resource not found
+			return err
+		}
 	}
 
-	if len(found) == 1 {
-		fmt.Printf("AMP Alias %q already exists\n", amp.Alias)
+	if workspace != nil {
+		fmt.Printf("AMP Workspace Alias %q already exists\n", ampOptions.Alias)
 		return nil
 	}
 
-	if len(found) > 1 {
-		return fmt.Errorf("multiple workspaces found with alias: %s", amp.Alias)
-	}
-
-	fmt.Printf("Creating AMP with Alias: %s...", amp.Alias)
-	result, err := aws.AmpCreateWorkspace(amp.Alias)
+	fmt.Printf("Creating AMP Workspace Alias: %s...", ampOptions.Alias)
+	result, err := aws.AmpCreateWorkspace(ampOptions.Alias)
 	if err != nil {
 		return err
 	}
@@ -39,16 +39,31 @@ func (m *Manager) Create(options resource.Options) error {
 }
 
 func (m *Manager) Delete(options resource.Options) error {
-	amp, ok := options.(*AmpOptions)
+	ampOptions, ok := options.(*AmpOptions)
 	if !ok {
 		return fmt.Errorf("internal error, unable to cast options to AmpOptions")
 	}
 
-	err := aws.AmpDeleteWorkspace(amp.Alias)
+	id := options.Common().Id
+
+	if id == "" {
+		ampGetter := Getter{}
+		amp, err := ampGetter.GetAmpByAlias(ampOptions.Alias)
+		if err != nil {
+			if _, ok := err.(resource.NotFoundError); ok {
+				fmt.Printf("AMP Workspace Alias %q does not exist\n", ampOptions.Alias)
+				return nil
+			}
+			return err
+		}
+		id = aws.StringValue(amp.WorkspaceId)
+	}
+
+	err := aws.AmpDeleteWorkspace(id)
 	if err != nil {
 		return err
 	}
-	fmt.Printf("AMP %q deleted\n", amp.Alias)
+	fmt.Printf("AMP Workspace Id %q deleting...\n", id)
 
 	return nil
 }
