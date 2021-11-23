@@ -2,16 +2,23 @@ package helm
 
 import (
 	"bytes"
+	"context"
 	"eksdemo/pkg/application"
+	"eksdemo/pkg/kubernetes"
 	"eksdemo/pkg/kustomize"
 	"eksdemo/pkg/template"
 	"fmt"
+
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
+	"k8s.io/apimachinery/pkg/selection"
 )
 
 type HelmInstaller struct {
 	ChartName           string
 	DryRun              bool
 	PostRenderKustomize template.Template
+	PVCLabels           map[string]string
 	ReleaseName         string
 	RepositoryURL       string
 	ValuesTemplate      template.Template
@@ -73,7 +80,40 @@ func (h *HelmInstaller) Uninstall(options application.Options) error {
 	}
 
 	fmt.Println("Status validated. Uninstalling...")
-	return Uninstall(o.KubeContext(), h.ReleaseName, o.Namespace)
+	err := Uninstall(o.KubeContext(), h.ReleaseName, o.Namespace)
+	if err != nil {
+		return err
+	}
+
+	if len(h.PVCLabels) == 0 {
+		return nil
+	}
+
+	// Delete any leftover PVCs as `helm uninstall` won't delete them
+	// https://github.com/helm/helm/issues/5156
+	client, err := kubernetes.Client(o.KubeContext())
+	if err != nil {
+		return fmt.Errorf("failed creating kubernetes client: %w", err)
+	}
+
+	selector := labels.NewSelector()
+
+	for k, v := range h.PVCLabels {
+		req, err := labels.NewRequirement(k, selection.Equals, []string{v})
+		if err != nil {
+			return err
+		}
+		selector = selector.Add(*req)
+	}
+
+	fmt.Printf("Deleting PVCs with labels: %s\n", selector.String())
+
+	return client.CoreV1().PersistentVolumeClaims(o.Namespace).DeleteCollection(context.Background(),
+		metav1.DeleteOptions{},
+		metav1.ListOptions{
+			LabelSelector: selector.String(),
+		},
+	)
 }
 
 // PostRender

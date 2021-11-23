@@ -25,10 +25,12 @@ import (
 
 // Raw is clientcmdapi.Config -- represents kubeconfig
 
-func Client() (*kubernetes.Clientset, error) {
+func Client(context string) (*kubernetes.Clientset, error) {
 	clientConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
 		clientcmd.NewDefaultClientConfigLoadingRules(),
-		&clientcmd.ConfigOverrides{},
+		&clientcmd.ConfigOverrides{
+			CurrentContext: context,
+		},
 	)
 
 	restConfig, err := clientConfig.ClientConfig()

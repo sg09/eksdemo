@@ -6,7 +6,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/pkg/errors"
 	"helm.sh/helm/v3/pkg/action"
 	"helm.sh/helm/v3/pkg/chart"
 	"helm.sh/helm/v3/pkg/chart/loader"
@@ -39,8 +38,7 @@ func initialize(kubeContext, namespace string) (*action.Configuration, error) {
 	// Initialize the action configuration
 	actionConfig := new(action.Configuration)
 	if err := actionConfig.Init(settings.RESTClientGetter(), namespace, "secret", log.Printf); err != nil {
-		fmt.Print("Failed Initialize the Action Config\n")
-		log.Fatal(err)
+		return nil, fmt.Errorf("failed to initialize helm action config: %w", err)
 	}
 	return actionConfig, nil
 }
@@ -58,36 +56,31 @@ func downloadChart(ic *InstallConfiguration) (*chart.Chart, error) {
 
 	u, err := dl.ResolveChartVersion(chartPath, "")
 	if err != nil {
-		fmt.Print("Error in ResolveChartVersion\n")
-		log.Fatal(err)
+		return nil, err
 	}
 	fmt.Printf("Installing Chart: %s\n", u)
 
 	g, err := dl.Getters.ByScheme(u.Scheme)
 	if err != nil {
-		fmt.Print("Error in ByScheme\n")
-		log.Fatal(err)
+		return nil, err
 	}
 
 	// Download chart archive into memory
 	data, err := g.Get(chartPath, dl.Options...)
 	if err != nil {
-		fmt.Print("Error in Get\n")
-		log.Fatal(err)
+		return nil, err
 	}
 
 	// Decompress the archive
 	files, err := loader.LoadArchiveFiles(data)
 	if err != nil {
-		fmt.Print("Error in LoadArchiveFiles\n")
-		log.Fatal(err)
+		return nil, err
 	}
 
 	// Load the chart
 	chart, err := loader.LoadFiles(files)
 	if err != nil {
-		fmt.Print("Error in LoadFiles\n")
-		log.Fatal(err)
+		return nil, err
 	}
 	return chart, nil
 }
@@ -95,14 +88,13 @@ func downloadChart(ic *InstallConfiguration) (*chart.Chart, error) {
 func Install(ic *InstallConfiguration, kubeContext string) error {
 	chart, err := downloadChart(ic)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to download chart: %w", err)
 	}
 
 	// Parse the values file
 	values := map[string]interface{}{}
 	if err := yaml.Unmarshal([]byte(ic.ValuesFile), &values); err != nil {
-		fmt.Print("Failed to parse values file\n")
-		log.Fatal(err)
+		return fmt.Errorf("failed to parse values file: %w", err)
 	}
 
 	actionConfig, err := initialize(kubeContext, ic.Namespace)
@@ -127,7 +119,7 @@ func Install(ic *InstallConfiguration, kubeContext string) error {
 		return fmt.Errorf("helm failed to install the chart: %s", err)
 	}
 
-	log.Printf("Installed Chart: %s in namespace: %s\n", rel.Name, rel.Namespace)
+	fmt.Printf("Installed Chart: %s in namespace: %s\n", rel.Name, rel.Namespace)
 	return nil
 }
 
@@ -174,11 +166,10 @@ func Uninstall(kubeContext, releaseName, namespace string) error {
 	uninstall := action.NewUninstall(actionConfig)
 
 	// Uninstall the chart
-	response, err := uninstall.Run(releaseName)
+	_, err = uninstall.Run(releaseName)
 	if err != nil {
-		log.Fatal("Error uninstalling Helm chart: ", errors.Cause(err))
+		return fmt.Errorf("failed uninstalling chart: %w", err)
 	}
-	_ = response
 
 	return nil
 }
