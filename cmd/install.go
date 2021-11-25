@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"eksdemo/pkg/application/appmesh_controller"
 	"eksdemo/pkg/application/aws_lb"
 	"eksdemo/pkg/application/cluster_autoscaler"
 	"eksdemo/pkg/application/container_insights"
@@ -30,6 +31,7 @@ func newCmdInstall() *cobra.Command {
 	// Don't show flag errors for install without a subcommand
 	cmd.DisableFlagParsing = true
 
+	cmd.AddCommand(appmesh_controller.NewApp().NewInstallCmd())
 	cmd.AddCommand(aws_lb.NewApp().NewInstallCmd())
 	cmd.AddCommand(cluster_autoscaler.NewApp().NewInstallCmd())
 	cmd.AddCommand(container_insights.NewApp().NewInstallCmd())

@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"eksdemo/pkg/application/appmesh_controller"
 	"eksdemo/pkg/application/aws_lb"
 	"eksdemo/pkg/application/cluster_autoscaler"
 	"eksdemo/pkg/application/container_insights"
@@ -30,6 +31,7 @@ func newCmdUninstall() *cobra.Command {
 	// Don't show flag errors for uninstall without a subcommand
 	cmd.DisableFlagParsing = true
 
+	cmd.AddCommand(appmesh_controller.NewApp().NewUninstallCmd())
 	cmd.AddCommand(aws_lb.NewApp().NewUninstallCmd())
 	cmd.AddCommand(cluster_autoscaler.NewApp().NewUninstallCmd())
 	cmd.AddCommand(container_insights.NewApp().NewUninstallCmd())
