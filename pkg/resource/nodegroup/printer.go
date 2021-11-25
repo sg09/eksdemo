@@ -22,18 +22,18 @@ func NewPrinter(Nodegroups []*eks.Nodegroup) *NodegroupPrinter {
 
 func (p *NodegroupPrinter) PrintTable(writer io.Writer) error {
 	table := printer.NewTablePrinter()
-	table.SetHeader([]string{"Age", "Status", "NodeGroup", "Version", "Type", "Nodes", "Instance(s)"})
+	table.SetHeader([]string{"Age", "Status", "Name", "Nodes", "Version", "Type", "Instance(s)"})
 
 	for _, n := range p.Nodegroups {
 		age := durafmt.ParseShort(time.Since(*n.CreatedAt))
 
 		table.AppendRow([]string{
 			age.String(),
-			*n.Status,
-			*n.NodegroupName,
-			*n.ReleaseVersion,
-			*n.CapacityType,
+			aws.StringValue(n.Status),
+			aws.StringValue(n.NodegroupName),
 			strconv.FormatInt(*n.ScalingConfig.DesiredSize, 10),
+			aws.StringValue(n.ReleaseVersion),
+			aws.StringValue(n.CapacityType),
 			strings.Join(aws.StringValueSlice(n.InstanceTypes), ","),
 		})
 	}

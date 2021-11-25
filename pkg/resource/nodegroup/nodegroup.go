@@ -38,6 +38,7 @@ managedNodeGroups:
 {{- if .AMI }}
   ami: {{ .AMI }}
 {{- end }}
+  amiFamily: {{ .OperatingSystem }}
   iam:
     attachPolicyARNs:
     - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy

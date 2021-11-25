@@ -5,6 +5,7 @@ import (
 	"eksdemo/pkg/cmd"
 	"eksdemo/pkg/resource"
 	"fmt"
+	"strings"
 )
 
 type NodegroupOptions struct {
@@ -17,6 +18,7 @@ type NodegroupOptions struct {
 	MinSize         int
 	MaxSize         int
 	NodegroupName   string
+	OperatingSystem string
 	Spot            bool
 	SpotvCPUs       int
 	SpotMemory      int
@@ -28,6 +30,7 @@ func NewOptions() (options *NodegroupOptions, flags cmd.Flags) {
 		DesiredCapacity: 1,
 		MinSize:         1,
 		MaxSize:         5,
+		OperatingSystem: "AmazonLinux2",
 		SpotvCPUs:       2,
 		SpotMemory:      4,
 	}
@@ -84,6 +87,32 @@ func NewOptions() (options *NodegroupOptions, flags cmd.Flags) {
 				},
 			},
 			Option: &options.DesiredCapacity,
+		},
+		&cmd.StringFlag{
+			CommandFlag: cmd.CommandFlag{
+				Name:        "os",
+				Description: "Operating System",
+				Validate: func() error {
+					if strings.EqualFold(options.OperatingSystem, "AmazonLinux2") {
+						options.OperatingSystem = "AmazonLinux2"
+						return nil
+					}
+					if strings.EqualFold(options.OperatingSystem, "Bottlerocket") {
+						options.OperatingSystem = "Bottlerocket"
+						return nil
+					}
+					if strings.EqualFold(options.OperatingSystem, "Ubuntu2004") {
+						options.OperatingSystem = "Ubuntu2004"
+						return nil
+					}
+					if strings.EqualFold(options.OperatingSystem, "Ubuntu1804") {
+						options.OperatingSystem = "Ubuntu1804"
+					}
+					return nil
+				},
+			},
+			Option:  &options.OperatingSystem,
+			Choices: []string{"AmazonLinux2", "Bottlerocket", "Ubuntu2004", "Ubuntu1804"},
 		},
 	}
 	return
