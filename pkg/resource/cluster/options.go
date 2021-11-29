@@ -90,9 +90,9 @@ func (o *ClusterOptions) PreCreate() error {
 				continue
 			}
 			// Populate the IRSA Resource with data (Cluster, Namespace, ServiceAccount)
+			app.Common().ClusterName = o.ClusterName
 			app.AssignCommonResourceOptions(res)
 			res.SetName(app.Common().ServiceAccount)
-			res.Common().ClusterName = o.ClusterName
 
 			o.IrsaRoles = append(o.IrsaRoles, res)
 		}
