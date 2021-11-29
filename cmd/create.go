@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"eksdemo/pkg/resource/addon"
 	"eksdemo/pkg/resource/amg"
 	"eksdemo/pkg/resource/amp"
 	"eksdemo/pkg/resource/cluster"
@@ -21,6 +22,7 @@ func newCmdCreate() *cobra.Command {
 	// Don't show flag errors for create without a subcommand
 	cmd.DisableFlagParsing = true
 
+	cmd.AddCommand(addon.NewResource().NewCreateCmd())
 	cmd.AddCommand(amg.NewResource().NewCreateCmd())
 	cmd.AddCommand(amp.NewResource().NewCreateCmd())
 	cmd.AddCommand(cluster.NewResource().NewCreateCmd())

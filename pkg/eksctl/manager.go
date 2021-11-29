@@ -113,11 +113,27 @@ func (e *ResourceManager) CreateWithConfigFile(options resource.Options) error {
 
 func (e *ResourceManager) Delete(options resource.Options) error {
 	switch e.Resource {
+	case "addon":
+		return e.DeleteAddon(options)
 	case "iamidentitymapping":
 		return e.DeleteIamAuth(options)
 	default:
 		return e.DeleteWithConfigFile(options)
 	}
+}
+
+func (e *ResourceManager) DeleteAddon(options resource.Options) error {
+	args := []string{
+		"delete",
+		e.Resource,
+		"--name",
+		options.Common().Name,
+		"--cluster",
+		options.Common().ClusterName,
+		"--preserve",
+	}
+
+	return Command(args, "")
 }
 
 func (e *ResourceManager) DeleteIamAuth(options resource.Options) error {

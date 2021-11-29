@@ -8,6 +8,52 @@ import (
 	"github.com/aws/aws-sdk-go/service/ssm"
 )
 
+func EksDescribeAddon(clusterName, addonName string) (*eks.Addon, error) {
+	sess := GetSession()
+	svc := eks.New(sess)
+
+	result, err := svc.DescribeAddon(&eks.DescribeAddonInput{
+		AddonName:   aws.String(addonName),
+		ClusterName: aws.String(clusterName),
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return result.Addon, nil
+}
+
+func EksDescribeAddonVersions(addonName, version string) ([]*eks.AddonInfo, error) {
+	sess := GetSession()
+	svc := eks.New(sess)
+
+	addons := []*eks.AddonInfo{}
+	pageNum := 0
+
+	input := &eks.DescribeAddonVersionsInput{
+		KubernetesVersion: aws.String(version),
+	}
+
+	if addonName != "" {
+		input.AddonName = aws.String(addonName)
+	}
+
+	err := svc.DescribeAddonVersionsPages(input,
+		func(page *eks.DescribeAddonVersionsOutput, lastPage bool) bool {
+			pageNum++
+			addons = append(addons, page.Addons...)
+			return pageNum <= maxPages
+		},
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return addons, nil
+}
+
 func EksDescribeCluster(clusterName string) (*eks.Cluster, error) {
 	sess := GetSession()
 	svc := eks.New(sess)
@@ -37,6 +83,30 @@ func EksDescribeNodegroup(clusterName, nodegroupName string) (*eks.Nodegroup, er
 	}
 
 	return result.Nodegroup, nil
+}
+
+func EksListAddons(clusterName string) ([]*string, error) {
+	sess := GetSession()
+	svc := eks.New(sess)
+
+	addons := []*string{}
+	pageNum := 0
+
+	err := svc.ListAddonsPages(&eks.ListAddonsInput{
+		ClusterName: aws.String(clusterName),
+	},
+		func(page *eks.ListAddonsOutput, lastPage bool) bool {
+			pageNum++
+			addons = append(addons, page.Addons...)
+			return pageNum <= maxPages
+		},
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return addons, nil
 }
 
 func EksListClusters() ([]*string, error) {

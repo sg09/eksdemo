@@ -6,6 +6,7 @@ import (
 	"eksdemo/pkg/helm"
 	"eksdemo/pkg/kubernetes"
 	"eksdemo/pkg/printer"
+	"eksdemo/pkg/resource/addon"
 	"eksdemo/pkg/resource/amg"
 	"eksdemo/pkg/resource/amp"
 	"eksdemo/pkg/resource/cloudformation"
@@ -56,6 +57,8 @@ var getHelmCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(getCmd)
 
+	getCmd.AddCommand(addon.NewResource().NewGetCmd())
+	getCmd.AddCommand(addon.NewVersionsResource().NewGetCmd())
 	getCmd.AddCommand(amg.NewResource().NewGetCmd())
 	getCmd.AddCommand(amp.NewResource().NewGetCmd())
 	getCmd.AddCommand(cloudformation.NewResource().NewGetCmd())
