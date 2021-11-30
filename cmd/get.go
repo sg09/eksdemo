@@ -12,6 +12,7 @@ import (
 	"eksdemo/pkg/resource/cloudformation"
 	"eksdemo/pkg/resource/cluster"
 	"eksdemo/pkg/resource/irsa"
+	"eksdemo/pkg/resource/node"
 	"eksdemo/pkg/resource/nodegroup"
 	"eksdemo/pkg/resource/organization"
 	"fmt"
@@ -64,6 +65,7 @@ func init() {
 	getCmd.AddCommand(cloudformation.NewResource().NewGetCmd())
 	getCmd.AddCommand(cluster.NewResource().NewGetCmd())
 	getCmd.AddCommand(irsa.NewResource().NewGetCmd())
+	getCmd.AddCommand(node.NewResource().NewGetCmd())
 	getCmd.AddCommand(nodegroup.NewResource().NewGetCmd())
 	getCmd.AddCommand(organization.NewResource().NewGetCmd())
 
