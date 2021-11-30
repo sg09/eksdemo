@@ -12,6 +12,7 @@ import (
 	"eksdemo/pkg/application/fluentbit"
 	"eksdemo/pkg/application/fsx_lustre_csi"
 	"eksdemo/pkg/application/grafana_amp"
+	"eksdemo/pkg/application/istio_base"
 	"eksdemo/pkg/application/karpenter"
 	"eksdemo/pkg/application/keycloak"
 	"eksdemo/pkg/application/kube_prometheus"
@@ -42,6 +43,7 @@ func newCmdInstall() *cobra.Command {
 	cmd.AddCommand(fluentbit.NewApp().NewInstallCmd())
 	cmd.AddCommand(grafana_amp.NewApp().NewInstallCmd())
 	cmd.AddCommand(fsx_lustre_csi.NewApp().NewInstallCmd())
+	cmd.AddCommand(istio_base.NewApp().NewInstallCmd())
 	cmd.AddCommand(karpenter.NewApp().NewInstallCmd())
 	cmd.AddCommand(keycloak.NewApp().NewInstallCmd())
 	cmd.AddCommand(kube_prometheus.NewApp().NewInstallCmd())
