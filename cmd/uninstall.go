@@ -12,6 +12,8 @@ import (
 	"eksdemo/pkg/application/fluentbit"
 	"eksdemo/pkg/application/fsx_lustre_csi"
 	"eksdemo/pkg/application/grafana_amp"
+	"eksdemo/pkg/application/istio_base"
+	"eksdemo/pkg/application/istiod"
 	"eksdemo/pkg/application/karpenter"
 	"eksdemo/pkg/application/keycloak"
 	"eksdemo/pkg/application/kube_prometheus"
@@ -42,6 +44,8 @@ func newCmdUninstall() *cobra.Command {
 	cmd.AddCommand(fluentbit.NewApp().NewUninstallCmd())
 	cmd.AddCommand(grafana_amp.NewApp().NewUninstallCmd())
 	cmd.AddCommand(fsx_lustre_csi.NewApp().NewUninstallCmd())
+	cmd.AddCommand(istio_base.NewApp().NewUninstallCmd())
+	cmd.AddCommand(istiod.NewApp().NewUninstallCmd())
 	cmd.AddCommand(karpenter.NewApp().NewUninstallCmd())
 	cmd.AddCommand(keycloak.NewApp().NewUninstallCmd())
 	cmd.AddCommand(kube_prometheus.NewApp().NewUninstallCmd())
