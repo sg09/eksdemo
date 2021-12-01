@@ -24,32 +24,33 @@ type HelmInstaller struct {
 	ValuesTemplate      template.Template
 	VersionField        string
 	Wait                bool
-	application.Options
+
+	options application.Options
 }
 
-func (h *HelmInstaller) Install(options application.Options) error {
+func (i *HelmInstaller) Install(options application.Options) error {
 
-	valuesFile, err := h.ValuesTemplate.Render(options)
+	valuesFile, err := i.ValuesTemplate.Render(options)
 	if err != nil {
 		return err
 	}
 
-	ic := &InstallConfiguration{
+	helm := &Helm{
 		AppVersion:    options.Common().Version,
-		ChartName:     h.ChartName,
+		ChartName:     i.ChartName,
 		Namespace:     options.Common().Namespace,
-		ReleaseName:   h.ReleaseName,
-		RepositoryURL: h.RepositoryURL,
+		ReleaseName:   i.ReleaseName,
+		RepositoryURL: i.RepositoryURL,
 		ValuesFile:    valuesFile,
-		Wait:          h.Wait,
+		Wait:          i.Wait,
 	}
 
-	if h.DryRun {
+	if i.DryRun {
 		fmt.Println("\nHelm Installer Dry Run:")
-		fmt.Printf("%+v\n", ic)
+		fmt.Printf("%+v\n", helm)
 
-		if h.PostRenderKustomize != nil {
-			kustomization, err := h.PostRenderKustomize.Render(options)
+		if i.PostRenderKustomize != nil {
+			kustomization, err := i.PostRenderKustomize.Render(options)
 			if err != nil {
 				return err
 			}
@@ -59,33 +60,38 @@ func (h *HelmInstaller) Install(options application.Options) error {
 		return nil
 	}
 
-	if h.PostRenderKustomize != nil {
-		h.Options = options
-		ic.PostRenderer = h
+	if i.PostRenderKustomize != nil {
+		i.options = options
+		helm.PostRenderer = i
 	}
 
-	return Install(ic, options.KubeContext())
+	chart, err := helm.DownloadChart()
+	if err != nil {
+		return fmt.Errorf("failed to download chart: %w", err)
+	}
+
+	return helm.Install(chart, options.KubeContext())
 }
 
-func (h *HelmInstaller) SetDryRun() {
-	h.DryRun = true
+func (i *HelmInstaller) SetDryRun() {
+	i.DryRun = true
 }
 
-func (h *HelmInstaller) Uninstall(options application.Options) error {
+func (i *HelmInstaller) Uninstall(options application.Options) error {
 	o := options.Common()
 
-	fmt.Printf("Checking status of Helm release: %s, in namespace: %s\n", h.ReleaseName, o.Namespace)
-	if _, err := Status(o.KubeContext(), h.ReleaseName, o.Namespace); err != nil {
+	fmt.Printf("Checking status of Helm release: %s, in namespace: %s\n", i.ReleaseName, o.Namespace)
+	if _, err := Status(o.KubeContext(), i.ReleaseName, o.Namespace); err != nil {
 		return err
 	}
 
 	fmt.Println("Status validated. Uninstalling...")
-	err := Uninstall(o.KubeContext(), h.ReleaseName, o.Namespace)
+	err := Uninstall(o.KubeContext(), i.ReleaseName, o.Namespace)
 	if err != nil {
 		return err
 	}
 
-	if len(h.PVCLabels) == 0 {
+	if len(i.PVCLabels) == 0 {
 		return nil
 	}
 
@@ -98,7 +104,7 @@ func (h *HelmInstaller) Uninstall(options application.Options) error {
 
 	selector := labels.NewSelector()
 
-	for k, v := range h.PVCLabels {
+	for k, v := range i.PVCLabels {
 		req, err := labels.NewRequirement(k, selection.Equals, []string{v})
 		if err != nil {
 			return err
@@ -118,7 +124,7 @@ func (h *HelmInstaller) Uninstall(options application.Options) error {
 
 // PostRender
 func (h *HelmInstaller) Run(renderedManifests *bytes.Buffer) (modifiedManifests *bytes.Buffer, err error) {
-	kustomization, err := h.PostRenderKustomize.Render(h.Options)
+	kustomization, err := h.PostRenderKustomize.Render(h.options)
 	if err != nil {
 		return nil, err
 	}

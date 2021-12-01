@@ -18,7 +18,7 @@ import (
 	"sigs.k8s.io/yaml"
 )
 
-type InstallConfiguration struct {
+type Helm struct {
 	AppVersion    string
 	ChartName     string
 	Namespace     string
@@ -43,11 +43,11 @@ func initialize(kubeContext, namespace string) (*action.Configuration, error) {
 	return actionConfig, nil
 }
 
-func downloadChart(ic *InstallConfiguration) (*chart.Chart, error) {
+func (h *Helm) DownloadChart() (*chart.Chart, error) {
 	getters := getter.All(&cli.EnvSettings{})
 
 	// Find Chart
-	chartPath, _ := repo.FindChartInRepoURL(ic.RepositoryURL, ic.ChartName, "", "", "", "", getters)
+	chartPath, _ := repo.FindChartInRepoURL(h.RepositoryURL, h.ChartName, "", "", "", "", getters)
 
 	dl := downloader.ChartDownloader{
 		Out:     os.Stdout,
@@ -58,7 +58,7 @@ func downloadChart(ic *InstallConfiguration) (*chart.Chart, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf("Installing Chart: %s\n", u)
+	fmt.Printf("Downloading Chart: %s\n", u)
 
 	g, err := dl.Getters.ByScheme(u.Scheme)
 	if err != nil {
@@ -85,41 +85,37 @@ func downloadChart(ic *InstallConfiguration) (*chart.Chart, error) {
 	return chart, nil
 }
 
-func Install(ic *InstallConfiguration, kubeContext string) error {
-	chart, err := downloadChart(ic)
-	if err != nil {
-		return fmt.Errorf("failed to download chart: %w", err)
-	}
-
+func (h *Helm) Install(chart *chart.Chart, kubeContext string) error {
 	// Parse the values file
 	values := map[string]interface{}{}
-	if err := yaml.Unmarshal([]byte(ic.ValuesFile), &values); err != nil {
+	if err := yaml.Unmarshal([]byte(h.ValuesFile), &values); err != nil {
 		return fmt.Errorf("failed to parse values file: %w", err)
 	}
 
-	actionConfig, err := initialize(kubeContext, ic.Namespace)
+	actionConfig, err := initialize(kubeContext, h.Namespace)
 	if err != nil {
 		return err
 	}
 
 	// Configure the install options
 	instAction := action.NewInstall(actionConfig)
-	instAction.Namespace = ic.Namespace
-	instAction.ReleaseName = ic.ReleaseName
+	instAction.Namespace = h.Namespace
+	instAction.ReleaseName = h.ReleaseName
 	instAction.CreateNamespace = true
 	instAction.IsUpgrade = true
-	instAction.PostRenderer = ic.PostRenderer
-	instAction.Wait = ic.Wait
+	instAction.PostRenderer = h.PostRenderer
+	instAction.Wait = h.Wait
 	instAction.Timeout = 300 * time.Second
-	chart.Metadata.AppVersion = ic.AppVersion
+	chart.Metadata.AppVersion = h.AppVersion
 
 	// Install the chart
+	fmt.Println("Helm installing...")
 	rel, err := instAction.Run(chart, values)
 	if err != nil {
-		return fmt.Errorf("helm failed to install the chart: %s", err)
+		return fmt.Errorf("helm install failed: %s", err)
 	}
 
-	fmt.Printf("Installed Chart: %s in namespace: %s\n", rel.Name, rel.Namespace)
+	fmt.Printf("Installed: %s in namespace: %s\n", rel.Name, rel.Namespace)
 	return nil
 }
 
