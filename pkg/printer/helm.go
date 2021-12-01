@@ -22,12 +22,12 @@ func (p *HelmPrinter) PrintTable(writer io.Writer) error {
 	}
 
 	table := NewTablePrinter()
-	table.SetHeader([]string{"Namespace", "Name", "Version", "Status", "Chart"})
+	table.SetHeader([]string{"Name", "Namespace", "Version", "Status", "Chart"})
 
 	for _, r := range p.releases {
 		table.AppendRow([]string{
-			r.Namespace,
 			r.Name,
+			r.Namespace,
 			r.Chart.Metadata.AppVersion,
 			r.Info.Status.String(),
 			r.Chart.Metadata.Version,
