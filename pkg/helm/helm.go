@@ -47,7 +47,10 @@ func (h *Helm) DownloadChart() (*chart.Chart, error) {
 	getters := getter.All(&cli.EnvSettings{})
 
 	// Find Chart
-	chartPath, _ := repo.FindChartInRepoURL(h.RepositoryURL, h.ChartName, "", "", "", "", getters)
+	chartPath, err := repo.FindChartInRepoURL(h.RepositoryURL, h.ChartName, "", "", "", "", getters)
+	if err != nil {
+		return nil, err
+	}
 
 	dl := downloader.ChartDownloader{
 		Out:     os.Stdout,
