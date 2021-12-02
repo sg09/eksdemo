@@ -30,8 +30,9 @@ var getCmd = &cobra.Command{
 }
 
 var getHelmCmd = &cobra.Command{
-	Use:   "helm",
-	Short: "Helm releases",
+	Use:     "application",
+	Short:   "Installed Applications",
+	Aliases: []string{"app", "apps", "helm"},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		cluster, err := aws.EksDescribeCluster(clusterName)
 		if err != nil {
