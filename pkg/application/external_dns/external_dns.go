@@ -3,7 +3,7 @@ package external_dns
 import (
 	"eksdemo/pkg/application"
 	"eksdemo/pkg/cmd"
-	"eksdemo/pkg/helm"
+	"eksdemo/pkg/installer"
 	"eksdemo/pkg/resource"
 	"eksdemo/pkg/resource/irsa"
 	"eksdemo/pkg/template"
@@ -41,7 +41,7 @@ func NewApp() *application.Application {
 			},
 		},
 
-		Installer: &helm.HelmInstaller{
+		Installer: &installer.HelmInstaller{
 			ChartName:     "external-dns",
 			ReleaseName:   "external-dns",
 			RepositoryURL: "https://kubernetes-sigs.github.io/external-dns",

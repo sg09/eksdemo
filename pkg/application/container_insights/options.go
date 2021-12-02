@@ -3,7 +3,7 @@ package container_insights
 import (
 	"eksdemo/pkg/application"
 	"eksdemo/pkg/cmd"
-	"eksdemo/pkg/kustomize"
+	"eksdemo/pkg/installer"
 	"eksdemo/pkg/resource"
 	"eksdemo/pkg/resource/irsa"
 	"eksdemo/pkg/template"
@@ -70,7 +70,7 @@ func (o *ContainerInsightsOptions) PostInstall() error { //include app in params
 			}),
 		},
 
-		Installer: &kustomize.KustomizeInstaller{
+		Installer: &installer.KustomizeInstaller{
 			ResourceTemplate: &template.TextTemplate{
 				Template: fluentBitManifestTemplate,
 			},

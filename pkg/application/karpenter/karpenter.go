@@ -4,7 +4,7 @@ import (
 	"eksdemo/pkg/application"
 	"eksdemo/pkg/cmd"
 	"eksdemo/pkg/eksctl"
-	"eksdemo/pkg/helm"
+	"eksdemo/pkg/installer"
 	"eksdemo/pkg/resource"
 	"eksdemo/pkg/resource/iam_auth"
 	"eksdemo/pkg/resource/irsa"
@@ -45,7 +45,7 @@ func NewApp() *application.Application {
 			}),
 		},
 
-		Installer: &helm.HelmInstaller{
+		Installer: &installer.HelmInstaller{
 			ChartName:     "karpenter",
 			ReleaseName:   "karpenter",
 			RepositoryURL: "https://awslabs.github.io/karpenter/charts",

@@ -3,7 +3,7 @@ package metrics_server
 import (
 	"eksdemo/pkg/application"
 	"eksdemo/pkg/cmd"
-	"eksdemo/pkg/helm"
+	"eksdemo/pkg/installer"
 	"eksdemo/pkg/template"
 )
 
@@ -30,7 +30,7 @@ func NewApp() *application.Application {
 			},
 		},
 
-		Installer: &helm.HelmInstaller{
+		Installer: &installer.HelmInstaller{
 			ChartName:     "metrics-server",
 			ReleaseName:   "metrics-server",
 			RepositoryURL: "https://kubernetes-sigs.github.io/metrics-server/",

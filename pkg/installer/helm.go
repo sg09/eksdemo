@@ -1,9 +1,10 @@
-package helm
+package installer
 
 import (
 	"bytes"
 	"context"
 	"eksdemo/pkg/application"
+	"eksdemo/pkg/helm"
 	"eksdemo/pkg/kubernetes"
 	"eksdemo/pkg/kustomize"
 	"eksdemo/pkg/template"
@@ -35,7 +36,7 @@ func (i *HelmInstaller) Install(options application.Options) error {
 		return err
 	}
 
-	helm := &Helm{
+	helm := &helm.Helm{
 		AppVersion:    options.Common().Version,
 		ChartName:     i.ChartName,
 		Namespace:     options.Common().Namespace,
@@ -81,12 +82,12 @@ func (i *HelmInstaller) Uninstall(options application.Options) error {
 	o := options.Common()
 
 	fmt.Printf("Checking status of Helm release: %s, in namespace: %s\n", i.ReleaseName, o.Namespace)
-	if _, err := Status(o.KubeContext(), i.ReleaseName, o.Namespace); err != nil {
+	if _, err := helm.Status(o.KubeContext(), i.ReleaseName, o.Namespace); err != nil {
 		return err
 	}
 
 	fmt.Println("Status validated. Uninstalling...")
-	err := Uninstall(o.KubeContext(), i.ReleaseName, o.Namespace)
+	err := helm.Uninstall(o.KubeContext(), i.ReleaseName, o.Namespace)
 	if err != nil {
 		return err
 	}

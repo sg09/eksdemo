@@ -3,7 +3,7 @@ package istio_base
 import (
 	"eksdemo/pkg/application"
 	"eksdemo/pkg/cmd"
-	"eksdemo/pkg/helm"
+	"eksdemo/pkg/installer"
 	"eksdemo/pkg/template"
 )
 
@@ -27,7 +27,7 @@ func NewApp() *application.Application {
 			DisableServiceAccountFlag: true,
 		},
 
-		Installer: &helm.HelmInstaller{
+		Installer: &installer.HelmInstaller{
 			ChartName:     "base",
 			ReleaseName:   "istio-base",
 			RepositoryURL: "https://istio-release.storage.googleapis.com/charts",

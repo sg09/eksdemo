@@ -3,7 +3,7 @@ package kube_prometheus
 import (
 	"eksdemo/pkg/application"
 	"eksdemo/pkg/cmd"
-	"eksdemo/pkg/helm"
+	"eksdemo/pkg/installer"
 	"eksdemo/pkg/template"
 )
 
@@ -21,7 +21,7 @@ func NewApp() *application.Application {
 			Aliases:     []string{"kube-prom", "kubeprom", "kprom"},
 		},
 
-		Installer: &helm.HelmInstaller{
+		Installer: &installer.HelmInstaller{
 			ChartName:     "kube-prometheus-stack",
 			ReleaseName:   "kube-prometheus",
 			RepositoryURL: "https://prometheus-community.github.io/helm-charts",

@@ -3,7 +3,7 @@ package appmesh_controller
 import (
 	"eksdemo/pkg/application"
 	"eksdemo/pkg/cmd"
-	"eksdemo/pkg/helm"
+	"eksdemo/pkg/installer"
 	"eksdemo/pkg/resource"
 	"eksdemo/pkg/resource/irsa"
 	"eksdemo/pkg/template"
@@ -43,7 +43,7 @@ func NewApp() *application.Application {
 			},
 		},
 
-		Installer: &helm.HelmInstaller{
+		Installer: &installer.HelmInstaller{
 			ChartName:     "appmesh-controller",
 			ReleaseName:   "appmesh-controller",
 			RepositoryURL: "https://aws.github.io/eks-charts",

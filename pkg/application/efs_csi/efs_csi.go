@@ -3,7 +3,7 @@ package efs_csi
 import (
 	"eksdemo/pkg/application"
 	"eksdemo/pkg/cmd"
-	"eksdemo/pkg/helm"
+	"eksdemo/pkg/installer"
 	"eksdemo/pkg/resource"
 	"eksdemo/pkg/resource/irsa"
 	"eksdemo/pkg/template"
@@ -42,7 +42,7 @@ func NewApp() *application.Application {
 			},
 		},
 
-		Installer: &helm.HelmInstaller{
+		Installer: &installer.HelmInstaller{
 			ChartName:     "aws-efs-csi-driver",
 			ReleaseName:   "aws-efs-csi-driver",
 			RepositoryURL: "https://kubernetes-sigs.github.io/aws-efs-csi-driver",

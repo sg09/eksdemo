@@ -1,8 +1,9 @@
-package kustomize
+package installer
 
 import (
 	"eksdemo/pkg/application"
 	"eksdemo/pkg/kubernetes"
+	"eksdemo/pkg/kustomize"
 	"eksdemo/pkg/template"
 	"fmt"
 )
@@ -24,7 +25,7 @@ func (i *KustomizeInstaller) Install(options application.Options) error {
 		return err
 	}
 
-	yaml, err := Kustomize(resources, kustomization)
+	yaml, err := kustomize.Kustomize(resources, kustomization)
 	if err != nil {
 		return err
 	}
@@ -58,7 +59,7 @@ func (i *KustomizeInstaller) Uninstall(options application.Options) error {
 		return err
 	}
 
-	yaml, err := Kustomize(resources, kustomization)
+	yaml, err := kustomize.Kustomize(resources, kustomization)
 	if err != nil {
 		return err
 	}

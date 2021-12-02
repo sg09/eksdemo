@@ -3,7 +3,7 @@ package keycloak
 import (
 	"eksdemo/pkg/application"
 	"eksdemo/pkg/cmd"
-	"eksdemo/pkg/helm"
+	"eksdemo/pkg/installer"
 	"eksdemo/pkg/resource"
 	"eksdemo/pkg/resource/amg"
 	"eksdemo/pkg/template"
@@ -37,7 +37,7 @@ func NewApp() *application.Application {
 			amg.NewResourceWithOptions(options.AmgOptions),
 		},
 
-		Installer: &helm.HelmInstaller{
+		Installer: &installer.HelmInstaller{
 			ChartName:     "keycloak",
 			ReleaseName:   keycloakReleasName,
 			RepositoryURL: "https://charts.bitnami.com/bitnami",

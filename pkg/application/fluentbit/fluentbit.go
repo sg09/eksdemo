@@ -3,7 +3,7 @@ package fluentbit
 import (
 	"eksdemo/pkg/application"
 	"eksdemo/pkg/cmd"
-	"eksdemo/pkg/helm"
+	"eksdemo/pkg/installer"
 	"eksdemo/pkg/resource"
 	"eksdemo/pkg/resource/irsa"
 	"eksdemo/pkg/template"
@@ -33,7 +33,7 @@ func NewApp() *application.Application {
 			}),
 		},
 
-		Installer: &helm.HelmInstaller{
+		Installer: &installer.HelmInstaller{
 			ChartName:     "fluent-bit",
 			ReleaseName:   "fluent-bit",
 			RepositoryURL: "https://fluent.github.io/helm-charts",

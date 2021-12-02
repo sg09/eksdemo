@@ -3,7 +3,7 @@ package aws_lb
 import (
 	"eksdemo/pkg/application"
 	"eksdemo/pkg/cmd"
-	"eksdemo/pkg/helm"
+	"eksdemo/pkg/installer"
 	"eksdemo/pkg/resource"
 	"eksdemo/pkg/resource/irsa"
 	"eksdemo/pkg/template"
@@ -42,7 +42,7 @@ func NewApp() *application.Application {
 			},
 		},
 
-		Installer: &helm.HelmInstaller{
+		Installer: &installer.HelmInstaller{
 			ChartName:     "aws-load-balancer-controller",
 			ReleaseName:   "aws-load-balancer-controller",
 			RepositoryURL: "https://aws.github.io/eks-charts",

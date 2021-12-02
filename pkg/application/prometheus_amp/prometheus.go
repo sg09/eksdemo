@@ -3,7 +3,7 @@ package prometheus_amp
 import (
 	"eksdemo/pkg/application"
 	"eksdemo/pkg/cmd"
-	"eksdemo/pkg/helm"
+	"eksdemo/pkg/installer"
 	"eksdemo/pkg/resource"
 	"eksdemo/pkg/resource/amp"
 	"eksdemo/pkg/resource/irsa"
@@ -41,7 +41,7 @@ func NewApp() *application.Application {
 			amp.NewResourceWithOptions(options.AmpOptions),
 		},
 
-		Installer: &helm.HelmInstaller{
+		Installer: &installer.HelmInstaller{
 			ChartName:     "kube-prometheus-stack",
 			ReleaseName:   "prometheus-amp",
 			RepositoryURL: "https://prometheus-community.github.io/helm-charts",

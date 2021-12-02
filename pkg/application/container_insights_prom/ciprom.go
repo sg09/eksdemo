@@ -3,7 +3,7 @@ package container_insights_prom
 import (
 	"eksdemo/pkg/application"
 	"eksdemo/pkg/cmd"
-	"eksdemo/pkg/kustomize"
+	"eksdemo/pkg/installer"
 	"eksdemo/pkg/resource"
 	"eksdemo/pkg/resource/irsa"
 	"eksdemo/pkg/template"
@@ -42,7 +42,7 @@ func NewApp() *application.Application {
 			},
 		},
 
-		Installer: &kustomize.KustomizeInstaller{
+		Installer: &installer.KustomizeInstaller{
 			ResourceTemplate: &template.TextTemplate{
 				Template: manifestTemplate,
 			},
