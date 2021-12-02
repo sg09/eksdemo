@@ -15,6 +15,7 @@ import (
 	"eksdemo/pkg/resource/node"
 	"eksdemo/pkg/resource/nodegroup"
 	"eksdemo/pkg/resource/organization"
+	"eksdemo/pkg/resource/vpc"
 	"fmt"
 	"os"
 
@@ -69,6 +70,7 @@ func init() {
 	getCmd.AddCommand(node.NewResource().NewGetCmd())
 	getCmd.AddCommand(nodegroup.NewResource().NewGetCmd())
 	getCmd.AddCommand(organization.NewResource().NewGetCmd())
+	getCmd.AddCommand(vpc.NewResource().NewGetCmd())
 
 	getHelmCmd.Flags().StringVarP(&clusterName, "cluster", "c", "", "cluster (required)")
 	getHelmCmd.MarkFlagRequired("cluster")
