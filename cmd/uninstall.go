@@ -8,6 +8,7 @@ import (
 	"eksdemo/pkg/application/container_insights_prom"
 	"eksdemo/pkg/application/ebs_csi"
 	"eksdemo/pkg/application/efs_csi"
+	"eksdemo/pkg/application/examples/game_2048"
 	"eksdemo/pkg/application/external_dns"
 	"eksdemo/pkg/application/fluentbit"
 	"eksdemo/pkg/application/fsx_lustre_csi"
@@ -44,6 +45,7 @@ func newCmdUninstall() *cobra.Command {
 	cmd.AddCommand(fluentbit.NewApp().NewUninstallCmd())
 	cmd.AddCommand(grafana_amp.NewApp().NewUninstallCmd())
 	cmd.AddCommand(fsx_lustre_csi.NewApp().NewUninstallCmd())
+	cmd.AddCommand(game_2048.NewApp().NewUninstallCmd())
 	cmd.AddCommand(istio_base.NewApp().NewUninstallCmd())
 	cmd.AddCommand(istiod.NewApp().NewUninstallCmd())
 	cmd.AddCommand(karpenter.NewApp().NewUninstallCmd())
