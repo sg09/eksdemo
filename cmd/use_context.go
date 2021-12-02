@@ -11,10 +11,9 @@ import (
 var useContextCmd = &cobra.Command{
 	Use:     "use-context CLUSTER",
 	Short:   "set currect kubeconfig context",
-	Aliases: []string{"uc"},
+	Aliases: []string{"context", "ctx", "uc"},
 	Args:    cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		// TODO: maybe just context and then check for match and if not write it
 		clusterName := args[0]
 		eksctlClusterName := eksctl.GetClusterName(clusterName)
 
@@ -27,16 +26,20 @@ var useContextCmd = &cobra.Command{
 
 		for name, context := range raw.Contexts {
 			if context.Cluster == eksctlClusterName {
+				// update context
 				raw.CurrentContext = name
-				// TODO: check error
-				clientcmd.ModifyConfig(config.ConfigAccess(), raw, false)
+
+				err := clientcmd.ModifyConfig(config.ConfigAccess(), raw, false)
+				if err != nil {
+					return fmt.Errorf("failed to update kubeconfig: %w", err)
+				}
+
 				fmt.Printf("Context switched to: %s\n", name)
-				// cluster.Get()
 				return nil
 			}
 		}
 
-		return fmt.Errorf("context not found for cluster: %s", clusterName)
+		return fmt.Errorf("context not found in kubeconfig for cluster: %s", clusterName)
 	},
 }
 
