@@ -1,6 +1,8 @@
 package kubernetes
 
 import (
+	"fmt"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/eks"
 	"k8s.io/client-go/kubernetes"
@@ -82,7 +84,7 @@ func Kubeconfig() (*clientcmdapi.Config, error) {
 
 	raw, err := config.RawConfig()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to load kubeconfig: %w", err)
 	}
 
 	return &raw, nil
