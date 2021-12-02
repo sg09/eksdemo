@@ -22,16 +22,19 @@ func karpenterDefaultProvisioner() *resource.Resource {
 }
 
 const yamlTemplate = `
-apiVersion: karpenter.sh/v1alpha4
+apiVersion: karpenter.sh/v1alpha5
 kind: Provisioner
 metadata:
   name: default
 spec:
+  requirements:
+    - key: karpenter.sh/capacity-type
+      operator: In
+      values: ["spot"]
+  limits:
+    resources:
+      cpu: 1000
   provider:
     instanceProfile: KarpenterNodeInstanceProfile-{{ .ClusterName }}
-    capacityTypes: [ "spot" ]
-    cluster:
-      name: {{ .ClusterName }}
-      endpoint: {{ .Cluster.Endpoint }}
   ttlSecondsAfterEmpty: 30
 `

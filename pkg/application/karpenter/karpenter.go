@@ -48,7 +48,7 @@ func NewApp() *application.Application {
 		Installer: &installer.HelmInstaller{
 			ChartName:     "karpenter",
 			ReleaseName:   "karpenter",
-			RepositoryURL: "https://awslabs.github.io/karpenter/charts",
+			RepositoryURL: "https://charts.karpenter.sh",
 			ValuesTemplate: &template.TextTemplate{
 				Template: valuesTemplate,
 			},
@@ -85,12 +85,13 @@ Statement:
 `
 
 const valuesTemplate = `
-clusterName: {{ .ClusterName }}
-replicaCount: 1
 serviceAccount:
   annotations:
     {{ .IrsaAnnotation }}
   name: {{ .ServiceAccount }}
-image:
-  tag: {{ .Version }}
+controller:
+  image: public.ecr.aws/karpenter/controller:{{ .Version }}
+  clusterName: {{ .ClusterName }}
+  clusterEndpoint: {{ .Cluster.Endpoint }}
+  replicaCount: 1
 `

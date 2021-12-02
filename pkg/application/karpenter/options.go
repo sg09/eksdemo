@@ -20,8 +20,8 @@ func NewOptions() (options *KarpenterOptions, flags cmd.Flags) {
 			Namespace:      "karpenter",
 			ServiceAccount: "karpenter",
 			DefaultVersion: &application.LatestPrevious{
-				Latest:   "v0.4.0",
-				Previous: "v0.3.4",
+				Latest:   "v0.5.0",
+				Previous: "v0.4.3",
 			},
 		},
 	}
