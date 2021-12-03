@@ -1,6 +1,8 @@
-package cmd
+package install
 
 import (
+	"eksdemo/pkg/application"
+	"eksdemo/pkg/application/ack/s3_controller"
 	"eksdemo/pkg/application/appmesh_controller"
 	"eksdemo/pkg/application/aws_lb"
 	"eksdemo/pkg/application/cluster_autoscaler"
@@ -24,7 +26,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newCmdUninstall() *cobra.Command {
+func NewUninstallCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:     "uninstall",
 		Short:   "uninstall application and delete dependencies",
@@ -34,6 +36,10 @@ func newCmdUninstall() *cobra.Command {
 	// Don't show flag errors for uninstall without a subcommand
 	cmd.DisableFlagParsing = true
 
+	cmd.AddCommand(NewUninstallAckCmd())
+	for _, c := range NewUninstallAliasCmds(ack, "ack-") {
+		cmd.AddCommand(c)
+	}
 	cmd.AddCommand(appmesh_controller.NewApp().NewUninstallCmd())
 	cmd.AddCommand(aws_lb.NewApp().NewUninstallCmd())
 	cmd.AddCommand(cluster_autoscaler.NewApp().NewUninstallCmd())
@@ -54,5 +60,24 @@ func newCmdUninstall() *cobra.Command {
 	cmd.AddCommand(metrics_server.NewApp().NewUninstallCmd())
 	cmd.AddCommand(prometheus_amp.NewApp().NewUninstallCmd())
 
+	cmd.AddCommand(s3_controller.NewApp().NewUninstallCmd())
+
 	return cmd
+}
+
+// This creates alias commands for subcommands under INSTALL
+func NewUninstallAliasCmds(appList []func() *application.Application, prefix string) []*cobra.Command {
+	cmds := make([]*cobra.Command, 0, len(appList))
+
+	for _, app := range appList {
+		a := app()
+		a.Command.Name = prefix + a.Command.Name
+		a.Command.Hidden = true
+		for i, alias := range a.Command.Aliases {
+			a.Command.Aliases[i] = prefix + alias
+		}
+		cmds = append(cmds, a.NewUninstallCmd())
+	}
+
+	return cmds
 }

@@ -1,6 +1,7 @@
-package cmd
+package create
 
 import (
+	"eksdemo/pkg/resource"
 	"eksdemo/pkg/resource/addon"
 	"eksdemo/pkg/resource/amg"
 	"eksdemo/pkg/resource/amp"
@@ -13,7 +14,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func newCmdCreate() *cobra.Command {
+func NewCreateCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "create",
 		Short: "create resource(s)",
@@ -22,6 +23,10 @@ func newCmdCreate() *cobra.Command {
 	// Don't show flag errors for create without a subcommand
 	cmd.DisableFlagParsing = true
 
+	cmd.AddCommand(NewAckCmd())
+	for _, c := range NewCreateAliasCmds(ack, "ack-") {
+		cmd.AddCommand(c)
+	}
 	cmd.AddCommand(addon.NewResource().NewCreateCmd())
 	cmd.AddCommand(amg.NewResource().NewCreateCmd())
 	cmd.AddCommand(amp.NewResource().NewCreateCmd())
@@ -34,4 +39,21 @@ func newCmdCreate() *cobra.Command {
 	cmd.AddCommand(servicelb.NewResource().NewCreateCmd())
 
 	return cmd
+}
+
+// This creates alias commands for subcommands under CREATE
+func NewCreateAliasCmds(resList []func() *resource.Resource, prefix string) []*cobra.Command {
+	cmds := make([]*cobra.Command, 0, len(resList))
+
+	for _, res := range resList {
+		r := res()
+		r.Command.Name = prefix + r.Command.Name
+		r.Command.Hidden = true
+		for i, alias := range r.Command.Aliases {
+			r.Command.Aliases[i] = prefix + alias
+		}
+		cmds = append(cmds, r.NewCreateCmd())
+	}
+
+	return cmds
 }

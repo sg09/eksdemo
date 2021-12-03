@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"eksdemo/cmd/create"
+	"eksdemo/cmd/install"
 	"fmt"
 	"os"
 
@@ -34,10 +36,10 @@ func init() {
 	cobra.OnInitialize(initConfig)
 
 	rootCmd.AddCommand(
-		newCmdCreate(),
+		create.NewCreateCmd(),
 		newCmdDelete(),
-		newCmdInstall(),
-		newCmdUninstall(),
+		install.NewInstallCmd(),
+		install.NewUninstallCmd(),
 	)
 
 	// TODO: implement configuration

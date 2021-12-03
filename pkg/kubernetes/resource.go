@@ -27,7 +27,7 @@ func (m *ResourceManager) Create(options resource.Options) error {
 }
 
 func (m *ResourceManager) Delete(options resource.Options) error {
-	return nil
+	return fmt.Errorf("feature not yet implemented")
 }
 
 func (m *ResourceManager) SetDryRun() {

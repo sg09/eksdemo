@@ -69,7 +69,6 @@ func (o *CommonOptions) NewNamespaceFlag(action Action) *cmd.StringFlag {
 			Name:        "namespace",
 			Description: fmt.Sprintf("namespace to %s resource (required)", action),
 			Shorthand:   "n",
-			Required:    true,
 		},
 		Option: &o.Namespace,
 	}

@@ -22,6 +22,7 @@ func (a *Application) NewInstallCmd() *cobra.Command {
 		Short:   a.Description,
 		Long:    "Install " + a.Name,
 		Aliases: a.Aliases,
+		Hidden:  a.Hidden,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if err := a.ValidateFlags(); err != nil {
 				return err
@@ -62,6 +63,7 @@ func (a *Application) NewUninstallCmd() *cobra.Command {
 		Short:   a.Description,
 		Long:    "Uninstall " + a.Name,
 		Aliases: a.Aliases,
+		Hidden:  a.Hidden,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if err := a.ValidateFlags(); err != nil {
 				return err

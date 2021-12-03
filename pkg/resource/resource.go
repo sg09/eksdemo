@@ -38,6 +38,7 @@ func (r *Resource) NewCreateCmd() *cobra.Command {
 		Long:    "Create " + r.Description,
 		Aliases: r.Aliases,
 		Args:    cobra.ExactArgs(len(r.Args)),
+		Hidden:  r.Hidden,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if err := r.Flags.ValidateFlags(); err != nil {
 				return err
@@ -94,6 +95,7 @@ func (r *Resource) NewDeleteCmd() *cobra.Command {
 		Long:    "Delete " + r.Description,
 		Aliases: r.Aliases,
 		Args:    args,
+		Hidden:  r.Hidden,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if err := r.Flags.ValidateFlags(); err != nil {
 				return err
@@ -145,6 +147,7 @@ func (r *Resource) NewGetCmd() *cobra.Command {
 		Long:    "Get " + r.Description,
 		Aliases: r.Aliases,
 		Args:    args,
+		Hidden:  r.Hidden,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if err := r.Flags.ValidateFlags(); err != nil {
 				return err
