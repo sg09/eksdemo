@@ -127,6 +127,11 @@ func (r *Resource) NewDeleteCmd() *cobra.Command {
 func (r *Resource) NewGetCmd() *cobra.Command {
 	var args cobra.PositionalArgs
 	var output printer.Output
+	use := r.Command.Name
+
+	if len(r.Args) > 0 {
+		use += " " + "[" + r.Args[0] + "]"
+	}
 
 	if len(r.Args) == 0 {
 		args = cobra.NoArgs
@@ -135,7 +140,7 @@ func (r *Resource) NewGetCmd() *cobra.Command {
 	}
 
 	cobraCmd := &cobra.Command{
-		Use:     r.Command.Name + " " + strings.Join(r.Args, " "),
+		Use:     use,
 		Short:   r.Description,
 		Long:    "Get " + r.Description,
 		Aliases: r.Aliases,
