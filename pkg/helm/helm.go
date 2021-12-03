@@ -3,6 +3,7 @@ package helm
 import (
 	"fmt"
 	"log"
+	"net/url"
 	"os"
 	"time"
 
@@ -10,7 +11,6 @@ import (
 	"helm.sh/helm/v3/pkg/chart"
 	"helm.sh/helm/v3/pkg/chart/loader"
 	"helm.sh/helm/v3/pkg/cli"
-	"helm.sh/helm/v3/pkg/downloader"
 	"helm.sh/helm/v3/pkg/getter"
 	"helm.sh/helm/v3/pkg/postrender"
 	"helm.sh/helm/v3/pkg/release"
@@ -46,30 +46,30 @@ func initialize(kubeContext, namespace string) (*action.Configuration, error) {
 func (h *Helm) DownloadChart() (*chart.Chart, error) {
 	getters := getter.All(&cli.EnvSettings{})
 
-	// Find Chart
-	chartPath, err := repo.FindChartInRepoURL(h.RepositoryURL, h.ChartName, "", "", "", "", getters)
+	u, err := url.Parse(h.RepositoryURL)
 	if err != nil {
 		return nil, err
 	}
 
-	dl := downloader.ChartDownloader{
-		Out:     os.Stdout,
-		Getters: getters,
+	var chartPath string
+	if u.Scheme == "oci" {
+		chartPath = h.RepositoryURL
+	} else {
+		// Find Chart
+		chartPath, err = repo.FindChartInRepoURL(h.RepositoryURL, h.ChartName, "", "", "", "", getters)
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	u, err := dl.ResolveChartVersion(chartPath, "")
-	if err != nil {
-		return nil, err
-	}
-	fmt.Printf("Downloading Chart: %s\n", u)
-
-	g, err := dl.Getters.ByScheme(u.Scheme)
+	fmt.Printf("Downloading Chart: %s\n", chartPath)
+	g, err := getters.ByScheme(u.Scheme)
 	if err != nil {
 		return nil, err
 	}
 
 	// Download chart archive into memory
-	data, err := g.Get(chartPath, dl.Options...)
+	data, err := g.Get(chartPath)
 	if err != nil {
 		return nil, err
 	}
