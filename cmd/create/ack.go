@@ -2,6 +2,7 @@ package create
 
 import (
 	"eksdemo/pkg/resource"
+	"eksdemo/pkg/resource/ack/ecr"
 	"eksdemo/pkg/resource/ack/s3"
 
 	"github.com/spf13/cobra"
@@ -27,6 +28,7 @@ func NewAckCmd() *cobra.Command {
 
 func init() {
 	ack = []func() *resource.Resource{
+		ecr.NewResource,
 		s3.NewResource,
 	}
 }
