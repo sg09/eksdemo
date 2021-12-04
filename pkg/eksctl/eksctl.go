@@ -15,6 +15,10 @@ func GetClusterName(cluster string) string {
 	return fmt.Sprintf("%s.%s.eksctl.io", cluster, aws.Region())
 }
 
+func TagNamePrefix(clusterName string) string {
+	return fmt.Sprintf("eksctl-%s-cluster/", clusterName)
+}
+
 func CheckVersion() error {
 	errmsg := fmt.Errorf("eksdemo requires eksctl version %s or later", minVersion)
 

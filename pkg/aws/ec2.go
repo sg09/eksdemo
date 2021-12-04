@@ -49,6 +49,49 @@ func EC2DescribeTags(resources, tagsFilter []string) (*ec2.DescribeTagsOutput, e
 	return result, nil
 }
 
+func EC2DescribeSubnets(name, vpcId string) ([]*ec2.Subnet, error) {
+	sess := GetSession()
+	svc := ec2.New(sess)
+
+	filters := []*ec2.Filter{}
+	subnets := []*ec2.Subnet{}
+	pageNum := 0
+
+	if name != "" {
+		filters = append(filters, &ec2.Filter{
+			Name:   aws.String("tag:Name"),
+			Values: aws.StringSlice([]string{name}),
+		})
+	}
+
+	if vpcId != "" {
+		filters = append(filters, &ec2.Filter{
+			Name:   aws.String("vpc-id"),
+			Values: aws.StringSlice([]string{vpcId}),
+		})
+	}
+
+	input := &ec2.DescribeSubnetsInput{}
+
+	if len(filters) > 0 {
+		input.Filters = filters
+	}
+
+	err := svc.DescribeSubnetsPages(input,
+		func(page *ec2.DescribeSubnetsOutput, lastPage bool) bool {
+			pageNum++
+			subnets = append(subnets, page.Subnets...)
+			return pageNum <= maxPages
+		},
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return subnets, nil
+}
+
 func EC2DescribeVpcs(name, vpcId string) ([]*ec2.Vpc, error) {
 	sess := GetSession()
 	svc := ec2.New(sess)

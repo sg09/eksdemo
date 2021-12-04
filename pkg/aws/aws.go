@@ -46,3 +46,12 @@ func StringValueSlice(src []*string) []string {
 	}
 	return dst
 }
+
+// Int64Value returns the value of the int64 pointer passed in or
+// 0 if the pointer is nil.
+func Int64Value(v *int64) int64 {
+	if v != nil {
+		return *v
+	}
+	return 0
+}
