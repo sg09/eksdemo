@@ -2,6 +2,7 @@ package create
 
 import (
 	"eksdemo/pkg/resource"
+	"eksdemo/pkg/resource/ack/ec2"
 	"eksdemo/pkg/resource/ack/ecr"
 	"eksdemo/pkg/resource/ack/s3"
 
@@ -28,6 +29,9 @@ func NewAckCmd() *cobra.Command {
 
 func init() {
 	ack = []func() *resource.Resource{
+		ec2.NewSecurityGroupResource,
+		ec2.NewSubnetResource,
+		ec2.NewVpcResource,
 		ecr.NewResource,
 		s3.NewResource,
 	}
