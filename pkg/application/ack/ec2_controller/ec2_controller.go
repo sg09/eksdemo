@@ -28,7 +28,7 @@ func NewApp() *application.Application {
 		Dependencies: []*resource.Resource{
 			irsa.NewResourceWithOptions(&irsa.IrsaOptions{
 				CommonOptions: resource.CommonOptions{
-					Name: "ack-ecr-controller-irsa",
+					Name: "ack-ec2-controller-irsa",
 				},
 				// https://github.com/aws-controllers-k8s/ec2-controller/blob/main/config/iam/recommended-policy-arn
 				PolicyType: irsa.PolicyARNs,

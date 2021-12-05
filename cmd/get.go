@@ -74,6 +74,9 @@ func init() {
 	getCmd.AddCommand(subnet.NewResource().NewGetCmd())
 	getCmd.AddCommand(vpc.NewResource().NewGetCmd())
 
+	// Don't show flag errors for install without a subcommand
+	getCmd.DisableFlagParsing = true
+
 	getHelmCmd.Flags().StringVarP(&clusterName, "cluster", "c", "", "cluster (required)")
 	getHelmCmd.MarkFlagRequired("cluster")
 	getHelmCmd.Flags().VarP(cmd.NewOutputFlag(&output), "output", "o", "output format (json|table|yaml)")

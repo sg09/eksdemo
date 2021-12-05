@@ -11,7 +11,7 @@ func NewResource() *resource.Resource {
 	res := &resource.Resource{
 		Command: cmd.Command{
 			Name:        "nodegroup",
-			Description: "Managed Nodegroup",
+			Description: "EKS Managed Nodegroup",
 			Aliases:     []string{"ng", "mng"},
 			Args:        []string{"NAME"},
 		},
