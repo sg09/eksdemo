@@ -41,12 +41,7 @@ func CloudFormationDeleteStack(stackName string) error {
 	sess := GetSession()
 	svc := cloudformation.New(sess)
 
-	_, err := CloudFormationDescribeStacks(stackName)
-	if err != nil {
-		return err
-	}
-
-	_, err = svc.DeleteStack(&cloudformation.DeleteStackInput{
+	_, err := svc.DeleteStack(&cloudformation.DeleteStackInput{
 		StackName: aws.String(stackName),
 	})
 	if err != nil {

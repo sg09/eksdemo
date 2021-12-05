@@ -60,6 +60,20 @@ func (m *ResourceManager) Create(options resource.Options) error {
 func (m *ResourceManager) Delete(options resource.Options) error {
 	stackName := fmt.Sprintf(stackNameTemplate, options.Common().ClusterName, options.Common().Name)
 
+	_, err := aws.CloudFormationDescribeStacks(stackName)
+	if err != nil {
+		if err != nil {
+			if awsErr, ok := err.(awserr.Error); ok {
+				switch awsErr.Code() {
+				case "ValidationError":
+					fmt.Printf("Cloudformation stack %q doesn't exist, skipping...\n", stackName)
+					return nil
+				}
+				return err
+			}
+		}
+	}
+
 	fmt.Printf("Deleting Cloudformation stack %q\n", stackName)
 
 	return aws.CloudFormationDeleteStack(stackName)
