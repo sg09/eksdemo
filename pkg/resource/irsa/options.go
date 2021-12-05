@@ -3,6 +3,7 @@ package irsa
 import (
 	"eksdemo/pkg/cmd"
 	"eksdemo/pkg/resource"
+	"eksdemo/pkg/template"
 	"fmt"
 )
 
@@ -13,9 +14,9 @@ type IrsaOptions struct {
 	Policy []string
 
 	// Used for flags
-	WellKnownPolicy string
-	PolicyARNs      []string
-	PolicyDoc       string
+	WellKnownPolicy   string
+	PolicyARNs        []string
+	PolicyDocTemplate template.Template
 }
 
 type PolicyType int

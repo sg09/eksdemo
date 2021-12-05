@@ -29,7 +29,9 @@ func NewApp() *application.Application {
 					Name: "fsx-lustre-csi-irsa",
 				},
 				PolicyType: irsa.PolicyDocument,
-				Policy:     []string{policyDocument},
+				PolicyDocTemplate: &template.TextTemplate{
+					Template: policyDocument,
+				},
 			}),
 		},
 

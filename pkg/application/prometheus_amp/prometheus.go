@@ -36,7 +36,9 @@ func NewApp() *application.Application {
 					Name: "prometheus-amp-irsa",
 				},
 				PolicyType: irsa.PolicyDocument,
-				Policy:     []string{irsaPolicyDocument},
+				PolicyDocTemplate: &template.TextTemplate{
+					Template: irsaPolicyDocument,
+				},
 			}),
 			amp.NewResourceWithOptions(options.AmpOptions),
 		},

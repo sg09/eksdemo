@@ -30,7 +30,9 @@ func NewApp() *application.Application {
 					Name: "appmesh-controller-irsa",
 				},
 				PolicyType: irsa.PolicyDocument,
-				Policy:     []string{policyDocument},
+				PolicyDocTemplate: &template.TextTemplate{
+					Template: policyDocument,
+				},
 			}),
 		},
 

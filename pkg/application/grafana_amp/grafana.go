@@ -29,7 +29,9 @@ func NewApp() *application.Application {
 					Name: "grafana-amp-irsa",
 				},
 				PolicyType: irsa.PolicyDocument,
-				Policy:     []string{irsaPolicyDocument},
+				PolicyDocTemplate: &template.TextTemplate{
+					Template: irsaPolicyDocument,
+				},
 			}),
 		},
 

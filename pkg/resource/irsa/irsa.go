@@ -49,7 +49,7 @@ const EksctlTemplate = `
     roleOnly: true
 {{- if .PolicyType | .IsPolicyDocument }}
     attachPolicy:
-{{- first .Policy | indent 6 }}
+{{- .PolicyDocTemplate.Render . | indent 6 }}
 {{- end }}
 {{- if .PolicyType | .IsPolicyARN }}
     attachPolicyARNs:

@@ -30,7 +30,9 @@ func NewApp() *application.Application {
 					Name: "karpenter-irsa",
 				},
 				PolicyType: irsa.PolicyDocument,
-				Policy:     []string{irsaPolicyDocument},
+				PolicyDocTemplate: &template.TextTemplate{
+					Template: irsaPolicyDocument,
+				},
 			}),
 			karpenterNodeRole(),
 			iam_auth.NewResourceWithOptions(&iam_auth.IamAuthOptions{

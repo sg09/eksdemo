@@ -29,7 +29,9 @@ func NewApp() *application.Application {
 					Name: "fluent-bit-irsa",
 				},
 				PolicyType: irsa.PolicyDocument,
-				Policy:     []string{policyDocument},
+				PolicyDocTemplate: &template.TextTemplate{
+					Template: policyDocument,
+				},
 			}),
 		},
 

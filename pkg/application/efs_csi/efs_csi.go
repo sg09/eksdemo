@@ -29,7 +29,9 @@ func NewApp() *application.Application {
 					Name: "efs-csi-irsa",
 				},
 				PolicyType: irsa.PolicyDocument,
-				Policy:     []string{policyDocument},
+				PolicyDocTemplate: &template.TextTemplate{
+					Template: policyDocument,
+				},
 			}),
 		},
 
