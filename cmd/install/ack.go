@@ -2,6 +2,7 @@ package install
 
 import (
 	"eksdemo/pkg/application"
+	"eksdemo/pkg/application/ack/apigatewayv2_controller"
 	"eksdemo/pkg/application/ack/ec2_controller"
 	"eksdemo/pkg/application/ack/ecr_controller"
 	"eksdemo/pkg/application/ack/eks_controller"
@@ -46,9 +47,10 @@ func NewUninstallAckCmd() *cobra.Command {
 
 func init() {
 	ack = []func() *application.Application{
-		s3_controller.NewApp,
+		apigatewayv2_controller.NewApp,
 		ec2_controller.NewApp,
 		ecr_controller.NewApp,
 		eks_controller.NewApp,
+		s3_controller.NewApp,
 	}
 }
