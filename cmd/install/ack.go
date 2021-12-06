@@ -4,6 +4,7 @@ import (
 	"eksdemo/pkg/application"
 	"eksdemo/pkg/application/ack/ec2_controller"
 	"eksdemo/pkg/application/ack/ecr_controller"
+	"eksdemo/pkg/application/ack/eks_controller"
 	"eksdemo/pkg/application/ack/s3_controller"
 
 	"github.com/spf13/cobra"
@@ -48,5 +49,6 @@ func init() {
 		s3_controller.NewApp,
 		ec2_controller.NewApp,
 		ecr_controller.NewApp,
+		eks_controller.NewApp,
 	}
 }
