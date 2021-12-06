@@ -11,6 +11,7 @@ import (
 	"eksdemo/pkg/resource/amp"
 	"eksdemo/pkg/resource/cloudformation"
 	"eksdemo/pkg/resource/cluster"
+	"eksdemo/pkg/resource/fargate_profile"
 	"eksdemo/pkg/resource/irsa"
 	"eksdemo/pkg/resource/node"
 	"eksdemo/pkg/resource/nodegroup"
@@ -67,6 +68,7 @@ func init() {
 	getCmd.AddCommand(amp.NewResource().NewGetCmd())
 	getCmd.AddCommand(cloudformation.NewResource().NewGetCmd())
 	getCmd.AddCommand(cluster.NewResource().NewGetCmd())
+	getCmd.AddCommand(fargate_profile.NewResource().NewGetCmd())
 	getCmd.AddCommand(irsa.NewResource().NewGetCmd())
 	getCmd.AddCommand(node.NewResource().NewGetCmd())
 	getCmd.AddCommand(nodegroup.NewResource().NewGetCmd())

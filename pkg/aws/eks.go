@@ -69,6 +69,22 @@ func EksDescribeCluster(clusterName string) (*eks.Cluster, error) {
 	return result.Cluster, nil
 }
 
+func EksDescribeFargateProfile(clusterName, profileName string) (*eks.FargateProfile, error) {
+	sess := GetSession()
+	svc := eks.New(sess)
+
+	result, err := svc.DescribeFargateProfile(&eks.DescribeFargateProfileInput{
+		ClusterName:        aws.String(clusterName),
+		FargateProfileName: aws.String(profileName),
+	})
+
+	if err != nil {
+		return nil, FormatError(err)
+	}
+
+	return result.FargateProfile, nil
+}
+
 func EksDescribeNodegroup(clusterName, nodegroupName string) (*eks.Nodegroup, error) {
 	sess := GetSession()
 	svc := eks.New(sess)
@@ -129,6 +145,30 @@ func EksListClusters() ([]*string, error) {
 	}
 
 	return clusters, nil
+}
+
+func EksListFargateProfiles(clusterName string) ([]*string, error) {
+	sess := GetSession()
+	svc := eks.New(sess)
+
+	profiles := []*string{}
+	pageNum := 0
+
+	err := svc.ListFargateProfilesPages(&eks.ListFargateProfilesInput{
+		ClusterName: aws.String(clusterName),
+	},
+		func(page *eks.ListFargateProfilesOutput, lastPage bool) bool {
+			pageNum++
+			profiles = append(profiles, page.FargateProfileNames...)
+			return pageNum <= maxPages
+		},
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return profiles, nil
 }
 
 func EksListNodegroups(clusterName string) ([]*string, error) {
