@@ -11,7 +11,7 @@ import (
 // kubernetes.io/cluster/<clusterName>
 const K8stag = `kubernetes.io/cluster/%s`
 
-func getSubnets(clusterName string) (string, error) {
+func GetPrivateSubnets(clusterName string) ([]string, error) {
 	stackName := "eksctl-" + clusterName + "-cluster"
 
 	stacks, err := aws.CloudFormationDescribeStacks(stackName)
@@ -19,35 +19,35 @@ func getSubnets(clusterName string) (string, error) {
 		if awsErr, ok := err.(awserr.Error); ok {
 			switch awsErr.Code() {
 			case "ValidationError":
-				return "", fmt.Errorf("cloudformation stack %q not found, is this an eksctl cluster?", stackName)
+				return nil, fmt.Errorf("cloudformation stack %q not found, is this an eksctl cluster?", stackName)
 			default:
-				return "", err
+				return nil, err
 			}
 		}
-		return "", err
+		return nil, err
 	}
 
 	subnets := ""
 	for _, o := range stacks[0].Outputs {
 		if aws.StringValue(o.OutputKey) == "SubnetsPrivate" {
 			subnets = aws.StringValue(o.OutputValue)
+			continue
 		}
 	}
 
 	if subnets == "" {
-		return "", fmt.Errorf("no private subnets found in cloudformation stack %q", stackName)
+		return nil, fmt.Errorf("no private subnets found in cloudformation stack %q", stackName)
 	}
 
-	return subnets, nil
+	return strings.Split(subnets, ","), nil
 }
 
 func CheckSubnets(clusterName string) error {
-	subnetsString, err := getSubnets(clusterName)
+	subnets, err := GetPrivateSubnets(clusterName)
 	if err != nil {
 		return err
 	}
 
-	subnets := strings.Split(subnetsString, ",")
 	tag := fmt.Sprintf(K8stag, clusterName)
 	tagsFilter := []string{tag}
 
@@ -64,7 +64,7 @@ func CheckSubnets(clusterName string) error {
 }
 
 func TagSubnets(clusterName string) error {
-	subnets, err := getSubnets(clusterName)
+	subnets, err := GetPrivateSubnets(clusterName)
 	if err != nil {
 		return err
 	}
@@ -73,8 +73,8 @@ func TagSubnets(clusterName string) error {
 		fmt.Sprintf(K8stag, clusterName): "",
 	}
 
-	fmt.Println("Tagging subnets: " + subnets)
+	fmt.Println("Tagging subnets: " + strings.Join(subnets, ","))
 	fmt.Printf("With: %s\n", tags)
 
-	return aws.EC2CreateTags(strings.Split(subnets, ","), tags)
+	return aws.EC2CreateTags(subnets, tags)
 }

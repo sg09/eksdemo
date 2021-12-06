@@ -4,6 +4,7 @@ import (
 	"eksdemo/pkg/resource"
 	"eksdemo/pkg/resource/ack/ec2"
 	"eksdemo/pkg/resource/ack/ecr"
+	"eksdemo/pkg/resource/ack/eks"
 	"eksdemo/pkg/resource/ack/s3"
 
 	"github.com/spf13/cobra"
@@ -33,6 +34,7 @@ func init() {
 		ec2.NewSubnetResource,
 		ec2.NewVpcResource,
 		ecr.NewResource,
+		eks.NewFargateProfileResource,
 		s3.NewResource,
 	}
 }
