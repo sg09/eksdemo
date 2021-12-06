@@ -17,6 +17,7 @@ func NewVpcResource() *resource.Resource {
 		Command: cmd.Command{
 			Name:        "vpc",
 			Description: "Virtual Private Cloud (VPC)",
+			Aliases:     []string{"vpcs"},
 			Args:        []string{"NAME"},
 		},
 

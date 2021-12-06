@@ -19,6 +19,7 @@ func NewSubnetResource() *resource.Resource {
 		Command: cmd.Command{
 			Name:        "subnet",
 			Description: "EC2 Subnet",
+			Aliases:     []string{"subnets"},
 			Args:        []string{"NAME"},
 		},
 

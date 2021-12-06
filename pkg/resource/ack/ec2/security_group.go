@@ -17,7 +17,7 @@ func NewSecurityGroupResource() *resource.Resource {
 		Command: cmd.Command{
 			Name:        "security-group",
 			Description: "EC2 Security Group",
-			Aliases:     []string{"sg"},
+			Aliases:     []string{"security-groups", "sg"},
 			Args:        []string{"NAME"},
 		},
 
