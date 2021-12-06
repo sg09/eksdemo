@@ -11,7 +11,7 @@ import (
 )
 
 type Options interface {
-	AddInstallFlags(*cobra.Command, cmd.Flags) cmd.Flags
+	AddInstallFlags(*cobra.Command, cmd.Flags, InstallerType) cmd.Flags
 	AddUninstallFlags(*cobra.Command, cmd.Flags, bool) cmd.Flags
 	AssignCommonResourceOptions(*resource.Resource)
 	Common() *ApplicationOptions
@@ -28,6 +28,7 @@ type ApplicationOptions struct {
 	DeleteDependencies        bool
 	DisableNamespaceFlag      bool
 	DisableServiceAccountFlag bool
+	SetValues                 []string
 	UsePrevious               bool
 
 	Account        string
@@ -45,7 +46,7 @@ type Action string
 const Install Action = "install"
 const Uninstall Action = "uninstall"
 
-func (o *ApplicationOptions) AddInstallFlags(cobraCmd *cobra.Command, flags cmd.Flags) cmd.Flags {
+func (o *ApplicationOptions) AddInstallFlags(cobraCmd *cobra.Command, flags cmd.Flags, it InstallerType) cmd.Flags {
 	// Cluster flag has to be ordered before Version flag as it depends on the EKS cluster version
 	flags = append(flags, o.NewClusterFlag(Install), o.NewDryRunFlag(), o.NewVersionFlag(), o.NewUsePreviousFlag())
 
@@ -55,6 +56,10 @@ func (o *ApplicationOptions) AddInstallFlags(cobraCmd *cobra.Command, flags cmd.
 
 	if !o.DisableServiceAccountFlag {
 		flags = append(flags, o.NewServiceAccountFlag())
+	}
+
+	if it == HelmInstaller {
+		flags = append(flags, o.NewSetFlag())
 	}
 
 	for _, f := range flags {

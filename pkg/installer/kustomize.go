@@ -48,6 +48,10 @@ func (i *KustomizeInstaller) SetDryRun() {
 	i.DryRun = true
 }
 
+func (i *KustomizeInstaller) Type() application.InstallerType {
+	return application.ManifestInstaller
+}
+
 func (i *KustomizeInstaller) Uninstall(options application.Options) error {
 	resources, err := i.ResourceTemplate.Render(options)
 	if err != nil {

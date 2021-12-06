@@ -52,7 +52,7 @@ func (a *Application) NewInstallCmd() *cobra.Command {
 			return a.PostInstall()
 		},
 	}
-	a.Flags = a.Options.AddInstallFlags(cmd, a.Flags)
+	a.Flags = a.Options.AddInstallFlags(cmd, a.Flags, a.Installer.Type())
 
 	return cmd
 }

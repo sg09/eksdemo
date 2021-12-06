@@ -15,6 +15,7 @@ import (
 	"helm.sh/helm/v3/pkg/postrender"
 	"helm.sh/helm/v3/pkg/release"
 	"helm.sh/helm/v3/pkg/repo"
+	"helm.sh/helm/v3/pkg/strvals"
 	"sigs.k8s.io/yaml"
 )
 
@@ -25,8 +26,10 @@ type Helm struct {
 	PostRenderer  postrender.PostRenderer
 	ReleaseName   string
 	RepositoryURL string
-	ValuesFile    string
 	Wait          bool
+
+	SetValues  []string
+	ValuesFile string
 }
 
 func initialize(kubeContext, namespace string) (*action.Configuration, error) {
@@ -93,6 +96,12 @@ func (h *Helm) Install(chart *chart.Chart, kubeContext string) error {
 	values := map[string]interface{}{}
 	if err := yaml.Unmarshal([]byte(h.ValuesFile), &values); err != nil {
 		return fmt.Errorf("failed to parse values file: %w", err)
+	}
+
+	for _, v := range h.SetValues {
+		if err := strvals.ParseInto(v, values); err != nil {
+			return fmt.Errorf("failed parsing --set data: %w", err)
+		}
 	}
 
 	actionConfig, err := initialize(kubeContext, h.Namespace)

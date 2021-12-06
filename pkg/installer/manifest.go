@@ -72,6 +72,10 @@ func (i *ManifestInstaller) SetDryRun() {
 	i.DryRun = true
 }
 
+func (i *ManifestInstaller) Type() application.InstallerType {
+	return application.ManifestInstaller
+}
+
 func (i *ManifestInstaller) Uninstall(options application.Options) error {
 	o := options.Common()
 

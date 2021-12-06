@@ -30,7 +30,6 @@ type HelmInstaller struct {
 }
 
 func (i *HelmInstaller) Install(options application.Options) error {
-
 	valuesFile, err := i.ValuesTemplate.Render(options)
 	if err != nil {
 		return err
@@ -42,8 +41,9 @@ func (i *HelmInstaller) Install(options application.Options) error {
 		Namespace:     options.Common().Namespace,
 		ReleaseName:   i.ReleaseName,
 		RepositoryURL: i.RepositoryURL,
-		ValuesFile:    valuesFile,
 		Wait:          i.Wait,
+		SetValues:     options.Common().SetValues,
+		ValuesFile:    valuesFile,
 	}
 
 	if i.DryRun {
@@ -76,6 +76,10 @@ func (i *HelmInstaller) Install(options application.Options) error {
 
 func (i *HelmInstaller) SetDryRun() {
 	i.DryRun = true
+}
+
+func (i *HelmInstaller) Type() application.InstallerType {
+	return application.HelmInstaller
 }
 
 func (i *HelmInstaller) Uninstall(options application.Options) error {

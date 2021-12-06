@@ -85,6 +85,17 @@ func (o *ApplicationOptions) NewNamespaceFlag(action Action) *cmd.StringFlag {
 	return flag
 }
 
+func (o *ApplicationOptions) NewSetFlag() *cmd.StringSliceFlag {
+	flag := &cmd.StringSliceFlag{
+		CommandFlag: cmd.CommandFlag{
+			Name:        "set",
+			Description: "set chart values (can specify multiple or separate values with commas: key1=val1,key2=val2)",
+		},
+		Option: &o.SetValues,
+	}
+	return flag
+}
+
 func (o *ApplicationOptions) NewServiceAccountFlag() *cmd.StringFlag {
 	flag := &cmd.StringFlag{
 		CommandFlag: cmd.CommandFlag{
