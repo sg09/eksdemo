@@ -13,7 +13,7 @@ import (
 // GitHub:  https://github.com/kubernetes-sigs/aws-load-balancer-controller
 // Helm:    https://github.com/aws/eks-charts/tree/master/stable/aws-load-balancer-controller
 // Repo:    602401143452.dkr.ecr.us-west-2.amazonaws.com/amazon/aws-load-balancer-controller
-// Version: Latest is v2.3.0 (as of 11/5/21)
+// Version: Latest is v2.3.1 (as of 12/11/21)
 
 func NewApp() *application.Application {
 	app := &application.Application{
@@ -37,8 +37,8 @@ func NewApp() *application.Application {
 			Namespace:      "aws-lb",
 			ServiceAccount: "aws-lb-controller",
 			DefaultVersion: &application.LatestPrevious{
-				Latest:   "v2.3.0",
-				Previous: "v2.2.4",
+				Latest:   "v2.3.1",
+				Previous: "v2.3.0",
 			},
 		},
 
