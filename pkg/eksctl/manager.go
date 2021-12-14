@@ -115,6 +115,8 @@ func (e *ResourceManager) Delete(options resource.Options) error {
 	switch e.Resource {
 	case "addon":
 		return e.DeleteAddon(options)
+	case "fargateprofile":
+		return e.DeleteFargateProfile(options)
 	case "iamidentitymapping":
 		return e.DeleteIamAuth(options)
 	default:
@@ -154,6 +156,24 @@ func (e *ResourceManager) DeleteIamAuth(options resource.Options) error {
 	}
 
 	return Command(args, "")
+}
+
+func (e *ResourceManager) DeleteFargateProfile(options resource.Options) error {
+	eksctlConfig, err := e.Template.Render(options)
+	if err != nil {
+		return err
+	}
+
+	args := []string{
+		"delete",
+		e.Resource,
+		"--name",
+		options.Common().Name,
+		"-f",
+		"-",
+	}
+
+	return Command(args, eksctlConfig)
 }
 
 func (e *ResourceManager) DeleteWithConfigFile(options resource.Options) error {
