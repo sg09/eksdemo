@@ -13,8 +13,8 @@ import (
 // GitHub:  https://github.com/grafana/grafana
 // Helm:    https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
 // Helm:    https://github.com/grafana/helm-charts/tree/main/charts/grafana
-// Repo:    grafana/grafana
-// Version: Latest is v8.2.3 (as of 11/6/21)
+// Repo:    https://hub.docker.com/r/grafana/grafana
+// Version: Latest is v8.3.3 (as of 12/14/21)
 
 func NewApp() *application.Application {
 	app := &application.Application{
