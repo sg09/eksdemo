@@ -23,7 +23,7 @@ func NewOptions() (options *PrometheusAmpOptions, flags cmd.Flags) {
 			Namespace:      "prometheus",
 			ServiceAccount: "prometheus",
 			DefaultVersion: &application.LatestPrevious{
-				Latest:   "v0.52.0",
+				Latest:   "v0.52.1",
 				Previous: "v0.51.2",
 			},
 		},

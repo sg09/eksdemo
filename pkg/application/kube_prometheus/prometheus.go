@@ -11,7 +11,7 @@ import (
 // GitHub:  https://github.com/prometheus-operator/kube-prometheus
 // Helm:    https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
 // Repo:    https://quay.io/prometheus-operator/prometheus-operator
-// Version: Latest is v0.52.0 (as of 11/7/21)
+// Version: Latest is v0.52.1 (as of 12/14/21)
 
 func NewApp() *application.Application {
 	app := &application.Application{

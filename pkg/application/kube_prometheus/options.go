@@ -18,7 +18,7 @@ func addOptions(a *application.Application) *application.Application {
 			DisableServiceAccountFlag: true,
 			Namespace:                 "monitoring",
 			DefaultVersion: &application.LatestPrevious{
-				Latest:   "v0.52.0",
+				Latest:   "v0.52.1",
 				Previous: "v0.51.2",
 			},
 		},
