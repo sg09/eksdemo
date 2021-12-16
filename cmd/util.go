@@ -7,6 +7,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var namespace string
+
 var utilCmd = &cobra.Command{
 	Use:     "utils",
 	Short:   "utility commands",
@@ -39,6 +41,20 @@ var enableSecurityGroupsForPodsCmd = &cobra.Command{
 	},
 }
 
+var serviceAccountToken = &cobra.Command{
+	Use:     "service-account-token SERVICE_ACCOUNT",
+	Short:   "Print out the token for the service account",
+	Aliases: []string{"sa-token"},
+	Args:    cobra.ExactArgs(1),
+	RunE: func(cmd *cobra.Command, args []string) error {
+		cluster, err := aws.EksDescribeCluster(clusterName)
+		if err != nil {
+			return err
+		}
+		return util.ServiceAccountToken(cluster, namespace, args[0])
+	},
+}
+
 var tagSubnetsCmd = &cobra.Command{
 	Use:     "tag-subnets",
 	Short:   "add kubernetes.io/cluster/<cluster-name> tag to private VPC subnets",
@@ -58,6 +74,7 @@ func init() {
 	utilCmd.AddCommand(tagSubnetsCmd)
 	utilCmd.AddCommand(enablePrefixAssignmentCmd)
 	utilCmd.AddCommand(enableSecurityGroupsForPodsCmd)
+	utilCmd.AddCommand(serviceAccountToken)
 
 	tagSubnetsCmd.Flags().StringVarP(&clusterName, "cluster", "c", "", "cluster (required)")
 	tagSubnetsCmd.MarkFlagRequired("cluster")
@@ -67,4 +84,9 @@ func init() {
 
 	enableSecurityGroupsForPodsCmd.Flags().StringVarP(&clusterName, "cluster", "c", "", "cluster (required)")
 	enableSecurityGroupsForPodsCmd.MarkFlagRequired("cluster")
+
+	serviceAccountToken.Flags().StringVarP(&clusterName, "cluster", "c", "", "cluster (required)")
+	serviceAccountToken.MarkFlagRequired("cluster")
+	serviceAccountToken.Flags().StringVarP(&namespace, "namespace", "n", "", "namespace (required)")
+	serviceAccountToken.MarkFlagRequired("namespace")
 }
