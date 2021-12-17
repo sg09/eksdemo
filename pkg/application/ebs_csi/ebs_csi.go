@@ -35,14 +35,12 @@ func NewApp() *application.Application {
 			}),
 		},
 
-		Options: &EbsCsiOptions{
-			application.ApplicationOptions{
-				Namespace:      "kube-system",
-				ServiceAccount: "ebs-csi-controller-sa",
-				DefaultVersion: &application.LatestPrevious{
-					Latest:   "v1.4.0",
-					Previous: "v1.3.1",
-				},
+		Options: &application.ApplicationOptions{
+			Namespace:      "kube-system",
+			ServiceAccount: "ebs-csi-controller-sa",
+			DefaultVersion: &application.LatestPrevious{
+				Latest:   "v1.4.0",
+				Previous: "v1.3.1",
 			},
 		},
 
@@ -53,6 +51,10 @@ func NewApp() *application.Application {
 			ValuesTemplate: &template.TextTemplate{
 				Template: valuesTemplate,
 			},
+		},
+
+		PostInstallResources: []*resource.Resource{
+			gp3StorageClass(),
 		},
 	}
 	return app

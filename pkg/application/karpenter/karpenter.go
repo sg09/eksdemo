@@ -15,7 +15,7 @@ import (
 // GitHub:  https://github.com/awslabs/karpenter
 // Helm:    https://github.com/awslabs/karpenter/tree/main/charts/karpenter
 // Repo:    public.ecr.aws/karpenter/controller
-// Version: Latest is v0.4.0 (as of 10/15/21)
+// Version: Latest is v0.5.2 (as of 12/16/21)
 
 func NewApp() *application.Application {
 	app := &application.Application{
@@ -55,6 +55,10 @@ func NewApp() *application.Application {
 				Template: valuesTemplate,
 			},
 			Wait: true,
+		},
+
+		PostInstallResources: []*resource.Resource{
+			karpenterDefaultProvisioner(),
 		},
 	}
 	app.Options, app.Flags = NewOptions()

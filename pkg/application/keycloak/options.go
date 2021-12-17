@@ -6,6 +6,7 @@ import (
 	"eksdemo/pkg/aws"
 	"eksdemo/pkg/cmd"
 	"eksdemo/pkg/kubernetes"
+	"eksdemo/pkg/resource"
 	"eksdemo/pkg/resource/amg"
 	"fmt"
 	"io/ioutil"
@@ -81,7 +82,7 @@ func (o *KeycloakOptions) PreInstall() error {
 	return nil
 }
 
-func (o *KeycloakOptions) PostInstall() error {
+func (o *KeycloakOptions) PostInstall(_ string, _ []*resource.Resource) error {
 	fmt.Print("Waiting for Keycloak SAML metadata URL to become active...")
 
 	k8sclient, err := kubernetes.Client(o.KubeContext())

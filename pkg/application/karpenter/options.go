@@ -20,8 +20,8 @@ func NewOptions() (options *KarpenterOptions, flags cmd.Flags) {
 			Namespace:      "karpenter",
 			ServiceAccount: "karpenter",
 			DefaultVersion: &application.LatestPrevious{
-				Latest:   "v0.5.0",
-				Previous: "v0.4.3",
+				Latest:   "v0.5.2",
+				Previous: "v0.5.1",
 			},
 		},
 	}
@@ -52,12 +52,4 @@ func (o *KarpenterOptions) PreDependencies(action application.Action) error {
 	}
 
 	return nil
-}
-
-func (o *KarpenterOptions) PostInstall() error {
-	res := karpenterDefaultProvisioner()
-	o.AssignCommonResourceOptions(res)
-	fmt.Printf("Creating post-install resource: %s\n", res.Common().Name)
-
-	return res.Create()
 }

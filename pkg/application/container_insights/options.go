@@ -50,7 +50,7 @@ func addOptions(app *application.Application) *application.Application {
 	return app
 }
 
-func (o *ContainerInsightsOptions) PostInstall() error { //include app in params?
+func (o *ContainerInsightsOptions) PostInstall(_ string, _ []*resource.Resource) error { //include app in params?
 	if !o.FluentBit {
 		return nil
 	}

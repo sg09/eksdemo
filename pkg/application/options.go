@@ -18,7 +18,7 @@ type Options interface {
 	KubeContext() string
 	PreDependencies(Action) error
 	PreInstall() error
-	PostInstall() error
+	PostInstall(string, []*resource.Resource) error
 }
 
 type ApplicationOptions struct {
@@ -125,6 +125,19 @@ func (o *ApplicationOptions) PreInstall() error {
 	return nil
 }
 
-func (o *ApplicationOptions) PostInstall() error {
+func (o *ApplicationOptions) PostInstall(name string, postInstallRes []*resource.Resource) error {
+	if len(postInstallRes) > 0 {
+		fmt.Printf("Creating %d post-install resources for %s\n", len(postInstallRes), name)
+	}
+
+	for _, res := range postInstallRes {
+		fmt.Printf("Creating post-install resource: %s\n", res.Common().Name)
+
+		o.AssignCommonResourceOptions(res)
+
+		if err := res.Create(); err != nil {
+			return err
+		}
+	}
 	return nil
 }

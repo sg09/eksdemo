@@ -14,6 +14,7 @@ type Application struct {
 
 	Dependencies []*resource.Resource
 	Installer
+	PostInstallResources []*resource.Resource
 }
 
 func (a *Application) NewInstallCmd() *cobra.Command {
@@ -49,7 +50,7 @@ func (a *Application) NewInstallCmd() *cobra.Command {
 				return err
 			}
 
-			return a.PostInstall()
+			return a.PostInstall(a.Name, a.PostInstallResources)
 		},
 	}
 	a.Flags = a.Options.AddInstallFlags(cmd, a.Flags, a.Installer.Type())
