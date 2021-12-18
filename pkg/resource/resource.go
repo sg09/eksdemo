@@ -163,7 +163,7 @@ func (r *Resource) NewGetCmd() *cobra.Command {
 				name = args[0]
 			}
 
-			return r.Getter.Get(name, output, r.Common())
+			return r.Getter.Get(name, output, r.Options)
 		},
 	}
 	cobraCmd.Flags().VarP(cmd.NewOutputFlag(&output), "output", "o", "output format (json|table|yaml)")
