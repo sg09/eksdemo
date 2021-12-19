@@ -23,7 +23,7 @@ func (m *ResourceManager) Create(options resource.Options) error {
 		return nil
 	}
 
-	return CreateResources(options.GetKubeContext(), manifest)
+	return CreateResources(options.Common().KubeContext, manifest)
 }
 
 func (m *ResourceManager) Delete(options resource.Options) error {

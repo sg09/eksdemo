@@ -12,7 +12,6 @@ type Options interface {
 	AddDeleteFlags(*cobra.Command, cmd.Flags) cmd.Flags
 	AddGetFlags(*cobra.Command, cmd.Flags) cmd.Flags
 	Common() *CommonOptions
-	GetKubeContext() string
 	PreCreate() error
 	PreDelete() error
 	SetName(string)
@@ -100,10 +99,6 @@ func (o *CommonOptions) AddGetFlags(cobraCmd *cobra.Command, flags cmd.Flags) cm
 
 func (o *CommonOptions) Common() *CommonOptions {
 	return o
-}
-
-func (o *CommonOptions) GetKubeContext() string {
-	return o.KubeContext
 }
 
 func (o *CommonOptions) PreCreate() error {
