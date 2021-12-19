@@ -4,6 +4,7 @@ import (
 	"eksdemo/pkg/resource/addon"
 	"eksdemo/pkg/resource/amg"
 	"eksdemo/pkg/resource/amp"
+	"eksdemo/pkg/resource/certificate"
 	"eksdemo/pkg/resource/cloudformation"
 	"eksdemo/pkg/resource/cluster"
 	"eksdemo/pkg/resource/fargate_profile"
@@ -26,6 +27,7 @@ func newCmdDelete() *cobra.Command {
 	cmd.AddCommand(addon.NewResource().NewDeleteCmd())
 	cmd.AddCommand(amg.NewResource().NewDeleteCmd())
 	cmd.AddCommand(amp.NewResource().NewDeleteCmd())
+	cmd.AddCommand(certificate.NewResource().NewDeleteCmd())
 	cmd.AddCommand(cloudformation.NewResource().NewDeleteCmd())
 	cmd.AddCommand(cluster.NewResource().NewDeleteCmd())
 	cmd.AddCommand(fargate_profile.NewResource().NewDeleteCmd())
