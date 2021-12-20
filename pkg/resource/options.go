@@ -12,6 +12,7 @@ type Options interface {
 	AddDeleteFlags(*cobra.Command, cmd.Flags) cmd.Flags
 	AddGetFlags(*cobra.Command, cmd.Flags) cmd.Flags
 	Common() *CommonOptions
+	PostCreate() error
 	PreCreate() error
 	PreDelete() error
 	SetName(string)
@@ -99,6 +100,10 @@ func (o *CommonOptions) AddGetFlags(cobraCmd *cobra.Command, flags cmd.Flags) cm
 
 func (o *CommonOptions) Common() *CommonOptions {
 	return o
+}
+
+func (o *CommonOptions) PostCreate() error {
+	return nil
 }
 
 func (o *CommonOptions) PreCreate() error {

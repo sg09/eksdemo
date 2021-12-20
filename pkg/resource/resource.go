@@ -65,7 +65,11 @@ func (r *Resource) NewCreateCmd() *cobra.Command {
 				return fmt.Errorf("feature not yet implemented")
 			}
 
-			return r.Create()
+			if err := r.Create(); err != nil {
+				return err
+			}
+
+			return r.PostCreate()
 		},
 	}
 	r.Flags = r.Options.AddCreateFlags(cmd, r.Flags)
