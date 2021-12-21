@@ -31,6 +31,7 @@ const (
 func addOptions(res *resource.Resource) *resource.Resource {
 	options := &IrsaOptions{
 		CommonOptions: resource.CommonOptions{
+			Namespace:     "default",
 			NamespaceFlag: true,
 		},
 	}
