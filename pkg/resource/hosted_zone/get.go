@@ -13,9 +13,22 @@ import (
 type Getter struct{}
 
 func (g *Getter) Get(name string, output printer.Output, options resource.Options) error {
-	zones, err := aws.Route53ListHostedZones()
+	zones, err := g.GetAllZonesStartingWithName(name)
 	if err != nil {
 		return err
+	}
+
+	return output.Print(os.Stdout, NewPrinter(zones))
+}
+
+func (g *Getter) GetAllZones() ([]*route53.HostedZone, error) {
+	return aws.Route53ListHostedZones()
+}
+
+func (g *Getter) GetAllZonesStartingWithName(name string) ([]*route53.HostedZone, error) {
+	zones, err := g.GetAllZones()
+	if err != nil {
+		return nil, err
 	}
 
 	if name != "" {
@@ -29,5 +42,5 @@ func (g *Getter) Get(name string, output printer.Output, options resource.Option
 		zones = filtered
 	}
 
-	return output.Print(os.Stdout, NewPrinter(zones))
+	return zones, nil
 }

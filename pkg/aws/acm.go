@@ -56,27 +56,86 @@ func AcmListCertificates() ([]*acm.CertificateSummary, error) {
 	return certs, nil
 }
 
-func AcmRequestCertificate(fqdn string) (string, error) {
+func AcmRequestCertificate(fqdn string, sans []string) (string, error) {
 	sess := GetSession()
 	svc := acm.New(sess)
 
-	result, err := svc.RequestCertificate(&acm.RequestCertificateInput{
+	input := &acm.RequestCertificateInput{
 		DomainName:       aws.String(fqdn),
 		ValidationMethod: aws.String("DNS"),
-	})
+	}
+
+	if len(sans) > 0 {
+		input.SubjectAlternativeNames = aws.StringSlice(sans)
+	}
+
+	result, err := svc.RequestCertificate(input)
 
 	if err != nil {
 		return "", err
 	}
 
-	err = waitUntilCertificateValidationMetadata(svc, &acm.DescribeCertificateInput{
+	err = waitUntilCertificateHasValidationMetadata(svc, &acm.DescribeCertificateInput{
 		CertificateArn: result.CertificateArn,
 	})
 
 	return aws.StringValue(result.CertificateArn), err
 }
 
-func waitUntilCertificateValidationMetadata(svc *acm.ACM, input *acm.DescribeCertificateInput, opts ...request.WaiterOption) error {
+func AcmWaitUntilCertificateValidated(arn string) error {
+	ctx := aws.BackgroundContext()
+	sess := GetSession()
+	svc := acm.New(sess)
+
+	input := &acm.DescribeCertificateInput{
+		CertificateArn: aws.String(arn),
+	}
+
+	w := request.Waiter{
+		Name:        "WaitUntilCertificateValidated",
+		MaxAttempts: 40,
+		Delay:       request.ConstantWaiterDelay(2 * time.Second),
+		Acceptors: []request.WaiterAcceptor{
+			{
+				State:   request.SuccessWaiterState,
+				Matcher: request.PathAllWaiterMatch, Argument: "Certificate.DomainValidationOptions[].ValidationStatus",
+				Expected: "SUCCESS",
+			},
+			{
+				State:   request.RetryWaiterState,
+				Matcher: request.PathAnyWaiterMatch, Argument: "Certificate.DomainValidationOptions[].ValidationStatus",
+				Expected: "PENDING_VALIDATION",
+			},
+			{
+				State:   request.FailureWaiterState,
+				Matcher: request.PathWaiterMatch, Argument: "Certificate.Status",
+				Expected: "FAILED",
+			},
+			{
+				State:    request.FailureWaiterState,
+				Matcher:  request.ErrorWaiterMatch,
+				Expected: "ResourceNotFoundException",
+			},
+		},
+		Logger: svc.Config.Logger,
+		NewRequest: func(opts []request.Option) (*request.Request, error) {
+			var inCpy *acm.DescribeCertificateInput
+			if input != nil {
+				tmp := *input
+				inCpy = &tmp
+			}
+			req, _ := svc.DescribeCertificateRequest(inCpy)
+			req.SetContext(ctx)
+			req.ApplyOptions(opts...)
+			return req, nil
+		},
+	}
+	w.ApplyOptions()
+
+	return w.WaitWithContext(ctx)
+}
+
+func waitUntilCertificateHasValidationMetadata(svc *acm.ACM, input *acm.DescribeCertificateInput, opts ...request.WaiterOption) error {
 	ctx := aws.BackgroundContext()
 
 	w := request.Waiter{

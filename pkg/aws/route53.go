@@ -5,6 +5,18 @@ import (
 	"github.com/aws/aws-sdk-go/service/route53"
 )
 
+func Route53ChangeResourceRecordSets(changeBatch *route53.ChangeBatch, zoneId string) error {
+	sess := GetSession()
+	svc := route53.New(sess)
+
+	_, err := svc.ChangeResourceRecordSets(&route53.ChangeResourceRecordSetsInput{
+		ChangeBatch:  changeBatch,
+		HostedZoneId: aws.String(zoneId),
+	})
+
+	return err
+}
+
 func Route53GetHostedZone(zoneId string) (*route53.GetHostedZoneOutput, error) {
 	sess := GetSession()
 	svc := route53.New(sess)

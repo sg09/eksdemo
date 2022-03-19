@@ -49,6 +49,10 @@ func (g *Getter) GetAllCerts() ([]*acm.CertificateDetail, error) {
 	return certs, nil
 }
 
+func (g *Getter) GetCert(arn string) (*acm.CertificateDetail, error) {
+	return aws.AcmDescribeCertificate(arn)
+}
+
 func (g *Getter) GetOneCertStartingWithName(name string) (*acm.CertificateDetail, error) {
 	certs, err := g.GetAllCertsStartingWithName(name)
 	if err != nil {
