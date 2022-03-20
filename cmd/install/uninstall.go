@@ -15,8 +15,6 @@ import (
 	"eksdemo/pkg/application/fluentbit"
 	"eksdemo/pkg/application/fsx_lustre_csi"
 	"eksdemo/pkg/application/grafana_amp"
-	"eksdemo/pkg/application/istio_base"
-	"eksdemo/pkg/application/istiod"
 	"eksdemo/pkg/application/karpenter"
 	"eksdemo/pkg/application/keycloak"
 	"eksdemo/pkg/application/kube_prometheus"
@@ -52,8 +50,10 @@ func NewUninstallCmd() *cobra.Command {
 	cmd.AddCommand(grafana_amp.NewApp().NewUninstallCmd())
 	cmd.AddCommand(fsx_lustre_csi.NewApp().NewUninstallCmd())
 	cmd.AddCommand(game_2048.NewApp().NewUninstallCmd())
-	cmd.AddCommand(istio_base.NewApp().NewUninstallCmd())
-	cmd.AddCommand(istiod.NewApp().NewUninstallCmd())
+	cmd.AddCommand(NewUninstallIstioCmd())
+	for _, c := range NewUninstallAliasCmds(istioCmds, "istio-") {
+		cmd.AddCommand(c)
+	}
 	cmd.AddCommand(karpenter.NewApp().NewUninstallCmd())
 	cmd.AddCommand(keycloak.NewApp().NewUninstallCmd())
 	cmd.AddCommand(kube_prometheus.NewApp().NewUninstallCmd())

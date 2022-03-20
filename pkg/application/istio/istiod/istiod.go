@@ -11,21 +11,21 @@ import (
 // GitHub:  https://github.com/istio/istio
 // Helm:    https://github.com/istio/istio/tree/master/manifests/charts/istio-control/istio-discovery
 // Repo:    https://hub.docker.com/r/istio/pilot
-// Version: Latest is v1.12.0 (as of 11/29/21)
+// Version: Latest is v1.12.1 (as of 12/11/21)
 
 func NewApp() *application.Application {
 	app := &application.Application{
 		Command: cmd.Command{
 			Name:        "istiod",
 			Description: "Istio Control Plane",
-			Aliases:     []string{"istio"},
+			Aliases:     []string{"control-plane", "control", "cp"},
 		},
 
 		Options: &application.ApplicationOptions{
 			Namespace:      "istio-system",
 			ServiceAccount: "istiod",
 			DefaultVersion: &application.LatestPrevious{
-				Latest:   "1.12.0",
+				Latest:   "1.12.1",
 				Previous: "1.12.0",
 			},
 			// Service Account name is hard coded in the Chart
@@ -35,12 +35,19 @@ func NewApp() *application.Application {
 
 		Installer: &installer.HelmInstaller{
 			ChartName:     "istiod",
-			ReleaseName:   "istiod",
+			ReleaseName:   "istio-istiod",
 			RepositoryURL: "https://istio-release.storage.googleapis.com/charts",
 			ValuesTemplate: &template.TextTemplate{
 				Template: valuesTemplate,
 			},
 		},
+
+		// TODO: option to choose namespace for monitors
+
+		// PostInstallResources: []*resource.Resource{
+		// 	podMonitor(),
+		// 	serviceMonitor(),
+		// },
 	}
 	return app
 }

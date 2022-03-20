@@ -14,7 +14,7 @@ import (
 func NewApp() *application.Application {
 	app := &application.Application{
 		Command: cmd.Command{
-			Name:        "istio-base",
+			Name:        "base",
 			Description: "Istio Base (includes CRDs)",
 		},
 
