@@ -4,6 +4,7 @@ import (
 	"eksdemo/pkg/application"
 	"eksdemo/pkg/application/appmesh_controller"
 	"eksdemo/pkg/application/aws_lb"
+	"eksdemo/pkg/application/cert_manager"
 	"eksdemo/pkg/application/cluster_autoscaler"
 	"eksdemo/pkg/application/container_insights"
 	"eksdemo/pkg/application/container_insights_prom"
@@ -39,6 +40,7 @@ func NewInstallCmd() *cobra.Command {
 	}
 	cmd.AddCommand(appmesh_controller.NewApp().NewInstallCmd())
 	cmd.AddCommand(aws_lb.NewApp().NewInstallCmd())
+	cmd.AddCommand(cert_manager.NewApp().NewInstallCmd())
 	cmd.AddCommand(cluster_autoscaler.NewApp().NewInstallCmd())
 	cmd.AddCommand(container_insights.NewApp().NewInstallCmd())
 	cmd.AddCommand(container_insights_prom.NewApp().NewInstallCmd())
