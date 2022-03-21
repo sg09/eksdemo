@@ -15,7 +15,7 @@ import (
 // Helm:    https://github.com/aws-controllers-k8s/apigatewayv2-controller/tree/main/helm
 // Chart:   https://gallery.ecr.aws/aws-controllers-k8s/apigatewayv2-chart
 // Repo:    https://gallery.ecr.aws/aws-controllers-k8s/apigatewayv2-controller
-// Version: Latest is v0.0.8 (as of 12/5/21)
+// Version: Latest is v0.0.17 (as of 03/21/22)
 
 func NewApp() *application.Application {
 	app := &application.Application{
@@ -43,14 +43,14 @@ func NewApp() *application.Application {
 			Namespace:      "ack-system",
 			ServiceAccount: "ack-apigatewayv2-controller",
 			DefaultVersion: &application.LatestPrevious{
-				Latest:   "v0.0.8",
-				Previous: "v0.0.8",
+				Latest:   "v0.0.17",
+				Previous: "v0.0.16",
 			},
 		},
 
 		Installer: &installer.HelmInstaller{
 			ReleaseName:   "ack-apigatewayv2-controller",
-			RepositoryURL: "oci://public.ecr.aws/aws-controllers-k8s/apigatewayv2-chart:v0.0.8",
+			RepositoryURL: "oci://public.ecr.aws/aws-controllers-k8s/apigatewayv2-chart:v0.0.17",
 			ValuesTemplate: &template.TextTemplate{
 				Template: valuesTemplate,
 			},

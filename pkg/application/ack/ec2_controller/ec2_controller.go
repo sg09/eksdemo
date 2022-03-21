@@ -15,7 +15,7 @@ import (
 // Helm:    https://github.com/aws-controllers-k8s/ec2-controller/tree/main/helm
 // Chart:   https://gallery.ecr.aws/aws-controllers-k8s/ec2-chart
 // Repo:    https://gallery.ecr.aws/aws-controllers-k8s/ec2-controller
-// Version: Latest is v0.0.1 (as of 12/3/21)
+// Version: Latest is v0.0.10 (as of 03/21/22)
 
 func NewApp() *application.Application {
 	app := &application.Application{
@@ -40,14 +40,14 @@ func NewApp() *application.Application {
 			Namespace:      "ack-system",
 			ServiceAccount: "ack-ec2-controller",
 			DefaultVersion: &application.LatestPrevious{
-				Latest:   "v0.0.1",
-				Previous: "v0.0.1",
+				Latest:   "v0.0.10",
+				Previous: "v0.0.9",
 			},
 		},
 
 		Installer: &installer.HelmInstaller{
 			ReleaseName:   "ack-ec2-controller",
-			RepositoryURL: "oci://public.ecr.aws/aws-controllers-k8s/ec2-chart:v0.0.1",
+			RepositoryURL: "oci://public.ecr.aws/aws-controllers-k8s/ec2-chart:v0.0.10",
 			ValuesTemplate: &template.TextTemplate{
 				Template: valuesTemplate,
 			},
