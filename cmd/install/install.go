@@ -2,6 +2,7 @@ package install
 
 import (
 	"eksdemo/pkg/application"
+	"eksdemo/pkg/application/adot_operator"
 	"eksdemo/pkg/application/appmesh_controller"
 	"eksdemo/pkg/application/aws_lb"
 	"eksdemo/pkg/application/cert_manager"
@@ -38,6 +39,7 @@ func NewInstallCmd() *cobra.Command {
 	for _, c := range NewInstallAliasCmds(ack, "ack-") {
 		cmd.AddCommand(c)
 	}
+	cmd.AddCommand(adot_operator.NewApp().NewInstallCmd())
 	cmd.AddCommand(appmesh_controller.NewApp().NewInstallCmd())
 	cmd.AddCommand(aws_lb.NewApp().NewInstallCmd())
 	cmd.AddCommand(cert_manager.NewApp().NewInstallCmd())

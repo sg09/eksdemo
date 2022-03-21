@@ -3,6 +3,7 @@ package install
 import (
 	"eksdemo/pkg/application"
 	"eksdemo/pkg/application/ack/s3_controller"
+	"eksdemo/pkg/application/adot_operator"
 	"eksdemo/pkg/application/appmesh_controller"
 	"eksdemo/pkg/application/aws_lb"
 	"eksdemo/pkg/application/cert_manager"
@@ -39,6 +40,7 @@ func NewUninstallCmd() *cobra.Command {
 	for _, c := range NewUninstallAliasCmds(ack, "ack-") {
 		cmd.AddCommand(c)
 	}
+	cmd.AddCommand(adot_operator.NewApp().NewUninstallCmd())
 	cmd.AddCommand(appmesh_controller.NewApp().NewUninstallCmd())
 	cmd.AddCommand(aws_lb.NewApp().NewUninstallCmd())
 	cmd.AddCommand(cert_manager.NewApp().NewUninstallCmd())
