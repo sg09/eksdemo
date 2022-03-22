@@ -346,7 +346,7 @@ spec:
                 fieldRef:
                   fieldPath: spec.nodeName
             - name: CI_VERSION
-              value: "k8s/1.3.8"
+              value: "k8s/1.3.9"
         resources:
             limits:
               memory: 200Mi
