@@ -12,7 +12,6 @@ import (
 	"eksdemo/pkg/application/container_insights_prom"
 	"eksdemo/pkg/application/ebs_csi"
 	"eksdemo/pkg/application/efs_csi"
-	"eksdemo/pkg/application/examples/game_2048"
 	"eksdemo/pkg/application/external_dns"
 	"eksdemo/pkg/application/fluentbit"
 	"eksdemo/pkg/application/fsx_lustre_csi"
@@ -49,13 +48,16 @@ func NewUninstallCmd() *cobra.Command {
 	cmd.AddCommand(container_insights_prom.NewApp().NewUninstallCmd())
 	cmd.AddCommand(ebs_csi.NewApp().NewUninstallCmd())
 	cmd.AddCommand(efs_csi.NewApp().NewUninstallCmd())
+	cmd.AddCommand(NewUninstallExampleCmd())
+	for _, c := range NewUninstallAliasCmds(exampleApps, "example-") {
+		cmd.AddCommand(c)
+	}
 	cmd.AddCommand(external_dns.NewApp().NewUninstallCmd())
 	cmd.AddCommand(fluentbit.NewApp().NewUninstallCmd())
 	cmd.AddCommand(grafana_amp.NewApp().NewUninstallCmd())
 	cmd.AddCommand(fsx_lustre_csi.NewApp().NewUninstallCmd())
-	cmd.AddCommand(game_2048.NewApp().NewUninstallCmd())
 	cmd.AddCommand(NewUninstallIstioCmd())
-	for _, c := range NewUninstallAliasCmds(istioCmds, "istio-") {
+	for _, c := range NewUninstallAliasCmds(istioApps, "istio-") {
 		cmd.AddCommand(c)
 	}
 	cmd.AddCommand(karpenter.NewApp().NewUninstallCmd())

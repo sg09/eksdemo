@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var istioCmds []func() *application.Application
+var istioApps []func() *application.Application
 
 func NewInstallIstioCmd() *cobra.Command {
 	cmd := &cobra.Command{
@@ -16,10 +16,10 @@ func NewInstallIstioCmd() *cobra.Command {
 		Short: "Istio Service Mesh",
 	}
 
-	// Don't show flag errors for `install ack` without a subcommand
+	// Don't show flag errors for `install istio` without a subcommand
 	cmd.DisableFlagParsing = true
 
-	for _, i := range istioCmds {
+	for _, i := range istioApps {
 		cmd.AddCommand(i().NewInstallCmd())
 	}
 
@@ -35,7 +35,7 @@ func NewUninstallIstioCmd() *cobra.Command {
 	// Don't show flag errors for `install istio` without a subcommand
 	cmd.DisableFlagParsing = true
 
-	for _, i := range istioCmds {
+	for _, i := range istioApps {
 		cmd.AddCommand(i().NewUninstallCmd())
 	}
 
@@ -43,7 +43,7 @@ func NewUninstallIstioCmd() *cobra.Command {
 }
 
 func init() {
-	istioCmds = []func() *application.Application{
+	istioApps = []func() *application.Application{
 		// bookinfo.NewApp,
 		istio_base.NewApp,
 		// istio_egress.NewApp,

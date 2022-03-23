@@ -20,17 +20,9 @@ func NewApp() *application.Application {
 		},
 
 		Installer: &installer.ManifestInstaller{
-			AppName: "game-2048",
+			AppName: "example-game-2048",
 			ResourceTemplate: &template.TextTemplate{
 				Template: gameManifestTemplate,
-			},
-		},
-
-		Options: &application.ApplicationOptions{
-			Namespace: "game-2048",
-			DefaultVersion: &application.LatestPrevious{
-				Latest:   "latest",
-				Previous: "latest",
 			},
 		},
 	}

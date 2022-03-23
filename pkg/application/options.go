@@ -28,6 +28,7 @@ type ApplicationOptions struct {
 	DeleteDependencies        bool
 	DisableNamespaceFlag      bool
 	DisableServiceAccountFlag bool
+	DisableVersionFlag        bool
 	SetValues                 []string
 	UsePrevious               bool
 
@@ -48,7 +49,11 @@ const Uninstall Action = "uninstall"
 
 func (o *ApplicationOptions) AddInstallFlags(cobraCmd *cobra.Command, flags cmd.Flags, it InstallerType) cmd.Flags {
 	// Cluster flag has to be ordered before Version flag as it depends on the EKS cluster version
-	flags = append(flags, o.NewClusterFlag(Install), o.NewDryRunFlag(), o.NewVersionFlag(), o.NewUsePreviousFlag())
+	flags = append(flags, o.NewClusterFlag(Install), o.NewDryRunFlag())
+
+	if !o.DisableVersionFlag {
+		flags = append(flags, o.NewVersionFlag(), o.NewUsePreviousFlag())
+	}
 
 	if !o.DisableNamespaceFlag {
 		flags = append(flags, o.NewNamespaceFlag(Install))

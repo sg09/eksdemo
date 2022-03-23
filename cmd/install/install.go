@@ -11,7 +11,6 @@ import (
 	"eksdemo/pkg/application/container_insights_prom"
 	"eksdemo/pkg/application/ebs_csi"
 	"eksdemo/pkg/application/efs_csi"
-	"eksdemo/pkg/application/examples/game_2048"
 	"eksdemo/pkg/application/external_dns"
 	"eksdemo/pkg/application/fluentbit"
 	"eksdemo/pkg/application/fsx_lustre_csi"
@@ -48,13 +47,16 @@ func NewInstallCmd() *cobra.Command {
 	cmd.AddCommand(container_insights_prom.NewApp().NewInstallCmd())
 	cmd.AddCommand(ebs_csi.NewApp().NewInstallCmd())
 	cmd.AddCommand(efs_csi.NewApp().NewInstallCmd())
+	cmd.AddCommand(NewInstallExampleCmd())
+	for _, c := range NewInstallAliasCmds(exampleApps, "example-") {
+		cmd.AddCommand(c)
+	}
 	cmd.AddCommand(external_dns.NewApp().NewInstallCmd())
 	cmd.AddCommand(fluentbit.NewApp().NewInstallCmd())
-	cmd.AddCommand(game_2048.NewApp().NewInstallCmd())
 	cmd.AddCommand(grafana_amp.NewApp().NewInstallCmd())
 	cmd.AddCommand(fsx_lustre_csi.NewApp().NewInstallCmd())
 	cmd.AddCommand(NewInstallIstioCmd())
-	for _, c := range NewInstallAliasCmds(istioCmds, "istio-") {
+	for _, c := range NewInstallAliasCmds(istioApps, "istio-") {
 		cmd.AddCommand(c)
 	}
 	cmd.AddCommand(karpenter.NewApp().NewInstallCmd())
