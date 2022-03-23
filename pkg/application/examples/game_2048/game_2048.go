@@ -8,7 +8,7 @@ import (
 )
 
 // GitHub:   https://github.com/alexwhen/docker-2048
-// Manifest: https://github.com/kubernetes-sigs/aws-load-balancer-controller/blob/main/docs/examples/2048/2048_full_latest.yaml
+// Manifest: https://github.com/kubernetes-sigs/aws-load-balancer-controller/blob/main/docs/examples/2048/2048_full.yaml
 // Repo:     https://gallery.ecr.aws/l6m2t8p7/docker-2048
 
 func NewApp() *application.Application {

@@ -18,7 +18,7 @@ spec:
         app.kubernetes.io/name: app-2048
     spec:
       containers:
-      - image: public.ecr.aws/l6m2t8p7/docker-2048:latest
+      - image: public.ecr.aws/l6m2t8p7/docker-2048:{{ or .Version "latest" }}
         imagePullPolicy: Always
         name: app-2048
         ports:
@@ -44,10 +44,10 @@ metadata:
   namespace: {{ .Namespace }}
   name: ingress-2048
   annotations:
-    kubernetes.io/ingress.class: alb
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
 spec:
+  ingressClassName: alb
   rules:
     - http:
         paths:
