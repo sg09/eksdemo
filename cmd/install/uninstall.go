@@ -5,6 +5,7 @@ import (
 	"eksdemo/pkg/application/ack/s3_controller"
 	"eksdemo/pkg/application/adot_operator"
 	"eksdemo/pkg/application/appmesh_controller"
+	"eksdemo/pkg/application/aws_fluentbit"
 	"eksdemo/pkg/application/aws_lb"
 	"eksdemo/pkg/application/cert_manager"
 	"eksdemo/pkg/application/cluster_autoscaler"
@@ -13,7 +14,6 @@ import (
 	"eksdemo/pkg/application/ebs_csi"
 	"eksdemo/pkg/application/efs_csi"
 	"eksdemo/pkg/application/external_dns"
-	"eksdemo/pkg/application/fluentbit"
 	"eksdemo/pkg/application/fsx_lustre_csi"
 	"eksdemo/pkg/application/grafana_amp"
 	"eksdemo/pkg/application/karpenter"
@@ -41,6 +41,7 @@ func NewUninstallCmd() *cobra.Command {
 	}
 	cmd.AddCommand(adot_operator.NewApp().NewUninstallCmd())
 	cmd.AddCommand(appmesh_controller.NewApp().NewUninstallCmd())
+	cmd.AddCommand(aws_fluentbit.NewApp().NewUninstallCmd())
 	cmd.AddCommand(aws_lb.NewApp().NewUninstallCmd())
 	cmd.AddCommand(cert_manager.NewApp().NewUninstallCmd())
 	cmd.AddCommand(cluster_autoscaler.NewApp().NewUninstallCmd())
@@ -53,7 +54,6 @@ func NewUninstallCmd() *cobra.Command {
 		cmd.AddCommand(c)
 	}
 	cmd.AddCommand(external_dns.NewApp().NewUninstallCmd())
-	cmd.AddCommand(fluentbit.NewApp().NewUninstallCmd())
 	cmd.AddCommand(grafana_amp.NewApp().NewUninstallCmd())
 	cmd.AddCommand(fsx_lustre_csi.NewApp().NewUninstallCmd())
 	cmd.AddCommand(NewUninstallIstioCmd())

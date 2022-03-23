@@ -1,4 +1,4 @@
-package fluentbit
+package aws_fluentbit
 
 import (
 	"eksdemo/pkg/application"
@@ -13,20 +13,20 @@ import (
 // GitHub:  https://github.com/aws/aws-for-fluent-bit
 // Helm:    https://github.com/fluent/helm-charts/tree/main/charts/fluent-bit
 // Repo:    https://gallery.ecr.aws/aws-observability/aws-for-fluent-bit
-// Version: Latest is 2.19.1 aka Fluent-bit v1.8.6 (as of 9/23/21)
+// Version: Latest is 2.23.1 aka Fluent-bit v1.8.13 (as of 03/23/22)
 
 func NewApp() *application.Application {
 	app := &application.Application{
 		Command: cmd.Command{
-			Name:        "fluent-bit",
-			Description: "Fluent Bit Logging",
-			Aliases:     []string{"fluentbit", "fb"},
+			Name:        "aws-fluent-bit",
+			Description: "AWS Fluent Bit",
+			Aliases:     []string{"aws-fluentbit", "aws-fb", "awsfb"},
 		},
 
 		Dependencies: []*resource.Resource{
 			irsa.NewResourceWithOptions(&irsa.IrsaOptions{
 				CommonOptions: resource.CommonOptions{
-					Name: "fluent-bit-irsa",
+					Name: "aws-fluent-bit-irsa",
 				},
 				PolicyType: irsa.PolicyDocument,
 				PolicyDocTemplate: &template.TextTemplate{
@@ -37,7 +37,7 @@ func NewApp() *application.Application {
 
 		Installer: &installer.HelmInstaller{
 			ChartName:     "fluent-bit",
-			ReleaseName:   "fluent-bit",
+			ReleaseName:   "aws-fluent-bit",
 			RepositoryURL: "https://fluent.github.io/helm-charts",
 			ValuesTemplate: &template.TextTemplate{
 				Template: valuesTemplate,

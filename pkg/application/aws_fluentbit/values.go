@@ -1,4 +1,4 @@
-package fluentbit
+package aws_fluentbit
 
 const valuesTemplate = `
 ---
