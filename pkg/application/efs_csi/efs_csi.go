@@ -13,14 +13,14 @@ import (
 // GitHub:  https://github.com/kubernetes-sigs/aws-efs-csi-driver
 // Helm:    https://github.com/kubernetes-sigs/aws-efs-csi-driver/tree/master/charts/aws-efs-csi-driver
 // Repo:    amazon/aws-efs-csi-driver
-// Version: Latest is v1.3.4 (as of 10/21/21)
+// Version: Latest is v1.3.6 (as of 03/22/22)
 
 func NewApp() *application.Application {
 	app := &application.Application{
 		Command: cmd.Command{
 			Name:        "efs-csi",
 			Description: "CSI driver for Amazon EFS",
-			Aliases:     []string{"efs"},
+			Aliases:     []string{"aws-efs-csi-driver", "efscsi", "efs"},
 		},
 
 		Dependencies: []*resource.Resource{
@@ -39,8 +39,8 @@ func NewApp() *application.Application {
 			Namespace:      "kube-system",
 			ServiceAccount: "efs-csi-controller-sa",
 			DefaultVersion: &application.LatestPrevious{
-				Latest:   "v1.3.4",
-				Previous: "v1.3.3",
+				Latest:   "v1.3.6",
+				Previous: "v1.3.4",
 			},
 		},
 

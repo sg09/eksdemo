@@ -13,14 +13,14 @@ import (
 // GitHub:  https://github.com/kubernetes-sigs/aws-fsx-csi-driver
 // Helm:    https://github.com/kubernetes-sigs/aws-fsx-csi-driver/tree/master/charts/aws-fsx-csi-driver
 // Repo:    amazon/aws-fsx-csi-driver
-// Version: Latest is v0.5.0 (as of 10/21/21)
+// Version: Latest is v0.8.1 (as of 03/22/22)
 
 func NewApp() *application.Application {
 	app := &application.Application{
 		Command: cmd.Command{
 			Name:        "fsx-lustre-csi",
 			Description: "CSI Driver of Amazon FSx for Lustre",
-			Aliases:     []string{"fsx", "fsx-lustre"},
+			Aliases:     []string{"aws-fsx-csi-driver", "fsx-csi", "fsxcsi", "fsx-lustre", "fsx"},
 		},
 
 		Dependencies: []*resource.Resource{
@@ -39,8 +39,8 @@ func NewApp() *application.Application {
 			Namespace:      "kube-system",
 			ServiceAccount: "fsx-csi-controller-sa",
 			DefaultVersion: &application.LatestPrevious{
-				Latest:   "v0.5.0",
-				Previous: "v0.4.0",
+				Latest:   "v0.8.1",
+				Previous: "v0.5.0",
 			},
 		},
 
