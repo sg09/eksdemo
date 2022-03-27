@@ -5,6 +5,7 @@ import (
 	"eksdemo/pkg/application/aws_lb"
 	"eksdemo/pkg/application/cluster_autoscaler"
 	"eksdemo/pkg/application/external_dns"
+	"eksdemo/pkg/application/karpenter"
 	"eksdemo/pkg/aws"
 	"eksdemo/pkg/cmd"
 	"eksdemo/pkg/resource"
@@ -47,6 +48,7 @@ func addOptions(res *resource.Resource) *resource.Resource {
 			aws_lb.NewApp(),
 			cluster_autoscaler.NewApp(),
 			external_dns.NewApp(),
+			karpenter.NewApp(),
 		},
 		IrsaTemplate: &template.TextTemplate{
 			Template: irsa.EksctlTemplate,
