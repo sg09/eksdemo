@@ -15,8 +15,6 @@ kind: ClusterConfig
 metadata:
   name: {{ .ClusterName }}
   region: {{ .Region }}
-  tags: 
-    eksdemo: v0.1.0-alpha
 {{- if .KubernetesVersion }}
   version: {{ .KubernetesVersion | printf "%q" }}
 {{ end }}
