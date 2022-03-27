@@ -84,6 +84,53 @@ func EC2DescribeNetworkInterfaces(id, vpcId, instanceId, ip, securityGroupId str
 	return networkInterfaces, nil
 }
 
+func EC2DescribeSecurityGroups(id, vpcId string, ids []string) ([]*ec2.SecurityGroup, error) {
+	sess := GetSession()
+	svc := ec2.New(sess)
+
+	filters := []*ec2.Filter{}
+	securityGroups := []*ec2.SecurityGroup{}
+	pageNum := 0
+
+	if id != "" {
+		filters = append(filters, &ec2.Filter{
+			Name:   aws.String("group-id"),
+			Values: aws.StringSlice([]string{id}),
+		})
+	}
+
+	if vpcId != "" {
+		filters = append(filters, &ec2.Filter{
+			Name:   aws.String("vpc-id"),
+			Values: aws.StringSlice([]string{vpcId}),
+		})
+	}
+
+	input := &ec2.DescribeSecurityGroupsInput{}
+
+	if len(filters) > 0 {
+		input.Filters = filters
+	}
+
+	if len(ids) > 0 {
+		input.GroupIds = aws.StringSlice(ids)
+	}
+
+	err := svc.DescribeSecurityGroupsPages(input,
+		func(page *ec2.DescribeSecurityGroupsOutput, lastPage bool) bool {
+			pageNum++
+			securityGroups = append(securityGroups, page.SecurityGroups...)
+			return pageNum <= maxPages
+		},
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return securityGroups, nil
+}
+
 func EC2DescribeSubnets(name, vpcId string) ([]*ec2.Subnet, error) {
 	sess := GetSession()
 	svc := ec2.New(sess)
