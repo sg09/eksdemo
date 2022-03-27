@@ -25,12 +25,12 @@ func karpenterNodeRole() *resource.Resource {
 
 const cloudFormationTemplate = `
 AWSTemplateFormatVersion: "2010-09-09"
-Description: Resources used by https://github.com/awslabs/karpenter
+Description: Resources used by https://github.com/aws/karpenter
 Parameters:
   ClusterName:
     Type: String
     Description: "EKS cluster name"
-    Default : "{{ .ClusterName }}"
+    Default: "{{ .ClusterName }}"
 Resources:
   KarpenterNodeInstanceProfile:
     Type: "AWS::IAM::InstanceProfile"
@@ -54,8 +54,8 @@ Resources:
             Action:
               - "sts:AssumeRole"
       ManagedPolicyArns:
-        - !Sub "arn:${AWS::Partition}:iam::aws:policy/AmazonEKSWorkerNodePolicy"
         - !Sub "arn:${AWS::Partition}:iam::aws:policy/AmazonEKS_CNI_Policy"
+        - !Sub "arn:${AWS::Partition}:iam::aws:policy/AmazonEKSWorkerNodePolicy"
         - !Sub "arn:${AWS::Partition}:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
         - !Sub "arn:${AWS::Partition}:iam::aws:policy/AmazonSSMManagedInstanceCore"
 `

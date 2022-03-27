@@ -14,8 +14,8 @@ import (
 // Docs:    https://karpenter.sh/docs/
 // GitHub:  https://github.com/awslabs/karpenter
 // Helm:    https://github.com/awslabs/karpenter/tree/main/charts/karpenter
-// Repo:    public.ecr.aws/karpenter/controller
-// Version: Latest is v0.5.2 (as of 12/16/21)
+// Repo:    https://gallery.ecr.aws/karpenter/controller
+// Version: Latest is v0.7.3 (as of 03/27/22)
 
 func NewApp() *application.Application {
 	app := &application.Application{
@@ -78,6 +78,7 @@ Statement:
   - ec2:CreateTags
   - iam:PassRole
   - ec2:TerminateInstances
+  - ec2:DeleteLaunchTemplate
   # Read Operations
   - ec2:DescribeLaunchTemplates
   - ec2:DescribeInstances
@@ -92,12 +93,14 @@ Statement:
 
 const valuesTemplate = `
 serviceAccount:
+  name: {{ .ServiceAccount }}
   annotations:
     {{ .IrsaAnnotation }}
-  name: {{ .ServiceAccount }}
+replicas: 1
 controller:
   image: public.ecr.aws/karpenter/controller:{{ .Version }}
-  clusterName: {{ .ClusterName }}
-  clusterEndpoint: {{ .Cluster.Endpoint }}
-  replicaCount: 1
+clusterName: {{ .ClusterName }}
+clusterEndpoint: {{ .Cluster.Endpoint }}
+aws:
+  defaultInstanceProfile: KarpenterNodeInstanceProfile-{{ .ClusterName }}
 `

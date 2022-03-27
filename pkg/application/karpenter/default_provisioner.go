@@ -35,6 +35,9 @@ spec:
     resources:
       cpu: 1000
   provider:
-    instanceProfile: KarpenterNodeInstanceProfile-{{ .ClusterName }}
+    subnetSelector:
+      Name: eksctl-{{ .ClusterName }}-cluster/SubnetPrivate*
+    securityGroupSelector:
+      aws:eks:cluster-name: {{ .ClusterName }}
   ttlSecondsAfterEmpty: 30
 `
