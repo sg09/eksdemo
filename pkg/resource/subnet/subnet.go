@@ -10,7 +10,7 @@ func NewResource() *resource.Resource {
 		Command: cmd.Command{
 			Name:        "subnet",
 			Description: "VPC Subnet",
-			Args:        []string{"NAME"},
+			Args:        []string{"ID"},
 		},
 
 		Getter: &Getter{},

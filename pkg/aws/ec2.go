@@ -174,7 +174,7 @@ func EC2DescribeSecurityGroups(id, vpcId string, ids []string) ([]*ec2.SecurityG
 	return securityGroups, nil
 }
 
-func EC2DescribeSubnets(name, vpcId string) ([]*ec2.Subnet, error) {
+func EC2DescribeSubnets(id, vpcId string) ([]*ec2.Subnet, error) {
 	sess := GetSession()
 	svc := ec2.New(sess)
 
@@ -182,10 +182,10 @@ func EC2DescribeSubnets(name, vpcId string) ([]*ec2.Subnet, error) {
 	subnets := []*ec2.Subnet{}
 	pageNum := 0
 
-	if name != "" {
+	if id != "" {
 		filters = append(filters, &ec2.Filter{
-			Name:   aws.String("tag:Name"),
-			Values: aws.StringSlice([]string{name}),
+			Name:   aws.String("subnet-id"),
+			Values: aws.StringSlice([]string{id}),
 		})
 	}
 

@@ -9,7 +9,7 @@ import (
 
 type Getter struct{}
 
-func (g *Getter) Get(name string, output printer.Output, options resource.Options) error {
+func (g *Getter) Get(id string, output printer.Output, options resource.Options) error {
 	var vpcId string
 
 	cluster := options.Common().Cluster
@@ -17,7 +17,7 @@ func (g *Getter) Get(name string, output printer.Output, options resource.Option
 		vpcId = aws.StringValue(cluster.ResourcesVpcConfig.VpcId)
 	}
 
-	subnets, err := aws.EC2DescribeSubnets(name, vpcId)
+	subnets, err := aws.EC2DescribeSubnets(id, vpcId)
 	if err != nil {
 		return err
 	}

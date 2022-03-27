@@ -23,22 +23,22 @@ func NewPrinter(subnets []*ec2.Subnet, clusterName string) *SubnetPrinter {
 
 func (p *SubnetPrinter) PrintTable(writer io.Writer) error {
 	table := printer.NewTablePrinter()
-	table.SetHeader([]string{"Name", "SubnetId", "CIDR Block", "Avail IP"})
+	table.SetHeader([]string{"Id", "Name", "CIDR Block", "Avail IP"})
 
 	namePrefix := eksctl.TagNamePrefix(p.clusterName)
 	prefixFound := false
 
 	for _, subnet := range p.subnets {
-		name := p.getSubnetName(subnet)
+		name := p.getName(subnet)
 
 		if strings.HasPrefix(name, namePrefix) {
 			prefixFound = true
-			name = name[len(namePrefix):] + "*"
+			name = "*" + name[len(namePrefix):]
 		}
 
 		table.AppendRow([]string{
-			name,
 			aws.StringValue(subnet.SubnetId),
+			name,
 			aws.StringValue(subnet.CidrBlock),
 			strconv.Itoa(int(aws.Int64Value(subnet.AvailableIpAddressCount))),
 		})
@@ -60,9 +60,9 @@ func (p *SubnetPrinter) PrintYAML(writer io.Writer) error {
 	return printer.EncodeYAML(writer, p.subnets)
 }
 
-func (p *SubnetPrinter) getSubnetName(vpc *ec2.Subnet) string {
+func (p *SubnetPrinter) getName(subnet *ec2.Subnet) string {
 	name := ""
-	for _, tag := range vpc.Tags {
+	for _, tag := range subnet.Tags {
 		if aws.StringValue(tag.Key) == "Name" {
 			name = aws.StringValue(tag.Value)
 			continue
