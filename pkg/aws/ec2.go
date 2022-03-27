@@ -84,6 +84,49 @@ func EC2DescribeNetworkInterfaces(id, vpcId, instanceId, ip, securityGroupId str
 	return networkInterfaces, nil
 }
 
+func EC2DescribeSecurityGroupRules(id, securityGroupId string) ([]*ec2.SecurityGroupRule, error) {
+	sess := GetSession()
+	svc := ec2.New(sess)
+
+	filters := []*ec2.Filter{}
+	securityGroupRules := []*ec2.SecurityGroupRule{}
+	pageNum := 0
+
+	if id != "" {
+		filters = append(filters, &ec2.Filter{
+			Name:   aws.String("security-group-rule-id"),
+			Values: aws.StringSlice([]string{id}),
+		})
+	}
+
+	if securityGroupId != "" {
+		filters = append(filters, &ec2.Filter{
+			Name:   aws.String("group-id"),
+			Values: aws.StringSlice([]string{securityGroupId}),
+		})
+	}
+
+	input := &ec2.DescribeSecurityGroupRulesInput{}
+
+	if len(filters) > 0 {
+		input.Filters = filters
+	}
+
+	err := svc.DescribeSecurityGroupRulesPages(input,
+		func(page *ec2.DescribeSecurityGroupRulesOutput, lastPage bool) bool {
+			pageNum++
+			securityGroupRules = append(securityGroupRules, page.SecurityGroupRules...)
+			return pageNum <= maxPages
+		},
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return securityGroupRules, nil
+}
+
 func EC2DescribeSecurityGroups(id, vpcId string, ids []string) ([]*ec2.SecurityGroup, error) {
 	sess := GetSession()
 	svc := ec2.New(sess)
