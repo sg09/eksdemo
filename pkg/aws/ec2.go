@@ -49,6 +49,70 @@ func EC2DescribeTags(resources, tagsFilter []string) (*ec2.DescribeTagsOutput, e
 	return result, nil
 }
 
+func EC2DescribeNetworkInterfaces(id, vpcId, instanceId, ip, securityGroupId string) ([]*ec2.NetworkInterface, error) {
+	sess := GetSession()
+	svc := ec2.New(sess)
+
+	filters := []*ec2.Filter{}
+	networkInterfaces := []*ec2.NetworkInterface{}
+	pageNum := 0
+
+	if id != "" {
+		filters = append(filters, &ec2.Filter{
+			Name:   aws.String("network-interface-id"),
+			Values: aws.StringSlice([]string{id}),
+		})
+	}
+
+	if instanceId != "" {
+		filters = append(filters, &ec2.Filter{
+			Name:   aws.String("attachment.instance-id"),
+			Values: aws.StringSlice([]string{instanceId}),
+		})
+	}
+
+	if ip != "" {
+		filters = append(filters, &ec2.Filter{
+			Name:   aws.String("addresses.private-ip-address"),
+			Values: aws.StringSlice([]string{ip}),
+		})
+	}
+
+	if securityGroupId != "" {
+		filters = append(filters, &ec2.Filter{
+			Name:   aws.String("group-id"),
+			Values: aws.StringSlice([]string{securityGroupId}),
+		})
+	}
+
+	if vpcId != "" {
+		filters = append(filters, &ec2.Filter{
+			Name:   aws.String("vpc-id"),
+			Values: aws.StringSlice([]string{vpcId}),
+		})
+	}
+
+	input := &ec2.DescribeNetworkInterfacesInput{}
+
+	if len(filters) > 0 {
+		input.Filters = filters
+	}
+
+	err := svc.DescribeNetworkInterfacesPages(input,
+		func(page *ec2.DescribeNetworkInterfacesOutput, lastPage bool) bool {
+			pageNum++
+			networkInterfaces = append(networkInterfaces, page.NetworkInterfaces...)
+			return pageNum <= maxPages
+		},
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return networkInterfaces, nil
+}
+
 func EC2DescribeSubnets(name, vpcId string) ([]*ec2.Subnet, error) {
 	sess := GetSession()
 	svc := ec2.New(sess)
