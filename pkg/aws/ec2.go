@@ -20,35 +20,6 @@ func EC2CreateTags(resources []string, tags map[string]string) error {
 	return nil
 }
 
-func EC2DescribeTags(resources, tagsFilter []string) (*ec2.DescribeTagsOutput, error) {
-	sess := GetSession()
-	svc := ec2.New(sess)
-
-	filters := []*ec2.Filter{
-		{
-			Name:   aws.String("resource-id"),
-			Values: aws.StringSlice(resources),
-		},
-	}
-
-	if len(tagsFilter) > 0 {
-		filters = append(filters, &ec2.Filter{
-			Name:   aws.String("key"),
-			Values: aws.StringSlice(tagsFilter),
-		})
-	}
-
-	result, err := svc.DescribeTags(&ec2.DescribeTagsInput{
-		Filters: filters,
-	})
-
-	if err != nil {
-		return nil, err
-	}
-
-	return result, nil
-}
-
 func EC2DescribeNetworkInterfaces(id, vpcId, instanceId, ip, securityGroupId string) ([]*ec2.NetworkInterface, error) {
 	sess := GetSession()
 	svc := ec2.New(sess)
@@ -154,6 +125,35 @@ func EC2DescribeSubnets(name, vpcId string) ([]*ec2.Subnet, error) {
 	}
 
 	return subnets, nil
+}
+
+func EC2DescribeTags(resources, tagsFilter []string) (*ec2.DescribeTagsOutput, error) {
+	sess := GetSession()
+	svc := ec2.New(sess)
+
+	filters := []*ec2.Filter{
+		{
+			Name:   aws.String("resource-id"),
+			Values: aws.StringSlice(resources),
+		},
+	}
+
+	if len(tagsFilter) > 0 {
+		filters = append(filters, &ec2.Filter{
+			Name:   aws.String("key"),
+			Values: aws.StringSlice(tagsFilter),
+		})
+	}
+
+	result, err := svc.DescribeTags(&ec2.DescribeTagsInput{
+		Filters: filters,
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }
 
 func EC2DescribeVpcs(name, vpcId string) ([]*ec2.Vpc, error) {
