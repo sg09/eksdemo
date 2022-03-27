@@ -23,7 +23,7 @@ func (p *CertificatePrinter) PrintTable(writer io.Writer) error {
 	table.SetHeader([]string{"Age", "Name", "Status", "In Use"})
 
 	for _, c := range p.certs {
-		age := durafmt.ParseShort(time.Since(*c.CreatedAt))
+		age := durafmt.ParseShort(time.Since(aws.TimeValue(c.CreatedAt)))
 
 		var inUse string
 		if len(c.InUseBy) > 0 {

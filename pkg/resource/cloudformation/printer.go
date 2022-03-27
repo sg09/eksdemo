@@ -1,6 +1,7 @@
 package cloudformation
 
 import (
+	"eksdemo/pkg/aws"
 	"eksdemo/pkg/printer"
 	"io"
 	"time"
@@ -23,12 +24,12 @@ func (p *CloudFormationPrinter) PrintTable(writer io.Writer) error {
 
 	for _, s := range p.Stacks {
 
-		age := durafmt.ParseShort(time.Since(*s.CreationTime))
+		age := durafmt.ParseShort(time.Since(aws.TimeValue(s.CreationTime)))
 
 		table.AppendRow([]string{
 			age.String(),
-			*s.StackStatus,
-			*s.StackName,
+			aws.StringValue(s.StackStatus),
+			aws.StringValue(s.StackName),
 		})
 	}
 

@@ -2,6 +2,7 @@ package aws
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/eks"
@@ -63,4 +64,13 @@ func StringValueSlice(src []*string) []string {
 		}
 	}
 	return dst
+}
+
+// TimeValue returns the value of the time.Time pointer passed in or
+// time.Time{} if the pointer is nil.
+func TimeValue(v *time.Time) time.Time {
+	if v != nil {
+		return *v
+	}
+	return time.Time{}
 }

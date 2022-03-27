@@ -33,22 +33,20 @@ func (p *ClusterPrinter) PrintTable(writer io.Writer) error {
 		vpcConf := cluster.ResourcesVpcConfig
 		if vpcConf == nil {
 			endpoint = "-"
-		} else if *vpcConf.EndpointPublicAccess && !*vpcConf.EndpointPrivateAccess {
+		} else if aws.BoolValue(vpcConf.EndpointPublicAccess) && !aws.BoolValue(vpcConf.EndpointPrivateAccess) {
 			endpoint = "Public"
-		} else if *vpcConf.EndpointPublicAccess && *vpcConf.EndpointPrivateAccess {
+		} else if aws.BoolValue(vpcConf.EndpointPublicAccess) && aws.BoolValue(vpcConf.EndpointPrivateAccess) {
 			endpoint = "Public/Private"
 		} else {
 			endpoint = "Private"
 		}
 
-		age := durafmt.ParseShort(time.Since(*cluster.CreatedAt))
-		name := *cluster.Name
+		age := durafmt.ParseShort(time.Since(aws.TimeValue(cluster.CreatedAt)))
+		name := aws.StringValue(cluster.Name)
 
-		if cluster.Endpoint != nil {
-			if *cluster.Endpoint == p.clusterURL {
-				currentContext = true
-				name = "*" + name
-			}
+		if aws.StringValue(cluster.Endpoint) == p.clusterURL {
+			currentContext = true
+			name = "*" + name
 		}
 
 		table.AppendRow([]string{
@@ -64,7 +62,7 @@ func (p *ClusterPrinter) PrintTable(writer io.Writer) error {
 
 	table.Print(writer)
 	if currentContext {
-		fmt.Println("* Indicates current context")
+		fmt.Println("* Indicates current context in local kubeconfig")
 	}
 
 	return nil

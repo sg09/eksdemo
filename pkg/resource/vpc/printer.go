@@ -24,7 +24,7 @@ func (p *VpcPrinter) PrintTable(writer io.Writer) error {
 
 	for _, vpc := range p.vpcs {
 		name := p.getVpcName(vpc)
-		if *vpc.IsDefault {
+		if aws.BoolValue(vpc.IsDefault) {
 			name += "*"
 		}
 

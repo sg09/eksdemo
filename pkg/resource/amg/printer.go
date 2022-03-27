@@ -25,7 +25,7 @@ func (p *AmgPrinter) PrintTable(writer io.Writer) error {
 
 	for _, w := range p.Workspaces {
 
-		age := durafmt.ParseShort(time.Since(*w.Created))
+		age := durafmt.ParseShort(time.Since(aws.TimeValue(w.Created)))
 
 		table.AppendRow([]string{
 			age.String(),

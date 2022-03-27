@@ -1,6 +1,7 @@
 package irsa
 
 import (
+	"eksdemo/pkg/aws"
 	"eksdemo/pkg/printer"
 	"io"
 	"time"
@@ -24,18 +25,18 @@ func (p *IrsaPrinter) PrintTable(writer io.Writer) error {
 	lastUsed := ""
 
 	for _, r := range p.Roles {
-		age := durafmt.ParseShort(time.Since(*r.CreateDate))
+		age := durafmt.ParseShort(time.Since(aws.TimeValue(r.CreateDate)))
 		rlu := r.RoleLastUsed
 
 		if rlu.LastUsedDate != nil {
-			lastUsed = durafmt.ParseShort(time.Since(*rlu.LastUsedDate)).String()
+			lastUsed = durafmt.ParseShort(time.Since(aws.TimeValue(rlu.LastUsedDate))).String()
 		} else {
 			lastUsed = "-"
 		}
 
 		table.AppendRow([]string{
 			age.String(),
-			*r.RoleName,
+			aws.StringValue(r.RoleName),
 			lastUsed,
 		})
 	}

@@ -24,13 +24,13 @@ func (p *AmpPrinter) PrintTable(writer io.Writer) error {
 
 	for _, w := range p.Workspaces {
 
-		age := durafmt.ParseShort(time.Since(*w.CreatedAt))
+		age := durafmt.ParseShort(time.Since(aws.TimeValue(w.CreatedAt)))
 
 		table.AppendRow([]string{
 			age.String(),
-			*w.Status.StatusCode,
+			aws.StringValue(w.Status.StatusCode),
 			aws.StringValue(w.Alias),
-			*w.WorkspaceId,
+			aws.StringValue(w.WorkspaceId),
 		})
 	}
 

@@ -25,7 +25,7 @@ func (p *FargateProfilePrinter) PrintTable(writer io.Writer) error {
 	table.SetHeader([]string{"Age", "Status", "Name", "Selectors"})
 
 	for _, profile := range p.profiles {
-		age := durafmt.ParseShort(time.Since(*profile.CreatedAt))
+		age := durafmt.ParseShort(time.Since(aws.TimeValue(profile.CreatedAt)))
 		name := aws.StringValue(profile.FargateProfileName)
 
 		selectors := make([]string, 0, len(profile.Selectors))

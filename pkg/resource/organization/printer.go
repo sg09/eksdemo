@@ -1,6 +1,7 @@
 package organization
 
 import (
+	"eksdemo/pkg/aws"
 	"eksdemo/pkg/printer"
 	"io"
 
@@ -22,9 +23,9 @@ func (p *OrganizationPrinter) PrintTable(writer io.Writer) error {
 	o := p.Organization
 
 	table.AppendRow([]string{
-		*o.Id,
-		*o.FeatureSet,
-		*o.MasterAccountId,
+		aws.StringValue(o.Id),
+		aws.StringValue(o.FeatureSet),
+		aws.StringValue(o.MasterAccountId),
 	})
 
 	table.Print(writer)
