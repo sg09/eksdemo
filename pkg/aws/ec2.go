@@ -246,7 +246,7 @@ func EC2DescribeTags(resources, tagsFilter []string) (*ec2.DescribeTagsOutput, e
 	return result, nil
 }
 
-func EC2DescribeVpcs(name, vpcId string) ([]*ec2.Vpc, error) {
+func EC2DescribeVpcs(id, vpcId string) ([]*ec2.Vpc, error) {
 	sess := GetSession()
 	svc := ec2.New(sess)
 
@@ -254,10 +254,10 @@ func EC2DescribeVpcs(name, vpcId string) ([]*ec2.Vpc, error) {
 	vpcs := []*ec2.Vpc{}
 	pageNum := 0
 
-	if name != "" {
+	if id != "" {
 		filters = append(filters, &ec2.Filter{
-			Name:   aws.String("tag:Name"),
-			Values: aws.StringSlice([]string{name}),
+			Name:   aws.String("vpc-id"),
+			Values: aws.StringSlice([]string{id}),
 		})
 	}
 

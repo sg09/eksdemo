@@ -20,7 +20,7 @@ func NewPrinter(vpcs []*ec2.Vpc) *VpcPrinter {
 
 func (p *VpcPrinter) PrintTable(writer io.Writer) error {
 	table := printer.NewTablePrinter()
-	table.SetHeader([]string{"Name", "VpcId", "IPv4 CIDR", "Secondary CIDRs"})
+	table.SetHeader([]string{"Id", "Name", "IPv4 CIDR", "Secondary CIDRs"})
 
 	for _, vpc := range p.vpcs {
 		name := p.getVpcName(vpc)
@@ -29,17 +29,18 @@ func (p *VpcPrinter) PrintTable(writer io.Writer) error {
 		}
 
 		secondaryCidrs := make([]string, 0, len(vpc.CidrBlockAssociationSet))
-		for _, cbas := range vpc.CidrBlockAssociationSet {
-			if aws.StringValue(cbas.CidrBlock) != aws.StringValue(vpc.CidrBlock) {
-				secondaryCidrs = append(secondaryCidrs, aws.StringValue(cbas.CidrBlock))
+		for _, cba := range vpc.CidrBlockAssociationSet {
+			if aws.StringValue(cba.CidrBlock) != aws.StringValue(vpc.CidrBlock) &&
+				aws.StringValue(cba.CidrBlockState.State) == "associated" {
+				secondaryCidrs = append(secondaryCidrs, aws.StringValue(cba.CidrBlock))
 			}
 		}
 
 		table.AppendRow([]string{
-			name,
 			aws.StringValue(vpc.VpcId),
+			name,
 			aws.StringValue(vpc.CidrBlock),
-			strings.Join(secondaryCidrs, ","),
+			strings.Join(secondaryCidrs, ", "),
 		})
 	}
 

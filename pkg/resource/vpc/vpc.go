@@ -9,9 +9,9 @@ func NewResource() *resource.Resource {
 	res := &resource.Resource{
 		Command: cmd.Command{
 			Name:        "vpc",
-			Description: "Virtual Private Cloud (VPC)",
+			Description: "Virtual Private Cloud",
 			Aliases:     []string{"vpcs"},
-			Args:        []string{"NAME"},
+			Args:        []string{"ID"},
 		},
 
 		Getter: &Getter{},
