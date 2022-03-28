@@ -11,7 +11,7 @@ import (
 // GitHub:  https://github.com/prometheus-operator/kube-prometheus
 // Helm:    https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
 // Repo:    https://quay.io/prometheus-operator/prometheus-operator
-// Version: Latest is v0.52.1 (as of 12/14/21)
+// Version: Latest is v0.55.1 (as of 03/28/22)
 
 func NewApp() *application.Application {
 	app := &application.Application{
@@ -35,26 +35,24 @@ func NewApp() *application.Application {
 
 const valuesTemplate = `
 fullnameOverride: prometheus
-global:
-  rbac:
-    pspEnabled: false
 grafana:
   adminPassword: {{ .GrafanaAdminPassword }}
   fullnameOverride: grafana
+{{- if .IngressHost }}
   ingress:
-    enabled: {{ not .DisableIngress }}
+    enabled: true
     annotations:
       kubernetes.io/ingress.class: alb
       alb.ingress.kubernetes.io/scheme: internet-facing
       alb.ingress.kubernetes.io/target-type: 'ip'
-    {{- if .TLSHost }}
       alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
     tls:
     - hosts:
-      - {{ .TLSHost }}
-    {{- end }}
-  rbac:
-    pspEnabled: false
+      - {{ .IngressHost }}
+{{- else }}
+  service:
+    type: LoadBalancer
+{{- end }}
 kubeControllerManager:
   enabled: false
 kubeEtcd:
@@ -63,13 +61,9 @@ kubeScheduler:
   enabled: false
 kube-state-metrics:
   fullnameOverride: kube-state-metrics
-  podSecurityPolicy:
-    enabled: false
-    prometheusScrape: false
+  prometheusScrape: false
 prometheus-node-exporter:
   fullnameOverride: node-exporter
-  rbac:
-    pspEnabled: false
   service:
     annotations:
       # Remove with null when https://github.com/helm/helm/issues/9136 is fixed

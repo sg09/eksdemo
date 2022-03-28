@@ -8,8 +8,7 @@ import (
 type KubePrometheusOptions struct {
 	*application.ApplicationOptions
 	GrafanaAdminPassword string
-	DisableIngress       bool
-	TLSHost              string
+	IngressHost          string
 }
 
 func addOptions(a *application.Application) *application.Application {
@@ -18,8 +17,8 @@ func addOptions(a *application.Application) *application.Application {
 			DisableServiceAccountFlag: true,
 			Namespace:                 "monitoring",
 			DefaultVersion: &application.LatestPrevious{
-				Latest:   "v0.52.1",
-				Previous: "v0.51.2",
+				Latest:   "v0.55.1",
+				Previous: "v0.54.1",
 			},
 		},
 	}
@@ -34,19 +33,13 @@ func addOptions(a *application.Application) *application.Application {
 			},
 			Option: &options.GrafanaAdminPassword,
 		},
-		&cmd.BoolFlag{
-			CommandFlag: cmd.CommandFlag{
-				Name:        "disable-ingress",
-				Description: "don't create Ingress for Grafana",
-			},
-			Option: &options.DisableIngress,
-		},
 		&cmd.StringFlag{
 			CommandFlag: cmd.CommandFlag{
-				Name:        "tls-host",
-				Description: "FQDN of host to secure with TLS (requires ExternalDNS for cert discovery) ",
+				Name:        "ingress-host",
+				Description: "hostname for Ingress with TLS (requires ACM cert, AWS LB Controller and ExternalDNS)",
+				Shorthand:   "I",
 			},
-			Option: &options.TLSHost,
+			Option: &options.IngressHost,
 		},
 	}
 	return a
