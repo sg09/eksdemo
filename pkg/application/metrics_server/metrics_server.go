@@ -11,7 +11,7 @@ import (
 // GitHub:  https://github.com/kubernetes-sigs/metrics-server
 // Helm:    https://github.com/kubernetes-sigs/metrics-server/tree/master/charts/metrics-server
 // Repo:    k8s.gcr.io/metrics-server/metrics-server
-// Version: Latest is 0.5.0 (as of 10/9/21)
+// Version: Latest is 0.6.1 (as of 03/27/22)
 
 func NewApp() *application.Application {
 	app := &application.Application{
@@ -25,8 +25,8 @@ func NewApp() *application.Application {
 			Namespace:      "kube-system",
 			ServiceAccount: "metrics-server",
 			DefaultVersion: &application.LatestPrevious{
-				Latest:   "v0.5.0",
-				Previous: "v0.4.4",
+				Latest:   "v0.6.1",
+				Previous: "v0.5.2",
 			},
 		},
 
