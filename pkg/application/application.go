@@ -50,6 +50,10 @@ func (a *Application) NewInstallCmd() *cobra.Command {
 				return err
 			}
 
+			if a.Common().DryRun {
+				return nil
+			}
+
 			return a.PostInstall(a.Name, a.PostInstallResources)
 		},
 	}
