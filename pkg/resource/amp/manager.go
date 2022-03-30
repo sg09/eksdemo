@@ -6,7 +6,9 @@ import (
 	"fmt"
 )
 
-type Manager struct{}
+type Manager struct {
+	DryRun bool
+}
 
 func (m *Manager) Create(options resource.Options) error {
 	ampOptions, ok := options.(*AmpOptions)
@@ -26,6 +28,10 @@ func (m *Manager) Create(options resource.Options) error {
 	if workspace != nil {
 		fmt.Printf("AMP Workspace Alias %q already exists\n", ampOptions.Alias)
 		return nil
+	}
+
+	if m.DryRun {
+		return m.dryRun(ampOptions)
 	}
 
 	fmt.Printf("Creating AMP Workspace Alias: %s...", ampOptions.Alias)
@@ -68,4 +74,13 @@ func (m *Manager) Delete(options resource.Options) error {
 	return nil
 }
 
-func (m *Manager) SetDryRun() {}
+func (m *Manager) SetDryRun() {
+	m.DryRun = true
+}
+
+func (m *Manager) dryRun(options *AmpOptions) error {
+	fmt.Printf("\nAMP Resource Manager Dry Run:\n")
+	fmt.Printf("Amazon Managed Service for Prometheus API Call %q with request parameters:\n", "CreateWorkspace")
+	fmt.Printf("alias: %q\n", options.Alias)
+	return nil
+}
