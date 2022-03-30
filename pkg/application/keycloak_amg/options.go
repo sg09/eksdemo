@@ -1,4 +1,4 @@
-package keycloak
+package keycloak_amg
 
 import (
 	"context"
@@ -26,7 +26,7 @@ type KeycloakOptions struct {
 
 	AdminPassword   string
 	AmgWorkspaceUrl string
-	TLSHost         string
+	IngressHost     string
 	amgWorkspaceId  string
 	*amg.AmgOptions
 }
@@ -37,8 +37,8 @@ func NewOptions() (options *KeycloakOptions, flags cmd.Flags) {
 			Namespace:      "keycloak",
 			ServiceAccount: "keycloak",
 			DefaultVersion: &application.LatestPrevious{
-				Latest:   "15.0.2",
-				Previous: "15.0.2",
+				Latest:   "16.1.1",
+				Previous: "16.1.1",
 			},
 		},
 	}
@@ -54,10 +54,11 @@ func NewOptions() (options *KeycloakOptions, flags cmd.Flags) {
 		},
 		&cmd.StringFlag{
 			CommandFlag: cmd.CommandFlag{
-				Name:        "tls-host",
-				Description: "FQDN of host to secure with TLS (requires ExternalDNS for cert discovery) ",
+				Name:        "ingress-host",
+				Description: "hostname for Ingress with TLS (requires ACM cert, AWS LB Controller and ExternalDNS)",
+				Shorthand:   "I",
 			},
-			Option: &options.TLSHost,
+			Option: &options.IngressHost,
 		},
 	}
 	return
@@ -73,6 +74,10 @@ func (o *KeycloakOptions) PreInstall() error {
 
 	workspace, err := amgGetter.GetAmgByName(o.AmgOptions.WorkspaceName)
 	if err != nil {
+		if o.DryRun {
+			o.amgWorkspaceId = "<AMG Workspace ID>"
+			return nil
+		}
 		return fmt.Errorf("failed to lookup AMG URL to use in Helm chart: %w", err)
 	}
 
@@ -85,31 +90,31 @@ func (o *KeycloakOptions) PreInstall() error {
 func (o *KeycloakOptions) PostInstall(_ string, _ []*resource.Resource) error {
 	fmt.Print("Waiting for Keycloak SAML metadata URL to become active...")
 
-	k8sclient, err := kubernetes.Client(o.KubeContext())
-	if err != nil {
-		return err
-	}
-
-	svc, err := k8sclient.NetworkingV1().Ingresses(o.Namespace).Get(context.Background(), keycloakReleasName, metav1.GetOptions{})
-	if err != nil {
-		return err
-	}
-
-	if len(svc.Status.LoadBalancer.Ingress) == 0 {
-		return fmt.Errorf("failed to get Ingress load balancer address")
-	}
-
 	var metadataUrl string
-	if o.TLSHost == "" {
+	if o.IngressHost == "" {
+		k8sclient, err := kubernetes.Client(o.KubeContext())
+		if err != nil {
+			return err
+		}
+
+		svc, err := k8sclient.CoreV1().Services(o.Namespace).Get(context.Background(), keycloakReleasName, metav1.GetOptions{})
+		if err != nil {
+			return err
+		}
+
+		if len(svc.Status.LoadBalancer.Ingress) == 0 {
+			return fmt.Errorf("failed to get Service Load Balancer address")
+		}
+
 		metadataUrl = fmt.Sprintf("http://%s/%s", svc.Status.LoadBalancer.Ingress[0].Hostname, samlMetadataPath)
 	} else {
-		metadataUrl = fmt.Sprintf("https://%s/%s", o.TLSHost, samlMetadataPath)
+		metadataUrl = fmt.Sprintf("https://%s/%s", o.IngressHost, samlMetadataPath)
 	}
 
 	logger := logrus.New()
 	logger.Out = ioutil.Discard
 
-	_, err = resty.New().
+	_, err := resty.New().
 		SetLogger(logger).
 		SetRetryCount(10).
 		SetRetryWaitTime(2 * time.Second).

@@ -16,7 +16,7 @@ import (
 	"eksdemo/pkg/application/fsx_lustre_csi"
 	"eksdemo/pkg/application/grafana_amp"
 	"eksdemo/pkg/application/karpenter"
-	"eksdemo/pkg/application/keycloak"
+	"eksdemo/pkg/application/keycloak_amg"
 	"eksdemo/pkg/application/kube_prometheus"
 	"eksdemo/pkg/application/metrics_server"
 	"eksdemo/pkg/application/prometheus_amp"
@@ -60,7 +60,7 @@ func NewInstallCmd() *cobra.Command {
 		cmd.AddCommand(c)
 	}
 	cmd.AddCommand(karpenter.NewApp().NewInstallCmd())
-	cmd.AddCommand(keycloak.NewApp().NewInstallCmd())
+	cmd.AddCommand(keycloak_amg.NewApp().NewInstallCmd())
 	cmd.AddCommand(kube_prometheus.NewApp().NewInstallCmd())
 	cmd.AddCommand(metrics_server.NewApp().NewInstallCmd())
 	cmd.AddCommand(prometheus_amp.NewApp().NewInstallCmd())

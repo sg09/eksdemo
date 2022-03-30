@@ -1,4 +1,4 @@
-package keycloak
+package keycloak_amg
 
 import (
 	"eksdemo/pkg/application"
@@ -14,7 +14,7 @@ import (
 // GitHub:  https://github.com/bitnami/bitnami-docker-keycloak
 // Helm:    https://github.com/bitnami/charts/tree/master/bitnami/keycloak
 // Repo:    https://hub.docker.com/r/bitnami/keycloak
-// Version: Latest is 15.0.2 (as of 11/24/21)
+// Version: Latest is 16.1.1 (as of 03/29/22)
 
 func NewApp() *application.Application {
 	options, flags := NewOptions()
@@ -30,7 +30,7 @@ func NewApp() *application.Application {
 		Command: cmd.Command{
 			Name:        "keycloak-amg",
 			Description: "Keycloak SAML iDP for Amazon Managed Grafana",
-			Aliases:     []string{"keycloak"},
+			Aliases:     []string{"keycloakamg"},
 		},
 
 		Dependencies: []*resource.Resource{
@@ -83,7 +83,7 @@ keycloakConfigCli:
             }
           ]
         },
-{{- if not .TLSHost }}
+{{- if not .IngressHost }}
         "sslRequired": "none",
 {{- end }}
         "users": [
@@ -159,19 +159,17 @@ keycloakConfigCli:
           }
         ]
       }
+{{- if .IngressHost }}
 service:
   type: ClusterIP
 ingress:
   enabled: true
+  ingressClassName: alb
   pathType: Prefix
   annotations:
-    kubernetes.io/ingress.class: alb
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: 'ip'
-{{- if .TLSHost }}
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
-  hostname: {{ .TLSHost }}
-{{- else }}
-  hostname: null
+  hostname: {{ .IngressHost }}
 {{- end }}
 `
