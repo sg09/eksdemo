@@ -14,6 +14,8 @@ type Resource struct {
 	cmd.Flags
 	Options
 
+	GetFlags cmd.Flags
+
 	Getter
 	Manager
 }
@@ -172,7 +174,7 @@ func (r *Resource) NewGetCmd() *cobra.Command {
 	}
 	cobraCmd.Flags().VarP(cmd.NewOutputFlag(&output), "output", "o", "output format (json|table|yaml)")
 
-	r.Flags = r.Options.AddGetFlags(cobraCmd, r.Flags)
+	r.Flags = r.Options.AddGetFlags(cobraCmd, r.GetFlags)
 
 	return cobraCmd
 }
