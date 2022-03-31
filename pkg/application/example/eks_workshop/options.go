@@ -44,7 +44,7 @@ func NewOptions() (options *EksWorkshopOptions, flags cmd.Flags) {
 		&cmd.StringFlag{
 			CommandFlag: cmd.CommandFlag{
 				Name:        "ingress-host",
-				Description: "use Ingress with TLS (requires ACM cert, AWS LB Controller and ExternalDNS)",
+				Description: "hostname for Ingress with TLS (requires ACM cert, AWS LB Controller and ExternalDNS)",
 				Shorthand:   "I",
 			},
 			Option: &options.IngressHost,
