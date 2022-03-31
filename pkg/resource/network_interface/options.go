@@ -7,9 +7,10 @@ import (
 
 type NetworkInterfaceOptions struct {
 	resource.CommonOptions
-	InstanceId      string
-	IpAddress       string
-	SecurityGroupId string
+	InstanceId       string
+	IpAddress        string
+	LoadBalancerName string
+	SecurityGroupId  string
 }
 
 func NewOptions() (options *NetworkInterfaceOptions, flags cmd.Flags) {
@@ -35,6 +36,14 @@ func NewOptions() (options *NetworkInterfaceOptions, flags cmd.Flags) {
 				Shorthand:   "A",
 			},
 			Option: &options.IpAddress,
+		},
+		&cmd.StringFlag{
+			CommandFlag: cmd.CommandFlag{
+				Name:        "load-balancer",
+				Description: "filter by Load Balancer name",
+				Shorthand:   "L",
+			},
+			Option: &options.LoadBalancerName,
 		},
 		&cmd.StringFlag{
 			CommandFlag: cmd.CommandFlag{

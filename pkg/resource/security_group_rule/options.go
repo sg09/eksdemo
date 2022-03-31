@@ -9,6 +9,7 @@ type SecurityGroupRuleOptions struct {
 	resource.CommonOptions
 	Egress             bool
 	Ingress            bool
+	LoadBalancerName   string
 	NetworkInterfaceId string
 	SecurityGroupId    string
 }
@@ -42,6 +43,14 @@ func NewOptions() (options *SecurityGroupRuleOptions, flags cmd.Flags) {
 				Description: "show only ingress rules",
 			},
 			Option: &options.Ingress,
+		},
+		&cmd.StringFlag{
+			CommandFlag: cmd.CommandFlag{
+				Name:        "load-balancer",
+				Description: "filter by Load Balancer name",
+				Shorthand:   "L",
+			},
+			Option: &options.LoadBalancerName,
 		},
 		&cmd.StringFlag{
 			CommandFlag: cmd.CommandFlag{

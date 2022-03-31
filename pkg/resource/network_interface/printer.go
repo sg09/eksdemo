@@ -12,11 +12,10 @@ import (
 
 type NetworkInterfacePrinter struct {
 	networkInterfaces []*ec2.NetworkInterface
-	clusterName       string
 }
 
-func NewPrinter(networkInterfaces []*ec2.NetworkInterface, clusterName string) *NetworkInterfacePrinter {
-	return &NetworkInterfacePrinter{networkInterfaces, clusterName}
+func NewPrinter(networkInterfaces []*ec2.NetworkInterface) *NetworkInterfacePrinter {
+	return &NetworkInterfacePrinter{networkInterfaces}
 }
 
 func (p *NetworkInterfacePrinter) PrintTable(writer io.Writer) error {

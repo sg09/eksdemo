@@ -7,8 +7,8 @@ import (
 
 type SecurityGroupOptions struct {
 	resource.CommonOptions
+	LoadBalancerName   string
 	NetworkInterfaceId string
-	IpAddress          string
 }
 
 func NewOptions() (options *SecurityGroupOptions, flags cmd.Flags) {
@@ -29,11 +29,11 @@ func NewOptions() (options *SecurityGroupOptions, flags cmd.Flags) {
 		},
 		&cmd.StringFlag{
 			CommandFlag: cmd.CommandFlag{
-				Name:        "ip-address",
-				Description: "filter by IPv4 Address",
-				Shorthand:   "A",
+				Name:        "load-balancer",
+				Description: "filter by Load Balancer name",
+				Shorthand:   "L",
 			},
-			Option: &options.IpAddress,
+			Option: &options.LoadBalancerName,
 		},
 	}
 	return

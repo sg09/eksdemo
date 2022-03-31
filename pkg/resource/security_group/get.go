@@ -4,6 +4,7 @@ import (
 	"eksdemo/pkg/aws"
 	"eksdemo/pkg/printer"
 	"eksdemo/pkg/resource"
+	"eksdemo/pkg/resource/load_balancer"
 	"eksdemo/pkg/resource/network_interface"
 	"fmt"
 	"os"
@@ -13,6 +14,7 @@ import (
 
 type Getter struct {
 	eniGetter network_interface.Getter
+	elbGetter load_balancer.Getter
 }
 
 func (g *Getter) Get(id string, output printer.Output, options resource.Options) error {
@@ -26,6 +28,8 @@ func (g *Getter) Get(id string, output printer.Output, options resource.Options)
 
 	if sgOptions.NetworkInterfaceId != "" {
 		securityGroups, err = g.GetSecurityGroupsByNetworkInterface(sgOptions.NetworkInterfaceId)
+	} else if sgOptions.LoadBalancerName != "" {
+		securityGroups, err = g.GetSecurityGroupsByLoadBalancerName(sgOptions.LoadBalancerName)
 	} else {
 		vpcId := ""
 
@@ -46,6 +50,15 @@ func (g *Getter) Get(id string, output printer.Output, options resource.Options)
 
 func (g *Getter) GetSecurityGroupsByIdAndVpcFilter(id, vpcId string) ([]*ec2.SecurityGroup, error) {
 	return aws.EC2DescribeSecurityGroups(id, vpcId, []string{})
+}
+
+func (g *Getter) GetSecurityGroupsByLoadBalancerName(name string) ([]*ec2.SecurityGroup, error) {
+	sgIds, err := g.elbGetter.GetSecurityGroupIdsForLoadBalancer(name)
+	if err != nil {
+		return nil, err
+	}
+
+	return aws.EC2DescribeSecurityGroups("", "", sgIds)
 }
 
 func (g *Getter) GetSecurityGroupsByNetworkInterface(networkInterfaceId string) ([]*ec2.SecurityGroup, error) {

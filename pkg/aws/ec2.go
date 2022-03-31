@@ -20,7 +20,7 @@ func EC2CreateTags(resources []string, tags map[string]string) error {
 	return nil
 }
 
-func EC2DescribeNetworkInterfaces(id, vpcId, instanceId, ip, securityGroupId string) ([]*ec2.NetworkInterface, error) {
+func EC2DescribeNetworkInterfaces(id, vpcId, description, instanceId, ip, securityGroupId string) ([]*ec2.NetworkInterface, error) {
 	sess := GetSession()
 	svc := ec2.New(sess)
 
@@ -32,6 +32,13 @@ func EC2DescribeNetworkInterfaces(id, vpcId, instanceId, ip, securityGroupId str
 		filters = append(filters, &ec2.Filter{
 			Name:   aws.String("network-interface-id"),
 			Values: aws.StringSlice([]string{id}),
+		})
+	}
+
+	if description != "" {
+		filters = append(filters, &ec2.Filter{
+			Name:   aws.String("description"),
+			Values: aws.StringSlice([]string{description}),
 		})
 	}
 
