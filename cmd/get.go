@@ -16,6 +16,7 @@ import (
 	"eksdemo/pkg/resource/fargate_profile"
 	"eksdemo/pkg/resource/hosted_zone"
 	"eksdemo/pkg/resource/irsa"
+	"eksdemo/pkg/resource/load_balancer"
 	"eksdemo/pkg/resource/network_interface"
 	"eksdemo/pkg/resource/node"
 	"eksdemo/pkg/resource/nodegroup"
@@ -79,6 +80,7 @@ func init() {
 	getCmd.AddCommand(fargate_profile.NewResource().NewGetCmd())
 	getCmd.AddCommand(hosted_zone.NewResource().NewGetCmd())
 	getCmd.AddCommand(irsa.NewResource().NewGetCmd())
+	getCmd.AddCommand(load_balancer.NewResource().NewGetCmd())
 	getCmd.AddCommand(network_interface.NewResource().NewGetCmd())
 	getCmd.AddCommand(node.NewResource().NewGetCmd())
 	getCmd.AddCommand(nodegroup.NewResource().NewGetCmd())
