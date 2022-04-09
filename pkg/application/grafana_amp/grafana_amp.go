@@ -14,7 +14,7 @@ import (
 // Helm:    https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
 // Helm:    https://github.com/grafana/helm-charts/tree/main/charts/grafana
 // Repo:    https://hub.docker.com/r/grafana/grafana
-// Version: Latest is v8.3.3 (as of 12/14/21)
+// Version: Latest is v8.4.5 (as of 04/09/22)
 
 func NewApp() *application.Application {
 	app := &application.Application{
@@ -72,26 +72,31 @@ alertmanager:
   enabled: false
 grafana:
   adminPassword: {{ .GrafanaAdminPassword }}
-  fullnameOverride: grafana-amp
+  fullnameOverride: grafana
   grafana.ini:
     auth:
       sigv4_auth_enabled: true
   image:
     tag: {{ .Version }}
+  {{- if not .IngressHost }}
+  service:
+    type: LoadBalancer
+  {{- end }}
+  serviceMonitor:
+    labels:
+      release: prometheus-amp
+{{- if .IngressHost }}
   ingress:
-    enabled: {{ not .DisableIngress }}
+    enabled: true
+    ingressClassName: alb
     annotations:
-      kubernetes.io/ingress.class: alb
       alb.ingress.kubernetes.io/scheme: internet-facing
       alb.ingress.kubernetes.io/target-type: 'ip'
-    {{- if .TLSHost }}
       alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
     tls:
     - hosts:
-      - {{ .TLSHost }}
-    {{- end }}
-  rbac:
-    pspEnabled: false
+      - {{ .IngressHost }}
+{{- end }}
   sidecar:
     datasources:
       defaultDatasourceEnabled: false
@@ -111,22 +116,22 @@ grafana:
     annotations:
       {{ .IrsaAnnotation }}
 kubeApiServer:
-  # Enable to create the API Server dashboard, ServiceMonitor deleted in Post Render
+  # Enabled to create the API Server dashboard, ServiceMonitor deleted in Post Render
   enabled: true
 kubelet:
-  # Enable to create the Kubelet dashboard, ServiceMonitor deleted in Post Render
+  # Enabled to create the Kubelet dashboard, ServiceMonitor deleted in Post Render
   enabled: true
 kubeControllerManager:
   enabled: false
 coreDns:
-  # Enable to create the Core DNS dashboard, ServiceMonitor and Service deleted in Post Render
+  # Enabled to create the Core DNS dashboard, ServiceMonitor and Service deleted in Post Render
   enabled: true
 kubeEtcd:
   enabled: false
 kubeScheduler:
   enabled: false
 kubeProxy:
-  # Enable to create the kube-proxy dashboard
+  # Enabled to create the kube-proxy dashboard
   enabled: true
   service:
     enabled: false
@@ -135,13 +140,11 @@ kubeProxy:
 kubeStateMetrics:
   enabled: false
 nodeExporter:
-  # Enable to create the USE dashboards, Daemonset and Service deleted in Post Render
+  # Enabled to create the USE dashboards, Daemonset and Service deleted in Post Render
   enabled: true
 prometheus-node-exporter:
   serviceAccount:
     create: false
-  rbac:
-    pspEnabled: false
   namespaceOverride: delete-me
 prometheusOperator:
   enabled: false
@@ -151,45 +154,47 @@ prometheus:
     remoteWriteDashboards: true
 `
 
+// https://github.com/kubernetes-sigs/kustomize/blob/master/examples/patchMultipleObjects.md
 const postRenderKustomize = `
 resources:
 - manifest.yaml
 patches:
-# Delete ServiceMonitors that are created when enabling the dashboards for those services
-- patch: |-
-    $patch: delete
-    apiVersion: monitoring.coreos.com/v1
-    kind: ServiceMonitor
-    metadata:
-      name: "*"
-  target:
-    kind: ServiceMonitor
-# Delete the Service that is created when enabling the dashboard for CoreDNS
+# Delete the AlertManager dashboard as it's disabled, alerts will be in AMP
 - patch: |-
     $patch: delete
     apiVersion: v1
-    kind: Service
+    kind: ConfigMap
     metadata:
-      name: "*"
+      name: needed-but-not-used
+  target:
+    name: ".*alertmanager-overview$"
+# Delete ServiceMonitors that are created by enabling the dashboards for those services
+- patch: |-
+    $patch: delete
+    apiVersion: unused
+    kind: unused
+    metadata:
+      name: unused
+  target:
+    kind: ServiceMonitor
+    name: grafana-amp.*
+# Delete the Service that is created by enabling the dashboard for CoreDNS
+- patch: |-
+    $patch: delete
+    apiVersion: unused
+    kind: unused
+    metadata:
+      name: unused
   target:
     kind: Service
     namespace: kube-system
-# Delete the Node Exporter Daemonset
+# Delete the Node Exporter Daemonset and Service
 - patch: |-
     $patch: delete
-    apiVersion: apps/v1
-    kind: DaemonSet
+    apiVersion: unused
+    kind: unused
     metadata:
-      name: "*"
-  target:
-    namespace: delete-me
-# Delete the Node Exporter Service
-- patch: |-
-    $patch: delete
-    apiVersion: v1
-    kind: Service
-    metadata:
-      name: "*"
+      name: unused
   target:
     namespace: delete-me
 `

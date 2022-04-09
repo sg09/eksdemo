@@ -12,9 +12,8 @@ type GrafanaAmpOptions struct {
 	application.ApplicationOptions
 
 	AmpEndpoint          string
-	DisableIngress       bool
 	GrafanaAdminPassword string
-	TLSHost              string
+	IngressHost          string
 }
 
 func NewOptions() (options *GrafanaAmpOptions, flags cmd.Flags) {
@@ -23,8 +22,8 @@ func NewOptions() (options *GrafanaAmpOptions, flags cmd.Flags) {
 			Namespace:      "grafana",
 			ServiceAccount: "grafana",
 			DefaultVersion: &application.LatestPrevious{
-				Latest:   "8.3.3",
-				Previous: "8.2.7",
+				Latest:   "8.4.5",
+				Previous: "8.3.3",
 			},
 		},
 	}
@@ -38,19 +37,13 @@ func NewOptions() (options *GrafanaAmpOptions, flags cmd.Flags) {
 			},
 			Option: &options.GrafanaAdminPassword,
 		},
-		&cmd.BoolFlag{
-			CommandFlag: cmd.CommandFlag{
-				Name:        "disable-ingress",
-				Description: "don't create Ingress for Grafana",
-			},
-			Option: &options.DisableIngress,
-		},
 		&cmd.StringFlag{
 			CommandFlag: cmd.CommandFlag{
-				Name:        "tls-host",
-				Description: "FQDN of host to secure with TLS (requires ExternalDNS for cert discovery) ",
+				Name:        "ingress-host",
+				Description: "hostname for Ingress with TLS (requires ACM cert, AWS LB Controller and ExternalDNS)",
+				Shorthand:   "I",
 			},
-			Option: &options.TLSHost,
+			Option: &options.IngressHost,
 		},
 	}
 	return
