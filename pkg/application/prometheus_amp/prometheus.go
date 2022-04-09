@@ -14,7 +14,7 @@ import (
 // GitHub:  https://github.com/prometheus-operator/kube-prometheus
 // Helm:    https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
 // Repo:    https://quay.io/prometheus-operator/prometheus-operator
-// Version: Latest is v0.52.1 (as of 12/14/21)
+// Version: Latest is v0.55.1 (as of 04/09/22)
 
 func NewApp() *application.Application {
 	options, flags := NewOptions()
@@ -80,9 +80,6 @@ fullnameOverride: prometheus-amp
 defaultRules:
   rules:
     alertmanager: false
-global:
-  rbac:
-    pspEnabled: false
 alertmanager:
   enabled: false
 grafana:
@@ -95,13 +92,9 @@ kubeScheduler:
   enabled: false
 kube-state-metrics:
   fullnameOverride: kube-state-metrics-amp
-  podSecurityPolicy:
-    enabled: false
   prometheusScrape: false
 prometheus-node-exporter:
   fullnameOverride: node-exporter
-  rbac:
-    pspEnabled: false
   service:
     annotations:
       # Remove with null when https://github.com/helm/helm/issues/9136 is fixed
@@ -133,8 +126,11 @@ const postRenderKustomize = `
 resources:
 - manifest.yaml
 patches:
-# Create a kubelet service that all prometheus installs use, to prevent duplicate 
-# kubelet services that cause issues with the prometheus recording rules
+# The Prometheus Operator cretes a kubelet service for monitoring.
+# This patch modifies a flag to Prometheus Operator to use a standard
+# name for kubelet service that all prometheus installs use.
+# This prevents duplicate kubelet services with multiple prometheus installs
+# that causes an issue with the prometheus recording rules
 - patch: |-
     - op: replace
       path: /spec/template/spec/containers/0/args/0
