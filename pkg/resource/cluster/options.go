@@ -69,6 +69,13 @@ func addOptions(res *resource.Resource) *resource.Resource {
 		},
 		&cmd.BoolFlag{
 			CommandFlag: cmd.CommandFlag{
+				Name:        "fargate",
+				Description: "create a Fargate profile",
+			},
+			Option: &options.Fargate,
+		},
+		&cmd.BoolFlag{
+			CommandFlag: cmd.CommandFlag{
 				Name:        "no-roles",
 				Description: "don't create IAM roles",
 			},

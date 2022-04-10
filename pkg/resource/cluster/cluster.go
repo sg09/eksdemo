@@ -36,15 +36,15 @@ addons:
 cloudWatch:
   clusterLogging:
     enableTypes: ["*"]
+{{- if .Fargate }}
 
-{{ if .Fargate }}
 fargateProfiles:
 - name: default
   selectors:
     - namespace: fargate
-{{ end }}
+{{- end }}
+{{- if not .NoRoles }}
 
-{{ if not .NoRoles }}
 iam:
   withOIDC: true
   serviceAccounts:
