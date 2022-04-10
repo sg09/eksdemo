@@ -34,9 +34,12 @@ spec:
     - port: 80
       targetPort: 80
       protocol: TCP
-  type: NodePort
+{{- if not .IngressHost }}
+  type: LoadBalancer
+{{- end }}
   selector:
     app.kubernetes.io/name: app-2048
+{{- if .IngressHost }}
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -46,6 +49,7 @@ metadata:
   annotations:
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
 spec:
   ingressClassName: alb
   rules:
@@ -58,4 +62,8 @@ spec:
               name: service-2048
               port:
                 number: 80
+  tls:
+  - hosts:
+    - {{ .IngressHost }}
+{{- end }}
 ...`

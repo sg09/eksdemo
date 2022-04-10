@@ -8,7 +8,8 @@ import (
 type Game2048Options struct {
 	application.ApplicationOptions
 
-	Replicas int
+	IngressHost string
+	Replicas    int
 }
 
 func NewOptions() (options *Game2048Options, flags cmd.Flags) {
@@ -25,6 +26,14 @@ func NewOptions() (options *Game2048Options, flags cmd.Flags) {
 	}
 
 	flags = cmd.Flags{
+		&cmd.StringFlag{
+			CommandFlag: cmd.CommandFlag{
+				Name:        "ingress-host",
+				Description: "hostname for Ingress with TLS (requires ACM cert, AWS LB Controller and ExternalDNS)",
+				Shorthand:   "I",
+			},
+			Option: &options.IngressHost,
+		},
 		&cmd.IntFlag{
 			CommandFlag: cmd.CommandFlag{
 				Name:        "replicas",
