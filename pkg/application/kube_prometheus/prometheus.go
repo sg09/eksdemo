@@ -38,6 +38,10 @@ fullnameOverride: prometheus
 grafana:
   adminPassword: {{ .GrafanaAdminPassword }}
   fullnameOverride: grafana
+  # Temporary fix for issue: https://github.com/prometheus-community/helm-charts/issues/1867
+  serviceMonitor:
+    labels:
+      release: kube-prometheus
 {{- if .IngressHost }}
   ingress:
     enabled: true

@@ -82,6 +82,7 @@ grafana:
   service:
     type: LoadBalancer
   {{- end }}
+  # Temporary fix for Issue: https://github.com/prometheus-community/helm-charts/issues/1867
   serviceMonitor:
     labels:
       release: prometheus-amp
