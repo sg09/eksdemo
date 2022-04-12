@@ -14,7 +14,8 @@ type Resource struct {
 	cmd.Flags
 	Options
 
-	GetFlags cmd.Flags
+	DeleteFlags cmd.Flags
+	GetFlags    cmd.Flags
 
 	Getter
 	Manager
@@ -103,7 +104,7 @@ func (r *Resource) NewDeleteCmd() *cobra.Command {
 		Args:    args,
 		Hidden:  r.Hidden,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if err := r.Flags.ValidateFlags(); err != nil {
+			if err := r.DeleteFlags.ValidateFlags(); err != nil {
 				return err
 			}
 
@@ -127,7 +128,7 @@ func (r *Resource) NewDeleteCmd() *cobra.Command {
 			return r.Delete()
 		},
 	}
-	r.Flags = r.Options.AddDeleteFlags(cmd, r.Flags)
+	r.DeleteFlags = r.Options.AddDeleteFlags(cmd, r.DeleteFlags)
 
 	return cmd
 }
@@ -155,7 +156,7 @@ func (r *Resource) NewGetCmd() *cobra.Command {
 		Args:    args,
 		Hidden:  r.Hidden,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if err := r.Flags.ValidateFlags(); err != nil {
+			if err := r.GetFlags.ValidateFlags(); err != nil {
 				return err
 			}
 			cmd.SilenceUsage = true
@@ -174,7 +175,7 @@ func (r *Resource) NewGetCmd() *cobra.Command {
 	}
 	cobraCmd.Flags().VarP(cmd.NewOutputFlag(&output), "output", "o", "output format (json|table|yaml)")
 
-	r.Flags = r.Options.AddGetFlags(cobraCmd, r.GetFlags)
+	r.GetFlags = r.Options.AddGetFlags(cobraCmd, r.GetFlags)
 
 	return cobraCmd
 }

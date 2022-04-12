@@ -62,9 +62,7 @@ func (o *CommonOptions) AddCreateFlags(cobraCmd *cobra.Command, flags cmd.Flags)
 	return flags
 }
 
-func (o *CommonOptions) AddDeleteFlags(cobraCmd *cobra.Command, _ cmd.Flags) cmd.Flags {
-	flags := cmd.Flags{}
-
+func (o *CommonOptions) AddDeleteFlags(cobraCmd *cobra.Command, flags cmd.Flags) cmd.Flags {
 	if !o.ClusterFlagDisabled {
 		flags = append(flags, o.NewClusterFlag(Delete, true))
 	}
