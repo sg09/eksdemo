@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-const EksctlHeader = `
+const EksctlHeader = `---
 apiVersion: eksctl.io/v1alpha5
 kind: ClusterConfig
 
@@ -17,7 +17,7 @@ metadata:
   region: {{ .Region }}
 {{- if .KubernetesVersion }}
   version: {{ .KubernetesVersion | printf "%q" }}
-{{ end }}
+{{- end }}
 `
 
 type ResourceManager struct {
