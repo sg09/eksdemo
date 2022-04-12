@@ -4,6 +4,7 @@ import (
 	"eksdemo/pkg/aws"
 	"eksdemo/pkg/printer"
 	"eksdemo/pkg/resource"
+	"fmt"
 	"os"
 	"strings"
 
@@ -13,7 +14,17 @@ import (
 type Getter struct{}
 
 func (g *Getter) Get(name string, output printer.Output, options resource.Options) error {
-	zones, err := g.GetAllZonesStartingWithName(name)
+	var err error
+	var zone *route53.HostedZone
+	var zones []*route53.HostedZone
+
+	if name != "" {
+		zone, err = g.GetZoneByName(name)
+		zones = []*route53.HostedZone{zone}
+	} else {
+		zones, err = g.GetAllZones()
+	}
+
 	if err != nil {
 		return err
 	}
@@ -25,22 +36,21 @@ func (g *Getter) GetAllZones() ([]*route53.HostedZone, error) {
 	return aws.Route53ListHostedZones()
 }
 
-func (g *Getter) GetAllZonesStartingWithName(name string) ([]*route53.HostedZone, error) {
-	zones, err := g.GetAllZones()
+func (g *Getter) GetZoneByName(name string) (*route53.HostedZone, error) {
+	zone, err := aws.Route53ListHostedZonesByName(name)
 	if err != nil {
 		return nil, err
 	}
 
-	if name != "" {
-		n := strings.ToLower(name)
-		filtered := []*route53.HostedZone{}
-		for _, z := range zones {
-			if strings.HasPrefix(strings.ToLower(aws.StringValue(z.Name)), n) {
-				filtered = append(filtered, z)
-			}
-		}
-		zones = filtered
+	if len(zone) == 0 {
+		return nil, fmt.Errorf("hosted-zone %q not found", name)
 	}
 
-	return zones, nil
+	z := zone[0]
+
+	if strings.ToLower(aws.StringValue(z.Name)) != name+"." {
+		return nil, fmt.Errorf("hosted-zone %q not found", name)
+	}
+
+	return z, nil
 }
