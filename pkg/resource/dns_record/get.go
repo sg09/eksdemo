@@ -4,6 +4,7 @@ import (
 	"eksdemo/pkg/aws"
 	"eksdemo/pkg/printer"
 	"eksdemo/pkg/resource"
+	"eksdemo/pkg/resource/hosted_zone"
 	"fmt"
 	"os"
 	"strings"
@@ -11,7 +12,18 @@ import (
 	"github.com/aws/aws-sdk-go/service/route53"
 )
 
-type Getter struct{}
+type Getter struct {
+	zoneGetter hosted_zone.Getter
+}
+
+// Record types to skip when getting
+var getFilterTypes = map[string]bool{
+	"SOA": true,
+	"TXT": true,
+}
+
+// Don't skip any record types when getting with --all flag
+var getFilterTypesAll = map[string]bool{}
 
 func (g *Getter) Get(name string, output printer.Output, options resource.Options) error {
 	dnsOptions, ok := options.(*DnsRecordOptions)
@@ -19,36 +31,50 @@ func (g *Getter) Get(name string, output printer.Output, options resource.Option
 		return fmt.Errorf("internal error, unable to cast options to DnsRecordOptions")
 	}
 
-	zone, err := aws.Route53ListHostedZonesByName(dnsOptions.ZoneName)
+	zone, err := g.zoneGetter.GetZoneByName(dnsOptions.ZoneName)
 	if err != nil {
 		return err
 	}
 
-	if len(zone) == 0 {
-		return fmt.Errorf("zone not found")
+	filterTypes := getFilterTypes
+	if dnsOptions.All {
+		filterTypes = getFilterTypesAll
 	}
 
-	z := zone[0]
-
-	if !strings.HasPrefix(strings.ToLower(aws.StringValue(z.Name)), dnsOptions.ZoneName) {
-		return fmt.Errorf("zone not found")
-	}
-
-	recordSets, err := aws.Route53ListResourceRecordSets(aws.StringValue(z.Id))
+	recordSets, err := g.GetRecords(name, aws.StringValue(zone.Id), filterTypes)
 	if err != nil {
 		return err
+	}
+
+	return output.Print(os.Stdout, NewPrinter(recordSets))
+}
+
+func (g *Getter) GetRecords(name, zoneId string, filterTypes map[string]bool) ([]*route53.ResourceRecordSet, error) {
+	recordSets, err := aws.Route53ListResourceRecordSets(zoneId)
+	if err != nil {
+		return nil, err
 	}
 
 	if name != "" {
 		n := strings.ToLower(name)
 		filtered := []*route53.ResourceRecordSet{}
-		for _, z := range recordSets {
-			if strings.HasPrefix(strings.ToLower(aws.StringValue(z.Name)), n) {
-				filtered = append(filtered, z)
+		for _, rs := range recordSets {
+			if strings.HasPrefix(strings.ToLower(aws.StringValue(rs.Name)), n) {
+				filtered = append(filtered, rs)
 			}
 		}
 		recordSets = filtered
 	}
 
-	return output.Print(os.Stdout, NewPrinter(recordSets))
+	if len(filterTypes) > 0 {
+		filtered := make([]*route53.ResourceRecordSet, 0, len(recordSets))
+		for _, rs := range recordSets {
+			if !filterTypes[aws.StringValue(rs.Type)] {
+				filtered = append(filtered, rs)
+			}
+		}
+		recordSets = filtered
+	}
+
+	return recordSets, nil
 }

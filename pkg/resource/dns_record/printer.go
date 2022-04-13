@@ -9,6 +9,9 @@ import (
 	"github.com/aws/aws-sdk-go/service/route53"
 )
 
+const MAX_NAME_WITH_UNDERSCORE_LENGTH int = 17
+const MAX_RECORD_LENGTH int = 70
+
 type RecordSetPrinter struct {
 	recordSets []*route53.ResourceRecordSet
 }
@@ -22,13 +25,14 @@ func (p *RecordSetPrinter) PrintTable(writer io.Writer) error {
 	table.SetHeader([]string{"Name", "Type", "Value"})
 
 	for _, rs := range p.recordSets {
-		recordType := aws.StringValue(rs.Type)
-		if recordType == "SOA" || recordType == "TXT" {
-			continue
-		}
 		name := aws.StringValue(rs.Name)
+
 		if strings.HasPrefix(name, "_") {
-			continue
+			if len(name) > MAX_NAME_WITH_UNDERSCORE_LENGTH {
+				name = name[:MAX_NAME_WITH_UNDERSCORE_LENGTH] + "..."
+			}
+		} else {
+			name = strings.TrimSuffix(name, ".")
 		}
 
 		records := ""
@@ -38,6 +42,9 @@ func (p *RecordSetPrinter) PrintTable(writer io.Writer) error {
 			for i, rec := range rs.ResourceRecords {
 				if i == 0 {
 					records = aws.StringValue(rec.Value)
+					if len(records) > MAX_RECORD_LENGTH {
+						records = records[:MAX_RECORD_LENGTH] + "..."
+					}
 				} else {
 					records += "\n" + aws.StringValue(rec.Value)
 				}
@@ -45,8 +52,8 @@ func (p *RecordSetPrinter) PrintTable(writer io.Writer) error {
 		}
 
 		table.AppendRow([]string{
-			strings.TrimSuffix(name, "."),
-			recordType,
+			name,
+			aws.StringValue(rs.Type),
 			records,
 		})
 	}

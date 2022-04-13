@@ -10,14 +10,16 @@ func NewResource() *resource.Resource {
 		Command: cmd.Command{
 			Name:        "dns-record",
 			Description: "Route53 Resource Record Sets",
-			Aliases:     []string{"dns-records", "resource-records", "records", "dns"},
+			Aliases:     []string{"dns-records", "dns"},
 			Args:        []string{"NAME"},
 		},
 
 		Getter: &Getter{},
+
+		Manager: &Manager{},
 	}
 
-	res.Options, res.Flags = NewOptions()
+	res.Options, res.DeleteFlags, res.GetFlags = NewOptions()
 
 	return res
 }
