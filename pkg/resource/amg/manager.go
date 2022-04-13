@@ -14,6 +14,7 @@ import (
 
 type Manager struct {
 	AssumeRolePolicyTemplate template.TextTemplate
+	DryRun                   bool
 }
 
 func (m *Manager) Create(options resource.Options) error {
@@ -36,6 +37,10 @@ func (m *Manager) Create(options resource.Options) error {
 		return nil
 	}
 
+	if m.DryRun {
+		return m.dryRun(amgOptions)
+	}
+
 	role, err := m.createIamRole(amgOptions)
 	if err != nil {
 		return err
@@ -49,6 +54,7 @@ func (m *Manager) Create(options resource.Options) error {
 	fmt.Printf("Creating AMG Workspace Name: %s...", amgOptions.WorkspaceName)
 	result, err := aws.AmgCreateWorkspace(amgOptions.WorkspaceName, amgOptions.Auth, aws.StringValue(role.Arn))
 	if err != nil {
+		fmt.Println()
 		return err
 	}
 
@@ -88,16 +94,20 @@ func (m *Manager) Delete(options resource.Options) error {
 		return err
 	}
 
-	err = aws.AmgDeleteWorkspace(aws.StringValue(amg.Id))
+	id := aws.StringValue(amg.Id)
+
+	err = aws.AmgDeleteWorkspace(id)
 	if err != nil {
 		return err
 	}
-	fmt.Printf("AMG Workspace Id %q deleting...\n", amgOptions.WorkspaceName)
+	fmt.Printf("AMG Workspace Id %q deleting...\n", id)
 
 	return nil
 }
 
-func (m *Manager) SetDryRun() {}
+func (m *Manager) SetDryRun() {
+	m.DryRun = true
+}
 
 func (m *Manager) createIamRole(options *AmgOptions) (*iam.Role, error) {
 	assumeRolePolicy, err := m.AssumeRolePolicyTemplate.Render(options)
@@ -158,4 +168,19 @@ func (m *Manager) deleteIamRole(roleArn string) error {
 	}
 
 	return aws.IamDeleteRole(roleName)
+}
+
+func (m *Manager) dryRun(options *AmgOptions) error {
+	fmt.Println("\nAMG Resource Manager Dry Run:")
+
+	fmt.Printf("Amazon Managed Grafana API Call %q with request parameters:\n", "CreateWorkspace")
+	fmt.Printf("AccountAccessType: %q\n", managedgrafana.AccountAccessTypeCurrentAccount)
+	fmt.Printf("AuthenticationProviders: %q\n", options.Auth)
+
+	fmt.Printf("PermissionType: %q\n", managedgrafana.PermissionTypeServiceManaged)
+	fmt.Printf("WorkspaceDataSources: %q\n", []string{managedgrafana.DataSourceTypePrometheus})
+	fmt.Printf("WorkspaceName: %q\n", options.WorkspaceName)
+	fmt.Printf("WorkspaceRoleArn: %q\n", "<role-to-be-created>")
+
+	return nil
 }
