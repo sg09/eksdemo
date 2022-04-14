@@ -12,7 +12,7 @@ func NewResource() *resource.Resource {
 		Command: cmd.Command{
 			Name:        "nodegroup",
 			Description: "EKS Managed Nodegroup",
-			Aliases:     []string{"ng", "mng"},
+			Aliases:     []string{"nodegroups", "mng", "ng"},
 			Args:        []string{"NAME"},
 		},
 

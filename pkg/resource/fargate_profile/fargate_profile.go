@@ -12,7 +12,7 @@ func NewResource() *resource.Resource {
 		Command: cmd.Command{
 			Name:        "fargate-profile",
 			Description: "EKS Fargate Profile",
-			Aliases:     []string{"fargateprofile", "fargate", "fp"},
+			Aliases:     []string{"fargate-profiles", "fargateprofiles", "fargateprofile", "fargate", "fp"},
 			Args:        []string{"NAME"},
 		},
 
