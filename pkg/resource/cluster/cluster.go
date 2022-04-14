@@ -13,6 +13,7 @@ func NewResource() *resource.Resource {
 		Command: cmd.Command{
 			Name:        "cluster",
 			Description: "EKS Cluster",
+			Aliases:     []string{"clusters"},
 			Args:        []string{"NAME"},
 		},
 
