@@ -92,3 +92,7 @@ func (m *Manager) Delete(options resource.Options) error {
 func (m *Manager) SetDryRun() {
 	m.DryRun = true
 }
+
+func (m *Manager) Update(options resource.Options) error {
+	return fmt.Errorf("feature not supported")
+}

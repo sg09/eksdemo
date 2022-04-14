@@ -227,3 +227,7 @@ func (e *ResourceManager) IamAuthExists(renderedArn, cluster string) (bool, erro
 func (e *ResourceManager) SetDryRun() {
 	e.DryRun = true
 }
+
+func (e *ResourceManager) Update(options resource.Options) error {
+	return fmt.Errorf("feature not supported")
+}

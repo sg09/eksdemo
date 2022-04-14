@@ -40,6 +40,7 @@ func init() {
 		newCmdDelete(),
 		install.NewInstallCmd(),
 		install.NewUninstallCmd(),
+		newCmdUpdate(),
 	)
 
 	// TODO: implement configuration

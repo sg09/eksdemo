@@ -28,4 +28,8 @@ func (m *Manager) Delete(options resource.Options) error {
 	return nil
 }
 
+func (m *Manager) Update(options resource.Options) error {
+	return fmt.Errorf("update not supported")
+}
+
 func (m *Manager) SetDryRun() {}

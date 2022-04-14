@@ -11,6 +11,7 @@ type Options interface {
 	AddCreateFlags(*cobra.Command, cmd.Flags) cmd.Flags
 	AddDeleteFlags(*cobra.Command, cmd.Flags) cmd.Flags
 	AddGetFlags(*cobra.Command, cmd.Flags) cmd.Flags
+	AddUpdateFlags(*cobra.Command, cmd.Flags) cmd.Flags
 	Common() *CommonOptions
 	PostCreate() error
 	PreCreate() error
@@ -43,6 +44,7 @@ type Action string
 const Create Action = "create"
 const Delete Action = "delete"
 const Get Action = "get"
+const Update Action = "update"
 
 func (o *CommonOptions) AddCreateFlags(cobraCmd *cobra.Command, flags cmd.Flags) cmd.Flags {
 	flags = append(flags, o.NewDryRunFlag())
@@ -87,6 +89,22 @@ func (o *CommonOptions) AddGetFlags(cobraCmd *cobra.Command, flags cmd.Flags) cm
 		flags = append(flags, o.NewClusterFlag(Get, false))
 	} else if !o.ClusterFlagDisabled {
 		flags = append(flags, o.NewClusterFlag(Get, true))
+	}
+
+	for _, f := range flags {
+		f.AddFlagToCommand(cobraCmd)
+	}
+
+	return flags
+}
+
+func (o *CommonOptions) AddUpdateFlags(cobraCmd *cobra.Command, flags cmd.Flags) cmd.Flags {
+	if !o.ClusterFlagDisabled {
+		flags = append(flags, o.NewClusterFlag(Update, true))
+	}
+
+	if o.NamespaceFlag {
+		flags = append(flags, o.NewNamespaceFlag(Update))
 	}
 
 	for _, f := range flags {

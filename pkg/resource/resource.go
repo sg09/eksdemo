@@ -16,6 +16,7 @@ type Resource struct {
 
 	DeleteFlags cmd.Flags
 	GetFlags    cmd.Flags
+	UpdateFlags cmd.Flags
 
 	Getter
 	Manager
@@ -27,6 +28,10 @@ func (r *Resource) Create() error {
 
 func (r *Resource) Delete() error {
 	return r.Manager.Delete(r.Options)
+}
+
+func (r *Resource) Update() error {
+	return r.Manager.Update(r.Options)
 }
 
 func (r *Resource) NewCreateCmd() *cobra.Command {
@@ -176,6 +181,42 @@ func (r *Resource) NewGetCmd() *cobra.Command {
 	cobraCmd.Flags().VarP(cmd.NewOutputFlag(&output), "output", "o", "output format (json|table|yaml)")
 
 	r.GetFlags = r.Options.AddGetFlags(cobraCmd, r.GetFlags)
+
+	return cobraCmd
+}
+
+func (r *Resource) NewUpdateCmd() *cobra.Command {
+	use := r.Command.Name
+	if len(r.Args) > 0 {
+		use += " " + strings.Join(r.Args, " ")
+	}
+
+	cobraCmd := &cobra.Command{
+		Use:     use,
+		Short:   r.Description,
+		Long:    "Update " + r.Description,
+		Aliases: r.Aliases,
+		Args:    cobra.ExactArgs(len(r.Args)),
+		Hidden:  r.Hidden,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			if err := r.UpdateFlags.ValidateFlags(); err != nil {
+				return err
+			}
+			cmd.SilenceUsage = true
+
+			if len(args) > 0 {
+				r.SetName(args[0])
+			}
+
+			if r.Manager == nil {
+				return fmt.Errorf("feature not yet implemented")
+			}
+
+			return r.Update()
+		},
+	}
+
+	r.UpdateFlags = r.Options.AddUpdateFlags(cobraCmd, r.UpdateFlags)
 
 	return cobraCmd
 }

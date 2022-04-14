@@ -82,3 +82,7 @@ func (m *ResourceManager) Delete(options resource.Options) error {
 func (m *ResourceManager) SetDryRun() {
 	m.DryRun = true
 }
+
+func (m *ResourceManager) Update(options resource.Options) error {
+	return fmt.Errorf("feature not supported")
+}

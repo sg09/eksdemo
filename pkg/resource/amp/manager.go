@@ -78,6 +78,10 @@ func (m *Manager) SetDryRun() {
 	m.DryRun = true
 }
 
+func (m *Manager) Update(options resource.Options) error {
+	return fmt.Errorf("feature not supported")
+}
+
 func (m *Manager) dryRun(options *AmpOptions) error {
 	fmt.Printf("\nAMP Resource Manager Dry Run:\n")
 	fmt.Printf("Amazon Managed Service for Prometheus API Call %q with request parameters:\n", "CreateWorkspace")

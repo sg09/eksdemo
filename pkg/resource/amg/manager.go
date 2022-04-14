@@ -109,6 +109,10 @@ func (m *Manager) SetDryRun() {
 	m.DryRun = true
 }
 
+func (m *Manager) Update(options resource.Options) error {
+	return fmt.Errorf("feature not supported")
+}
+
 func (m *Manager) createIamRole(options *AmgOptions) (*iam.Role, error) {
 	assumeRolePolicy, err := m.AssumeRolePolicyTemplate.Render(options)
 	if err != nil {

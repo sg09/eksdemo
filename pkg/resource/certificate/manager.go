@@ -71,6 +71,10 @@ func (m *Manager) Delete(options resource.Options) error {
 
 func (m *Manager) SetDryRun() {}
 
+func (m *Manager) Update(options resource.Options) error {
+	return fmt.Errorf("feature not supported")
+}
+
 func (m *Manager) validate() error {
 	cert, err := m.Getter.GetCert(m.arn)
 	if err != nil {

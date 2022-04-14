@@ -30,6 +30,10 @@ func (m *ResourceManager) Delete(options resource.Options) error {
 	return fmt.Errorf("feature not yet implemented")
 }
 
+func (m *ResourceManager) Update(options resource.Options) error {
+	return fmt.Errorf("feature not yet implemented")
+}
+
 func (m *ResourceManager) SetDryRun() {
 	m.DryRun = true
 }
