@@ -9,7 +9,7 @@ func NewResource() *resource.Resource {
 	res := &resource.Resource{
 		Command: cmd.Command{
 			Name:        "hosted-zone",
-			Description: "Route53 Hosted Zones",
+			Description: "Route53 Hosted Zone",
 			Aliases:     []string{"hosted-zones", "zones", "zone"},
 			Args:        []string{"NAME"},
 		},

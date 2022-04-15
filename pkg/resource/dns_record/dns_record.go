@@ -9,7 +9,7 @@ func NewResource() *resource.Resource {
 	res := &resource.Resource{
 		Command: cmd.Command{
 			Name:        "dns-record",
-			Description: "Route53 Resource Record Sets",
+			Description: "Route53 Resource Record Set",
 			Aliases:     []string{"dns-records", "dns"},
 			Args:        []string{"NAME"},
 		},

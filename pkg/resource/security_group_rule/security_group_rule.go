@@ -9,7 +9,7 @@ func NewResource() *resource.Resource {
 	res := &resource.Resource{
 		Command: cmd.Command{
 			Name:        "security-group-rule",
-			Description: "ESecurity Group Rule",
+			Description: "Security Group Rule",
 			Aliases:     []string{"security-group-rules", "sg-rules", "sgrules", "sgr"},
 			Args:        []string{"ID"},
 		},
