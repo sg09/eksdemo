@@ -4,6 +4,8 @@ import (
 	"eksdemo/pkg/resource"
 	"eksdemo/pkg/template"
 	"fmt"
+
+	"github.com/spf13/cobra"
 )
 
 type ResourceManager struct {
@@ -30,7 +32,7 @@ func (m *ResourceManager) Delete(options resource.Options) error {
 	return fmt.Errorf("feature not yet implemented")
 }
 
-func (m *ResourceManager) Update(options resource.Options) error {
+func (m *ResourceManager) Update(options resource.Options, cmd *cobra.Command) error {
 	return fmt.Errorf("feature not yet implemented")
 }
 

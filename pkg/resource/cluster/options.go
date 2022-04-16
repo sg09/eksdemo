@@ -30,9 +30,8 @@ type ClusterOptions struct {
 }
 
 func addOptions(res *resource.Resource) *resource.Resource {
-	ngOptions, ngFlags := nodegroup.NewOptions()
+	ngOptions, ngFlags, _ := nodegroup.NewOptions()
 	ngOptions.DesiredCapacity = 2
-	ngOptions.MinSize = 2
 	ngOptions.NodegroupName = "main"
 
 	options := &ClusterOptions{

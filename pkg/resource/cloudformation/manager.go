@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/aws/aws-sdk-go/aws/awserr"
+	"github.com/spf13/cobra"
 )
 
 type Manager struct {
@@ -39,6 +40,6 @@ func (m *Manager) SetDryRun() {
 	m.DryRun = true
 }
 
-func (m *Manager) Update(options resource.Options) error {
+func (m *Manager) Update(options resource.Options, cmd *cobra.Command) error {
 	return fmt.Errorf("feature not supported")
 }

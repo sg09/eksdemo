@@ -22,20 +22,24 @@ type NodegroupOptions struct {
 	Spot            bool
 	SpotvCPUs       int
 	SpotMemory      int
+
+	UpdateDesired int
+	UpdateMin     int
+	UpdateMax     int
 }
 
-func NewOptions() (options *NodegroupOptions, flags cmd.Flags) {
+func NewOptions() (options *NodegroupOptions, createFlags, updateFlags cmd.Flags) {
 	options = &NodegroupOptions{
 		InstanceType:    "t3.large",
 		DesiredCapacity: 1,
-		MinSize:         1,
-		MaxSize:         5,
+		MinSize:         0,
+		MaxSize:         10,
 		OperatingSystem: "AmazonLinux2",
 		SpotvCPUs:       2,
 		SpotMemory:      4,
 	}
 
-	flags = cmd.Flags{
+	createFlags = cmd.Flags{
 		&cmd.BoolFlag{
 			CommandFlag: cmd.CommandFlag{
 				Name:        "containerd",
@@ -74,7 +78,7 @@ func NewOptions() (options *NodegroupOptions, flags cmd.Flags) {
 		&cmd.IntFlag{
 			CommandFlag: cmd.CommandFlag{
 				Name:        "nodes",
-				Description: "initial nodes",
+				Description: "desired number of nodes",
 				Shorthand:   "N",
 				Validate: func() error {
 					if options.DesiredCapacity > options.MaxSize {
@@ -115,6 +119,32 @@ func NewOptions() (options *NodegroupOptions, flags cmd.Flags) {
 			Choices: []string{"AmazonLinux2", "Bottlerocket", "Ubuntu2004", "Ubuntu1804"},
 		},
 	}
+
+	updateFlags = cmd.Flags{
+		&cmd.IntFlag{
+			CommandFlag: cmd.CommandFlag{
+				Name:        "max",
+				Description: "max nodes",
+			},
+			Option: &options.UpdateMax,
+		},
+		&cmd.IntFlag{
+			CommandFlag: cmd.CommandFlag{
+				Name:        "min",
+				Description: "min nodes",
+			},
+			Option: &options.UpdateMin,
+		},
+		&cmd.IntFlag{
+			CommandFlag: cmd.CommandFlag{
+				Name:        "nodes",
+				Description: "desired number of nodes",
+				Shorthand:   "N",
+			},
+			Option: &options.UpdateDesired,
+		},
+	}
+
 	return
 }
 

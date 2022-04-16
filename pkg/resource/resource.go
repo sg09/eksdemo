@@ -30,8 +30,8 @@ func (r *Resource) Delete() error {
 	return r.Manager.Delete(r.Options)
 }
 
-func (r *Resource) Update() error {
-	return r.Manager.Update(r.Options)
+func (r *Resource) Update(cmd *cobra.Command) error {
+	return r.Manager.Update(r.Options, cmd)
 }
 
 func (r *Resource) NewCreateCmd() *cobra.Command {
@@ -212,7 +212,7 @@ func (r *Resource) NewUpdateCmd() *cobra.Command {
 				return fmt.Errorf("feature not yet implemented")
 			}
 
-			return r.Update()
+			return r.Update(cmd)
 		},
 	}
 

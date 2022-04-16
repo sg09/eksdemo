@@ -18,16 +18,18 @@ func NewResource() *resource.Resource {
 
 		Getter: &Getter{},
 
-		Manager: &eksctl.ResourceManager{
-			Resource: "nodegroup",
-			Template: &template.TextTemplate{
-				Template: eksctl.EksctlHeader + EksctlTemplate,
+		Manager: &Manager{
+			Eksctl: &eksctl.ResourceManager{
+				Resource: "nodegroup",
+				Template: &template.TextTemplate{
+					Template: eksctl.EksctlHeader + EksctlTemplate,
+				},
+				ApproveDelete: true,
 			},
-			ApproveDelete: true,
 		},
 	}
 
-	res.Options, res.Flags = NewOptions()
+	res.Options, res.Flags, res.UpdateFlags = NewOptions()
 
 	return res
 }

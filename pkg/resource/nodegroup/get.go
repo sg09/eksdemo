@@ -12,13 +12,15 @@ import (
 type Getter struct{}
 
 func (g *Getter) Get(name string, output printer.Output, options resource.Options) error {
+	var nodeGroup *eks.Nodegroup
 	var nodeGroups []*eks.Nodegroup
 	var err error
 
 	clusterName := options.Common().ClusterName
 
 	if name != "" {
-		nodeGroups, err = g.GetNodeGroupsByName(name, clusterName)
+		nodeGroup, err = g.GetNodeGroupByName(name, clusterName)
+		nodeGroups = []*eks.Nodegroup{nodeGroup}
 	} else {
 		nodeGroups, err = g.GetAllNodeGroups(clusterName)
 	}
@@ -49,11 +51,11 @@ func (g *Getter) GetAllNodeGroups(clusterName string) ([]*eks.Nodegroup, error) 
 	return nodeGroups, nil
 }
 
-func (g *Getter) GetNodeGroupsByName(name, clusterName string) ([]*eks.Nodegroup, error) {
+func (g *Getter) GetNodeGroupByName(name, clusterName string) (*eks.Nodegroup, error) {
 	nodeGroup, err := aws.EksDescribeNodegroup(clusterName, name)
 	if err != nil {
 		return nil, err
 	}
 
-	return []*eks.Nodegroup{nodeGroup}, nil
+	return nodeGroup, nil
 }

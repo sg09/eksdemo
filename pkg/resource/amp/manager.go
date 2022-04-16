@@ -4,6 +4,8 @@ import (
 	"eksdemo/pkg/aws"
 	"eksdemo/pkg/resource"
 	"fmt"
+
+	"github.com/spf13/cobra"
 )
 
 type Manager struct {
@@ -78,7 +80,7 @@ func (m *Manager) SetDryRun() {
 	m.DryRun = true
 }
 
-func (m *Manager) Update(options resource.Options) error {
+func (m *Manager) Update(options resource.Options, cmd *cobra.Command) error {
 	return fmt.Errorf("feature not supported")
 }
 

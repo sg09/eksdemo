@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/aws/aws-sdk-go/service/route53"
+	"github.com/spf13/cobra"
 
 	awssdk "github.com/aws/aws-sdk-go/aws"
 )
@@ -93,6 +94,6 @@ func (m *Manager) SetDryRun() {
 	m.DryRun = true
 }
 
-func (m *Manager) Update(options resource.Options) error {
+func (m *Manager) Update(options resource.Options, cmd *cobra.Command) error {
 	return fmt.Errorf("feature not supported")
 }

@@ -4,6 +4,8 @@ import (
 	"eksdemo/pkg/aws"
 	"eksdemo/pkg/resource"
 	"fmt"
+
+	"github.com/spf13/cobra"
 )
 
 type Manager struct{}
@@ -28,7 +30,7 @@ func (m *Manager) Delete(options resource.Options) error {
 	return nil
 }
 
-func (m *Manager) Update(options resource.Options) error {
+func (m *Manager) Update(options resource.Options, cmd *cobra.Command) error {
 	return fmt.Errorf("update not supported")
 }
 

@@ -201,3 +201,20 @@ func EksOptimizedAmi(eksVersion string) (string, error) {
 
 	return aws.StringValue(result.Parameter.Value), nil
 }
+
+func EksUpdateNodegroupConfig(clusterName, nodegroupName string, desired, min, max int) error {
+	sess := GetSession()
+	svc := eks.New(sess)
+
+	_, err := svc.UpdateNodegroupConfig(&eks.UpdateNodegroupConfigInput{
+		ClusterName:   aws.String(clusterName),
+		NodegroupName: aws.String(nodegroupName),
+		ScalingConfig: &eks.NodegroupScalingConfig{
+			DesiredSize: aws.Int64(int64(desired)),
+			MinSize:     aws.Int64(int64(min)),
+			MaxSize:     aws.Int64(int64(max)),
+		},
+	})
+
+	return err
+}

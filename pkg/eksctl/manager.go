@@ -6,6 +6,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+
+	"github.com/spf13/cobra"
 )
 
 const EksctlHeader = `---
@@ -228,6 +230,6 @@ func (e *ResourceManager) SetDryRun() {
 	e.DryRun = true
 }
 
-func (e *ResourceManager) Update(options resource.Options) error {
+func (e *ResourceManager) Update(options resource.Options, cmd *cobra.Command) error {
 	return fmt.Errorf("feature not supported")
 }

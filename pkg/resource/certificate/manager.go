@@ -9,6 +9,7 @@ import (
 
 	awssdk "github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/route53"
+	"github.com/spf13/cobra"
 )
 
 type Manager struct {
@@ -71,7 +72,7 @@ func (m *Manager) Delete(options resource.Options) error {
 
 func (m *Manager) SetDryRun() {}
 
-func (m *Manager) Update(options resource.Options) error {
+func (m *Manager) Update(options resource.Options, cmd *cobra.Command) error {
 	return fmt.Errorf("feature not supported")
 }
 

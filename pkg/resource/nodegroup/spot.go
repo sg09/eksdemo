@@ -31,7 +31,7 @@ func NewSpotResource() *resource.Resource {
 }
 
 func NewSpotOptions() (options *NodegroupOptions, flags cmd.Flags) {
-	options, flags = NewOptions()
+	options, flags, _ = NewOptions()
 	options.Spot = true
 
 	spotFlags := cmd.Flags{

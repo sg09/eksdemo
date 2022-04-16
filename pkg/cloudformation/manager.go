@@ -8,6 +8,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
+	"github.com/spf13/cobra"
 )
 
 type ResourceManager struct {
@@ -83,6 +84,6 @@ func (m *ResourceManager) SetDryRun() {
 	m.DryRun = true
 }
 
-func (m *ResourceManager) Update(options resource.Options) error {
+func (m *ResourceManager) Update(options resource.Options, cmd *cobra.Command) error {
 	return fmt.Errorf("feature not supported")
 }
