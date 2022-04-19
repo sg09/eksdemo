@@ -15,7 +15,7 @@ import (
 // GitHub:  https://github.com/awslabs/karpenter
 // Helm:    https://github.com/awslabs/karpenter/tree/main/charts/karpenter
 // Repo:    https://gallery.ecr.aws/karpenter/controller
-// Version: Latest is v0.7.3 (as of 03/27/22)
+// Version: Latest is v0.8.2 (as of 04/16/22)
 
 func NewApp() *application.Application {
 	app := &application.Application{
