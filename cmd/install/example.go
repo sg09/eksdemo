@@ -4,6 +4,7 @@ import (
 	"eksdemo/pkg/application"
 	"eksdemo/pkg/application/example/eks_workshop"
 	"eksdemo/pkg/application/example/game_2048"
+	"eksdemo/pkg/application/example/inflate"
 
 	"github.com/spf13/cobra"
 )
@@ -46,5 +47,6 @@ func init() {
 	exampleApps = []func() *application.Application{
 		eks_workshop.NewApp,
 		game_2048.NewApp,
+		inflate.NewApp,
 	}
 }
