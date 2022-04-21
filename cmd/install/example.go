@@ -5,6 +5,7 @@ import (
 	"eksdemo/pkg/application/example/eks_workshop"
 	"eksdemo/pkg/application/example/game_2048"
 	"eksdemo/pkg/application/example/inflate"
+	"eksdemo/pkg/application/example/wordpress"
 
 	"github.com/spf13/cobra"
 )
@@ -48,5 +49,6 @@ func init() {
 		eks_workshop.NewApp,
 		game_2048.NewApp,
 		inflate.NewApp,
+		wordpress.NewApp,
 	}
 }
