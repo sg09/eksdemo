@@ -7,6 +7,33 @@ import (
 	"fmt"
 )
 
+func (o *ApplicationOptions) NewChartVersionFlag() *cmd.StringFlag {
+	flag := &cmd.StringFlag{
+		CommandFlag: cmd.CommandFlag{
+			Name:        "chart-version",
+			Description: fmt.Sprintf("chart version (default %q)", o.DefaultVersion.LatestChartVersion()),
+			Validate: func() error {
+				if o.UsePrevious && o.ChartVersion != "" {
+					return fmt.Errorf("%q flag cannot be used with %q flag", "use-previous", "chart-version")
+				}
+
+				if o.UsePrevious {
+					o.ChartVersion = o.PreviousChartVersion()
+					return nil
+				}
+
+				if o.ChartVersion == "" {
+					o.ChartVersion = o.LatestChartVersion()
+				}
+
+				return nil
+			},
+		},
+		Option: &o.ChartVersion,
+	}
+	return flag
+}
+
 func (o *ApplicationOptions) NewClusterFlag(action Action) *cmd.StringFlag {
 	flag := &cmd.StringFlag{
 		CommandFlag: cmd.CommandFlag{

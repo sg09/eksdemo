@@ -17,6 +17,7 @@ import (
 
 type HelmInstaller struct {
 	ChartName           string
+	ChartVersion        string
 	DryRun              bool
 	PostRenderKustomize template.Template
 	PVCLabels           map[string]string
@@ -38,6 +39,7 @@ func (i *HelmInstaller) Install(options application.Options) error {
 	helm := &helm.Helm{
 		AppVersion:    options.Common().Version,
 		ChartName:     i.ChartName,
+		ChartVersion:  options.Common().ChartVersion,
 		Namespace:     options.Common().Namespace,
 		ReleaseName:   i.ReleaseName,
 		RepositoryURL: i.RepositoryURL,

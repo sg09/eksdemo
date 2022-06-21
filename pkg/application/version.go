@@ -3,7 +3,9 @@ package application
 import "sort"
 
 type DefaultVersion interface {
+	LatestChartVersion() string
 	LatestVersion(clusterVersion string) string
+	PreviousChartVersion() string
 	PreviousVersion(clusterVersion string) string
 	LatestString() string
 	PreviousString() string
@@ -12,6 +14,9 @@ type DefaultVersion interface {
 type LatestPrevious struct {
 	Latest   string
 	Previous string
+
+	LatestChart   string
+	PreviousChart string
 }
 
 func (v *LatestPrevious) LatestString() string {
@@ -22,8 +27,16 @@ func (v *LatestPrevious) PreviousString() string {
 	return v.Previous
 }
 
+func (v *LatestPrevious) LatestChartVersion() string {
+	return v.LatestChart
+}
+
 func (v *LatestPrevious) LatestVersion(clusterVersion string) string {
 	return v.Latest
+}
+
+func (v *LatestPrevious) PreviousChartVersion() string {
+	return v.PreviousChart
 }
 
 func (v *LatestPrevious) PreviousVersion(clusterVersion string) string {
@@ -33,6 +46,9 @@ func (v *LatestPrevious) PreviousVersion(clusterVersion string) string {
 type KubernetesVersionDependent struct {
 	Latest   map[string]string
 	Previous map[string]string
+
+	LatestChart   string
+	PreviousChart string
 }
 
 func (v *KubernetesVersionDependent) LatestString() string {
@@ -71,8 +87,16 @@ func (v *KubernetesVersionDependent) PreviousString() string {
 	return versionList
 }
 
+func (v *KubernetesVersionDependent) LatestChartVersion() string {
+	return v.LatestChart
+}
+
 func (v *KubernetesVersionDependent) LatestVersion(clusterVersion string) string {
 	return v.Latest[clusterVersion]
+}
+
+func (v *KubernetesVersionDependent) PreviousChartVersion() string {
+	return v.PreviousChart
 }
 
 func (v *KubernetesVersionDependent) PreviousVersion(clusterVersion string) string {

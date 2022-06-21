@@ -22,7 +22,8 @@ type Options interface {
 }
 
 type ApplicationOptions struct {
-	Version string
+	ChartVersion string
+	Version      string
 
 	DefaultVersion
 	DeleteDependencies        bool
@@ -64,7 +65,7 @@ func (o *ApplicationOptions) AddInstallFlags(cobraCmd *cobra.Command, flags cmd.
 	}
 
 	if it == HelmInstaller {
-		flags = append(flags, o.NewSetFlag())
+		flags = append(flags, o.NewChartVersionFlag(), o.NewSetFlag())
 	}
 
 	for _, f := range flags {

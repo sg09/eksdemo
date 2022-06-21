@@ -22,6 +22,7 @@ import (
 type Helm struct {
 	AppVersion    string
 	ChartName     string
+	ChartVersion  string
 	Namespace     string
 	PostRenderer  postrender.PostRenderer
 	ReleaseName   string
@@ -59,7 +60,7 @@ func (h *Helm) DownloadChart() (*chart.Chart, error) {
 		chartPath = h.RepositoryURL
 	} else {
 		// Find Chart
-		chartPath, err = repo.FindChartInRepoURL(h.RepositoryURL, h.ChartName, "", "", "", "", getters)
+		chartPath, err = repo.FindChartInRepoURL(h.RepositoryURL, h.ChartName, h.ChartVersion, "", "", "", getters)
 		if err != nil {
 			return nil, err
 		}
