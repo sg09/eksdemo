@@ -12,7 +12,7 @@ import (
 // GitHub:  https://github.com/open-telemetry/opentelemetry-operator
 // Helm:    https://github.com/open-telemetry/opentelemetry-helm-charts
 // Repo:    ghcr.io/open-telemetry/opentelemetry-operator/opentelemetry-operator
-// Version: Latest is v0.47.0 (as of 03/21/22)
+// Version: Latest is v0.53.0 (as of 06/22/22)
 
 func NewApp() *application.Application {
 	app := &application.Application{
@@ -25,8 +25,10 @@ func NewApp() *application.Application {
 		Options: &application.ApplicationOptions{
 			Namespace: "adot-system",
 			DefaultVersion: &application.LatestPrevious{
-				Latest:   "v0.47.0",
-				Previous: "v0.47.0",
+				LatestChart:   "0.8.2",
+				Latest:        "v0.53.0",
+				PreviousChart: "0.7.0",
+				Previous:      "v0.51.0",
 			},
 			// Service Account name isn't flexible
 			// https://github.com/open-telemetry/opentelemetry-helm-charts/blob/main/charts/opentelemetry-operator/templates/serviceaccount.yaml
