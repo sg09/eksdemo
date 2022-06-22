@@ -57,7 +57,7 @@ func (h *Helm) DownloadChart() (*chart.Chart, error) {
 
 	var chartPath string
 	if u.Scheme == "oci" {
-		chartPath = h.RepositoryURL
+		chartPath = h.RepositoryURL + ":" + h.ChartVersion
 	} else {
 		// Find Chart
 		chartPath, err = repo.FindChartInRepoURL(h.RepositoryURL, h.ChartName, h.ChartVersion, "", "", "", getters)
