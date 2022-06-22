@@ -13,7 +13,7 @@ import (
 // GitHub:  https://github.com/aws/aws-for-fluent-bit
 // Helm:    https://github.com/fluent/helm-charts/tree/main/charts/fluent-bit
 // Repo:    https://gallery.ecr.aws/aws-observability/aws-for-fluent-bit
-// Version: Latest is 2.23.1 aka Fluent-bit v1.8.13 (as of 03/23/22)
+// Version: Latest is 2.26.0 aka Fluent-bit v1.9.4 (as of 06/22/22)
 
 func NewApp() *application.Application {
 	app := &application.Application{

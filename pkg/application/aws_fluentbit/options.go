@@ -16,8 +16,10 @@ func addOptions(app *application.Application) *application.Application {
 			Namespace:      "logging",
 			ServiceAccount: "fluent-bit",
 			DefaultVersion: &application.LatestPrevious{
-				Latest:   "2.23.1",
-				Previous: "2.19.1",
+				LatestChart:   "0.20.2",
+				Latest:        "2.26.0",
+				PreviousChart: "0.20.1",
+				Previous:      "2.25.1",
 			},
 		},
 		TailReadFromHead: "On",
