@@ -57,6 +57,8 @@ rules:
       - namespaces
       - pods
       - pods/logs
+      - nodes
+      - nodes/proxy
     verbs: ["get", "list", "watch"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
@@ -152,6 +154,9 @@ data:
         K8S-Logging.Exclude Off
         Labels              Off
         Annotations         Off
+        Use_Kubelet         On
+        Kubelet_Port        10250
+        Buffer_Size         0
 
     [OUTPUT]
         Name                cloudwatch_logs
@@ -308,7 +313,7 @@ spec:
     spec:
       containers:
       - name: fluent-bit
-        image: amazon/aws-for-fluent-bit:2.10.0
+        image: public.ecr.aws/aws-observability/aws-for-fluent-bit:stable
         imagePullPolicy: Always
         env:
             - name: AWS_REGION
@@ -345,8 +350,13 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: spec.nodeName
+            - name: HOSTNAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
             - name: CI_VERSION
-              value: "k8s/1.3.9"
+              value: "k8s/1.3.10"
         resources:
             limits:
               memory: 200Mi
@@ -372,6 +382,8 @@ spec:
           mountPath: /var/log/dmesg
           readOnly: true
       terminationGracePeriodSeconds: 10
+      hostNetwork: true
+      dnsPolicy: ClusterFirstWithHostNet
       volumes:
       - name: fluentbitstate
         hostPath:

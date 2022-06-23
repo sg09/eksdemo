@@ -31,8 +31,8 @@ func addOptions(app *application.Application) *application.Application {
 			Namespace:                 "amazon-cloudwatch",
 			ServiceAccount:            "cloudwatch-agent",
 			DefaultVersion: &application.LatestPrevious{
-				Latest:   "1.247350.0b251780",
-				Previous: "1.247348.0b251302",
+				Latest:   "1.247352.0b251908",
+				Previous: "1.247350.0b251780",
 			},
 		},
 	}

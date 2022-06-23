@@ -144,7 +144,7 @@ spec:
                 fieldRef:
                   fieldPath: metadata.namespace
             - name: CI_VERSION
-              value: "k8s/1.3.9"
+              value: "k8s/1.3.10"
           # Please don't change the mountPath
           volumeMounts:
             - name: cwagentconfig
