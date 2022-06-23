@@ -9,10 +9,11 @@ import (
 	"eksdemo/pkg/template"
 )
 
-// Docs:   https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/README.md
-// GitHub: https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler/cloudprovider/aws
-// Helm:   https://github.com/kubernetes/autoscaler/tree/master/charts/cluster-autoscaler
-// Repo:   k8s.gcr.io/autoscaling/cluster-autoscaler
+// Docs:    https://github.com/kubernetes/autoscaler/blob/master/cluster-autoscaler/README.md
+// GitHub:  https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler/cloudprovider/aws
+// Helm:    https://github.com/kubernetes/autoscaler/tree/master/charts/cluster-autoscaler
+// Repo:    k8s.gcr.io/autoscaling/cluster-autoscaler
+// Version: Latest for k8s 1.22 is v1.22.3 (as of 06/22/22)
 
 func NewApp() *application.Application {
 	app := &application.Application{
@@ -36,19 +37,19 @@ func NewApp() *application.Application {
 			Namespace:      "kube-system",
 			ServiceAccount: "cluster-autoscaler",
 			DefaultVersion: &application.KubernetesVersionDependent{
+				LatestChart: "9.19.1",
 				Latest: map[string]string{
+					"1.22": "v1.22.3",
+					"1.21": "v1.21.3",
+					"1.20": "v1.20.3",
+					"1.19": "v1.19.3",
+				},
+				PreviousChart: "9.18.2",
+				Previous: map[string]string{
 					"1.22": "v1.22.2",
 					"1.21": "v1.21.2",
 					"1.20": "v1.20.2",
 					"1.19": "v1.19.2",
-					"1.18": "v1.18.3",
-				},
-				Previous: map[string]string{
-					"1.22": "v1.22.1",
-					"1.21": "v1.21.1",
-					"1.20": "v1.20.1",
-					"1.19": "v1.19.1",
-					"1.18": "v1.18.2",
 				},
 			},
 		},
