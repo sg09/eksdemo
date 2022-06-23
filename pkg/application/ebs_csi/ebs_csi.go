@@ -13,7 +13,7 @@ import (
 // GitHub:  https://github.com/kubernetes-sigs/aws-ebs-csi-driver
 // Helm:    https://github.com/kubernetes-sigs/aws-ebs-csi-driver/tree/master/charts/aws-ebs-csi-driver
 // Repo:    k8s.gcr.io/provider-aws/aws-ebs-csi-driver
-// Version: Latest is v1.5.1 (as of 03/22/22)
+// Version: Latest is v1.7.0 (as of 06/22/22)
 
 func NewApp() *application.Application {
 	app := &application.Application{
@@ -37,8 +37,10 @@ func NewApp() *application.Application {
 			Namespace:      "kube-system",
 			ServiceAccount: "ebs-csi-controller-sa",
 			DefaultVersion: &application.LatestPrevious{
-				Latest:   "v1.5.1",
-				Previous: "v1.4.0",
+				LatestChart:   "2.6.11",
+				Latest:        "v1.7.0",
+				PreviousChart: "2.6.8",
+				Previous:      "v1.6.2",
 			},
 		},
 
