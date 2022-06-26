@@ -19,8 +19,10 @@ func NewOptions() (options *WordpressOptions, flags cmd.Flags) {
 			Namespace:                 "wordpress",
 			DisableServiceAccountFlag: true,
 			DefaultVersion: &application.LatestPrevious{
-				Latest:   "5.9.3",
-				Previous: "5.9.3",
+				LatestChart:   "15.0.4",
+				Latest:        "6.0.0",
+				PreviousChart: "14.3.7",
+				Previous:      "5.9.3",
 			},
 		},
 	}

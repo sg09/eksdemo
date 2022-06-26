@@ -11,7 +11,7 @@ import (
 // GitHub:  https://github.com/WordPress/WordPress
 // Helm:    https://github.com/bitnami/charts/tree/master/bitnami/wordpress
 // Repo:    https://hub.docker.com/r/bitnami/wordpress
-// Version: Latest is 5.9.3 (as of 04/19/22)
+// Version: Latest is 6.0.0 (as of 06/25/22)
 
 func NewApp() *application.Application {
 	options, flags := NewOptions()
