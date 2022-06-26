@@ -11,7 +11,7 @@ import (
 // GitHub:  https://github.com/istio/istio
 // Helm:    https://github.com/istio/istio/tree/master/manifests/charts/istio-control/istio-discovery
 // Repo:    https://hub.docker.com/r/istio/pilot
-// Version: Latest is v1.12.1 (as of 12/11/21)
+// Version: Latest is v1.14.1 (as of 06/25/22)
 
 func NewApp() *application.Application {
 	app := &application.Application{
@@ -25,8 +25,10 @@ func NewApp() *application.Application {
 			Namespace:      "istio-system",
 			ServiceAccount: "istiod",
 			DefaultVersion: &application.LatestPrevious{
-				Latest:   "1.12.1",
-				Previous: "1.12.0",
+				LatestChart:   "1.14.1",
+				Latest:        "1.14.1",
+				PreviousChart: "1.14.0",
+				Previous:      "1.14.0",
 			},
 			// Service Account name is hard coded in the Chart
 			// https://github.com/istio/istio/blob/master/manifests/charts/istio-control/istio-discovery/templates/serviceaccount.yaml#L10

@@ -7,9 +7,9 @@ import (
 	"eksdemo/pkg/template"
 )
 
-// Docs: https://github.com/istio/istio/blob/master/manifests/charts/README.md
-// Docs: https://github.com/istio/istio/blob/master/manifests/charts/README-helm3.md
-// Helm: https://github.com/istio/istio/tree/master/manifests/charts/base
+// Docs:     https://github.com/istio/istio/blob/master/manifests/charts/README.md
+// Helm:     https://github.com/istio/istio/tree/master/manifests/charts/base
+// Versions: https://artifacthub.io/packages/helm/istio-official/base
 
 func NewApp() *application.Application {
 	app := &application.Application{
@@ -21,8 +21,10 @@ func NewApp() *application.Application {
 		Options: &application.ApplicationOptions{
 			Namespace: "istio-system",
 			DefaultVersion: &application.LatestPrevious{
-				Latest:   "none",
-				Previous: "none",
+				LatestChart:   "1.14.1",
+				Latest:        "none",
+				PreviousChart: "1.14.0",
+				Previous:      "none",
 			},
 			DisableServiceAccountFlag: true,
 		},
