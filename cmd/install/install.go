@@ -13,6 +13,7 @@ import (
 	"eksdemo/pkg/application/ebs_csi"
 	"eksdemo/pkg/application/efs_csi"
 	"eksdemo/pkg/application/external_dns"
+	"eksdemo/pkg/application/falco"
 	"eksdemo/pkg/application/fsx_lustre_csi"
 	"eksdemo/pkg/application/grafana_amp"
 	"eksdemo/pkg/application/karpenter"
@@ -53,8 +54,9 @@ func NewInstallCmd() *cobra.Command {
 		cmd.AddCommand(c)
 	}
 	cmd.AddCommand(external_dns.NewApp().NewInstallCmd())
-	cmd.AddCommand(grafana_amp.NewApp().NewInstallCmd())
+	cmd.AddCommand(falco.NewApp().NewInstallCmd())
 	cmd.AddCommand(fsx_lustre_csi.NewApp().NewInstallCmd())
+	cmd.AddCommand(grafana_amp.NewApp().NewInstallCmd())
 	cmd.AddCommand(NewInstallIstioCmd())
 	for _, c := range NewInstallAliasCmds(istioApps, "istio-") {
 		cmd.AddCommand(c)

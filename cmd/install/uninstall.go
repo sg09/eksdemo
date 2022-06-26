@@ -14,6 +14,7 @@ import (
 	"eksdemo/pkg/application/ebs_csi"
 	"eksdemo/pkg/application/efs_csi"
 	"eksdemo/pkg/application/external_dns"
+	"eksdemo/pkg/application/falco"
 	"eksdemo/pkg/application/fsx_lustre_csi"
 	"eksdemo/pkg/application/grafana_amp"
 	"eksdemo/pkg/application/karpenter"
@@ -54,8 +55,9 @@ func NewUninstallCmd() *cobra.Command {
 		cmd.AddCommand(c)
 	}
 	cmd.AddCommand(external_dns.NewApp().NewUninstallCmd())
-	cmd.AddCommand(grafana_amp.NewApp().NewUninstallCmd())
+	cmd.AddCommand(falco.NewApp().NewUninstallCmd())
 	cmd.AddCommand(fsx_lustre_csi.NewApp().NewUninstallCmd())
+	cmd.AddCommand(grafana_amp.NewApp().NewUninstallCmd())
 	cmd.AddCommand(NewUninstallIstioCmd())
 	for _, c := range NewUninstallAliasCmds(istioApps, "istio-") {
 		cmd.AddCommand(c)
