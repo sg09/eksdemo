@@ -13,7 +13,7 @@ import (
 // GitHub:  https://github.com/kubernetes-sigs/external-dns
 // Helm:    https://github.com/kubernetes-sigs/external-dns/tree/master/charts/external-dns
 // Repo:    k8s.gcr.io/external-dns/external-dns
-// Version: Latest is v0.11.0 (as of 03/23/22)
+// Version: Latest is v0.12.0 (as of 06/25/22)
 
 func NewApp() *application.Application {
 	app := &application.Application{
@@ -37,8 +37,10 @@ func NewApp() *application.Application {
 			Namespace:      "external-dns",
 			ServiceAccount: "external-dns",
 			DefaultVersion: &application.LatestPrevious{
-				Latest:   "v0.11.0",
-				Previous: "v0.10.2",
+				LatestChart:   "1.9.0", // TODO: 1.10 is not released, but should be the chart for v0.12.0
+				Latest:        "v0.12.0",
+				PreviousChart: "1.9.0",
+				Previous:      "v0.11.0",
 			},
 		},
 
