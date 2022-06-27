@@ -19,7 +19,7 @@ import (
 )
 
 const AmgAliasSuffix = `keycloak-amg`
-const samlMetadataPath = `auth/realms/eksdemo/protocol/saml/descriptor`
+const samlMetadataPath = `realms/eksdemo/protocol/saml/descriptor`
 
 type KeycloakOptions struct {
 	application.ApplicationOptions
@@ -37,8 +37,10 @@ func NewOptions() (options *KeycloakOptions, flags cmd.Flags) {
 			Namespace:      "keycloak",
 			ServiceAccount: "keycloak",
 			DefaultVersion: &application.LatestPrevious{
-				Latest:   "16.1.1",
-				Previous: "16.1.1",
+				LatestChart:   "9.2.10",
+				Latest:        "18.0.0",
+				PreviousChart: "9.2.10",
+				Previous:      "18.0.0",
 			},
 		},
 	}
@@ -140,6 +142,7 @@ func (o *KeycloakOptions) PostInstall(_ string, _ []*resource.Resource) error {
 
 	err = aws.AmgUpdateWorkspaceAuthentication(o.amgWorkspaceId, metadataUrl)
 	if err != nil {
+		fmt.Println("Metadata URL is: " + metadataUrl)
 		return err
 	}
 	fmt.Printf("Amazon Managed Grafana available at: https://%s\n", o.AmgWorkspaceUrl)

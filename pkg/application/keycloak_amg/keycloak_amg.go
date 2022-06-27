@@ -14,7 +14,7 @@ import (
 // GitHub:  https://github.com/bitnami/bitnami-docker-keycloak
 // Helm:    https://github.com/bitnami/charts/tree/master/bitnami/keycloak
 // Repo:    https://hub.docker.com/r/bitnami/keycloak
-// Version: Latest is 16.1.1 (as of 03/29/22)
+// Version: Latest is 18.0.2, but the chart is broken, so using 18.0.0 (as of 06/27/22)
 
 func NewApp() *application.Application {
 	options, flags := NewOptions()
