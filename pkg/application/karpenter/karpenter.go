@@ -15,7 +15,7 @@ import (
 // GitHub:  https://github.com/awslabs/karpenter
 // Helm:    https://github.com/awslabs/karpenter/tree/main/charts/karpenter
 // Repo:    https://gallery.ecr.aws/karpenter/controller
-// Version: Latest is v0.8.2 (as of 04/16/22)
+// Version: Latest is v0.12.0, but the release is broken, using v0.11.1 (as of 06/26/22)
 
 func NewApp() *application.Application {
 	app := &application.Application{
@@ -70,6 +70,7 @@ const irsaPolicyDocument = `
 Version: "2012-10-17"
 Statement:
 - Effect: Allow
+  Resource: "*"
   Action:
   # Write Operations
   - ec2:CreateLaunchTemplate
@@ -88,7 +89,6 @@ Statement:
   - ec2:DescribeInstanceTypeOfferings
   - ec2:DescribeAvailabilityZones
   - ssm:GetParameter
-  Resource: "*"
 `
 
 const valuesTemplate = `
