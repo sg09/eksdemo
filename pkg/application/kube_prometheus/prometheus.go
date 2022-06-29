@@ -11,7 +11,10 @@ import (
 // GitHub:  https://github.com/prometheus-operator/kube-prometheus
 // Helm:    https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
 // Repo:    https://quay.io/prometheus-operator/prometheus-operator
-// Version: Latest is v0.55.1 (as of 03/28/22)
+// Version: Latest is Chart 36.2.0, PromOperator v0.57.0 (as of 06/28/22)
+
+// TODO: consider no version flag, perhaps mark as "n/a"
+//       and instead consider --grafana-version, --kube-state-metrics-version, --prom-operator-version, etc.
 
 func NewApp() *application.Application {
 	app := &application.Application{
@@ -45,8 +48,8 @@ grafana:
 {{- if .IngressHost }}
   ingress:
     enabled: true
+    ingressClassName: alb
     annotations:
-      kubernetes.io/ingress.class: alb
       alb.ingress.kubernetes.io/scheme: internet-facing
       alb.ingress.kubernetes.io/target-type: 'ip'
       alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
