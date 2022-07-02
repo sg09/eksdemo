@@ -137,8 +137,9 @@ func (o *ApplicationOptions) NewServiceAccountFlag() *cmd.StringFlag {
 func (o *ApplicationOptions) NewUsePreviousFlag() *cmd.BoolFlag {
 	flag := &cmd.BoolFlag{
 		CommandFlag: cmd.CommandFlag{
-			Name:        "use-previous",
-			Description: fmt.Sprintf("use previous working version (%q)", o.DefaultVersion.PreviousString()),
+			Name: "use-previous",
+			Description: fmt.Sprintf("use previous working chart/app versions (%q/%q)",
+				o.DefaultVersion.PreviousChartVersion(), o.DefaultVersion.PreviousString()),
 		},
 		Option: &o.UsePrevious,
 	}
