@@ -23,19 +23,11 @@ func NewOptions() (options *PrometheusAmpOptions, flags cmd.Flags) {
 			Namespace:      "prometheus",
 			ServiceAccount: "prometheus",
 			DefaultVersion: &application.LatestPrevious{
-				Latest:   "v0.55.1",
-				Previous: "v0.54.1",
+				LatestChart:   "34.10.0",
+				Latest:        "v0.55.0",
+				PreviousChart: "34.10.0",
+				Previous:      "v0.55.0",
 			},
-		},
-	}
-
-	flags = cmd.Flags{
-		&cmd.BoolFlag{
-			CommandFlag: cmd.CommandFlag{
-				Name:        "push-gateway",
-				Description: "enable the Pushgateway",
-			},
-			Option: &options.PushGateway,
 		},
 	}
 	return

@@ -14,7 +14,9 @@ import (
 // Helm:    https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
 // Helm:    https://github.com/grafana/helm-charts/tree/main/charts/grafana
 // Repo:    https://hub.docker.com/r/grafana/grafana
-// Version: Latest is v8.4.5 (as of 04/09/22)
+// Version: Latest is kube-prom chart 36.2.0, Grafana v9.0.1 (as of 06/29/22)
+//          But pinning to Chart 34.10.0, Grafana v8.5.0 due to breaking API Server graphs
+//          https://github.com/prometheus-community/helm-charts/issues/2018
 
 func NewApp() *application.Application {
 	app := &application.Application{

@@ -22,8 +22,10 @@ func NewOptions() (options *GrafanaAmpOptions, flags cmd.Flags) {
 			Namespace:      "grafana",
 			ServiceAccount: "grafana",
 			DefaultVersion: &application.LatestPrevious{
-				Latest:   "8.4.5",
-				Previous: "8.3.3",
+				LatestChart:   "34.10.0",
+				Latest:        "8.5.0",
+				PreviousChart: "34.10.0",
+				Previous:      "8.5.0",
 			},
 		},
 	}
