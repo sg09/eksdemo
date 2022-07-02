@@ -128,7 +128,8 @@ func (h *Helm) Install(chart *chart.Chart, kubeContext string) error {
 		return fmt.Errorf("helm install failed: %s", err)
 	}
 
-	fmt.Printf("Installed: %s in namespace: %s\n", rel.Name, rel.Namespace)
+	fmt.Printf("Using chart %q, installed %q version %q in namespace %q\n",
+		rel.Chart.Metadata.Version, rel.Name, rel.Chart.Metadata.AppVersion, rel.Namespace)
 	return nil
 }
 
