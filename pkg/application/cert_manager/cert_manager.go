@@ -4,6 +4,8 @@ import (
 	"eksdemo/pkg/application"
 	"eksdemo/pkg/cmd"
 	"eksdemo/pkg/installer"
+	"eksdemo/pkg/resource"
+	"eksdemo/pkg/resource/irsa"
 	"eksdemo/pkg/template"
 )
 
@@ -19,6 +21,18 @@ func NewApp() *application.Application {
 			Name:        "cert-manager",
 			Description: "Cloud Native Certificate Management",
 			Aliases:     []string{"certmanager"},
+		},
+
+		Dependencies: []*resource.Resource{
+			irsa.NewResourceWithOptions(&irsa.IrsaOptions{
+				CommonOptions: resource.CommonOptions{
+					Name: "cert-manager-irsa",
+				},
+				PolicyType: irsa.PolicyDocument,
+				PolicyDocTemplate: &template.TextTemplate{
+					Template: policyDocument,
+				},
+			}),
 		},
 
 		Options: &application.ApplicationOptions{
@@ -40,6 +54,10 @@ func NewApp() *application.Application {
 				Template: valuesTemplate,
 			},
 		},
+
+		PostInstallResources: []*resource.Resource{
+			clusterIssuer(),
+		},
 	}
 	return app
 }
@@ -49,6 +67,25 @@ installCRDs: true
 replicaCount: 1
 serviceAccount:
   name: {{ .ServiceAccount }}
+  annotations:
+    {{ .IrsaAnnotation }}
 image:
   tag: {{ .Version }}
+`
+
+const policyDocument = `
+Version: '2012-10-17'
+Statement:
+- Effect: Allow
+  Action:
+  - route53:GetChange
+  Resource: arn:aws:route53:::change/*
+- Effect: Allow
+  Action:
+  - route53:ChangeResourceRecordSets
+  - route53:ListResourceRecordSets
+  Resource: arn:aws:route53:::hostedzone/*
+- Effect: Allow
+  Action: route53:ListHostedZonesByName
+  Resource: "*"
 `
