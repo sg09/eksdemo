@@ -35,7 +35,7 @@ func NewUninstallAckCmd() *cobra.Command {
 		Short: "AWS Controllers for Kubernetes (ACK)",
 	}
 
-	// Don't show flag errors for `install ack` without a subcommand
+	// Don't show flag errors for `uninstall ack` without a subcommand
 	cmd.DisableFlagParsing = true
 
 	for _, a := range ack {

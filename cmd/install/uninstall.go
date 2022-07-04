@@ -58,6 +58,10 @@ func NewUninstallCmd() *cobra.Command {
 	cmd.AddCommand(falco.NewApp().NewUninstallCmd())
 	cmd.AddCommand(fsx_lustre_csi.NewApp().NewUninstallCmd())
 	cmd.AddCommand(grafana_amp.NewApp().NewUninstallCmd())
+	cmd.AddCommand(NewUninstallIngressCmd())
+	for _, c := range NewUninstallAliasCmds(ingressControllers, "ingress-") {
+		cmd.AddCommand(c)
+	}
 	cmd.AddCommand(NewUninstallIstioCmd())
 	for _, c := range NewUninstallAliasCmds(istioApps, "istio-") {
 		cmd.AddCommand(c)

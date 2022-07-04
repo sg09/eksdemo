@@ -32,7 +32,7 @@ func NewUninstallIstioCmd() *cobra.Command {
 		Short: "Istio Service Mesh",
 	}
 
-	// Don't show flag errors for `install istio` without a subcommand
+	// Don't show flag errors for `uninstall istio` without a subcommand
 	cmd.DisableFlagParsing = true
 
 	for _, i := range istioApps {

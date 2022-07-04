@@ -34,7 +34,7 @@ func NewUninstallExampleCmd() *cobra.Command {
 		Short: "Example Applications",
 	}
 
-	// Don't show flag errors for `install example` without a subcommand
+	// Don't show flag errors for `uninstall example` without a subcommand
 	cmd.DisableFlagParsing = true
 
 	for _, a := range exampleApps {

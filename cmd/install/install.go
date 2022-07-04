@@ -57,6 +57,10 @@ func NewInstallCmd() *cobra.Command {
 	cmd.AddCommand(falco.NewApp().NewInstallCmd())
 	cmd.AddCommand(fsx_lustre_csi.NewApp().NewInstallCmd())
 	cmd.AddCommand(grafana_amp.NewApp().NewInstallCmd())
+	cmd.AddCommand(NewInstallIngressCmd())
+	for _, c := range NewInstallAliasCmds(ingressControllers, "ingress-") {
+		cmd.AddCommand(c)
+	}
 	cmd.AddCommand(NewInstallIstioCmd())
 	for _, c := range NewInstallAliasCmds(istioApps, "istio-") {
 		cmd.AddCommand(c)
