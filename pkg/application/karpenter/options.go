@@ -15,10 +15,10 @@ func NewOptions() (options *KarpenterOptions, flags cmd.Flags) {
 			Namespace:      "karpenter",
 			ServiceAccount: "karpenter",
 			DefaultVersion: &application.LatestPrevious{
-				LatestChart:   "0.11.1",
-				Latest:        "v0.11.1",
-				PreviousChart: "0.11.0",
-				Previous:      "v0.11.0",
+				LatestChart:   "0.13.1",
+				Latest:        "v0.13.1",
+				PreviousChart: "0.11.1",
+				Previous:      "v0.11.1",
 			},
 		},
 	}
