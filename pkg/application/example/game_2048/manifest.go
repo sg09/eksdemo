@@ -47,13 +47,18 @@ metadata:
   namespace: {{ .Namespace }}
   name: ingress-2048
   annotations:
+{{- if eq .IngressClass "alb" }}
     alb.ingress.kubernetes.io/scheme: internet-facing
     alb.ingress.kubernetes.io/target-type: ip
     alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+{{- else }}
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+{{- end }}
 spec:
-  ingressClassName: alb
+  ingressClassName: {{ .IngressClass }}
   rules:
-    - http:
+    - host: {{ .IngressHost }}
+      http:
         paths:
         - path: /
           pathType: Prefix
@@ -65,5 +70,8 @@ spec:
   tls:
   - hosts:
     - {{ .IngressHost }}
+  {{- if ne .IngressClass "alb" }}
+    secretName: ingress-2048-cert # < cert-manager will store the created certificate in this secret
+  {{- end }}
 {{- end }}
 ...`
