@@ -3,20 +3,33 @@ package kubernetes
 import (
 	"bytes"
 	"fmt"
+	"net/url"
+	"strings"
 
 	"k8s.io/cli-runtime/pkg/genericclioptions"
 	"k8s.io/cli-runtime/pkg/resource"
 	cmdutil "k8s.io/kubectl/pkg/cmd/util"
 )
 
-func CreateResources(kubeContext, manifestYaml string) error {
+func CreateResources(kubeContext, manifest string) error {
 	getter := genericclioptions.NewConfigFlags(true)
 	getter.Context = &kubeContext
 	factory := cmdutil.NewFactory(getter)
+	builder := factory.NewBuilder().Unstructured()
 
-	manifest := bytes.NewBufferString(manifestYaml)
+	switch {
+	case strings.Index(manifest, "http://") == 0 || strings.Index(manifest, "https://") == 0:
+		url, err := url.Parse(manifest)
+		if err != nil {
+			return fmt.Errorf("the URL %q is not valid: %v", manifest, err)
+		}
+		builder.URL(3, url)
+	default:
+		manifest := bytes.NewBufferString(manifest)
+		builder.Stream(manifest, "manifest")
+	}
 
-	infos, err := factory.NewBuilder().Unstructured().Stream(manifest, "test").Do().Infos()
+	infos, err := builder.Do().Infos()
 
 	if err != nil {
 		return err
