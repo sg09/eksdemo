@@ -55,6 +55,10 @@ func NewInstallCmd() *cobra.Command {
 	}
 	cmd.AddCommand(external_dns.NewApp().NewInstallCmd())
 	cmd.AddCommand(falco.NewApp().NewInstallCmd())
+	cmd.AddCommand(NewInstallFluxCmd())
+	for _, c := range NewInstallAliasCmds(fluxApps, "flux-") {
+		cmd.AddCommand(c)
+	}
 	cmd.AddCommand(fsx_lustre_csi.NewApp().NewInstallCmd())
 	cmd.AddCommand(grafana_amp.NewApp().NewInstallCmd())
 	cmd.AddCommand(NewInstallIngressCmd())

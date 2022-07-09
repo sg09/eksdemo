@@ -56,6 +56,10 @@ func NewUninstallCmd() *cobra.Command {
 	}
 	cmd.AddCommand(external_dns.NewApp().NewUninstallCmd())
 	cmd.AddCommand(falco.NewApp().NewUninstallCmd())
+	cmd.AddCommand(NewUninstallFluxCmd())
+	for _, c := range NewUninstallAliasCmds(fluxApps, "flux-") {
+		cmd.AddCommand(c)
+	}
 	cmd.AddCommand(fsx_lustre_csi.NewApp().NewUninstallCmd())
 	cmd.AddCommand(grafana_amp.NewApp().NewUninstallCmd())
 	cmd.AddCommand(NewUninstallIngressCmd())
