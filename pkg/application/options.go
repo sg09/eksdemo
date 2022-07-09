@@ -30,6 +30,7 @@ type ApplicationOptions struct {
 	DisableNamespaceFlag      bool
 	DisableServiceAccountFlag bool
 	DisableVersionFlag        bool
+	LockVersionFlag           bool
 	SetValues                 []string
 	UsePrevious               bool
 

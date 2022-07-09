@@ -150,11 +150,15 @@ func (o *ApplicationOptions) NewVersionFlag() *cmd.StringFlag {
 	flag := &cmd.StringFlag{
 		CommandFlag: cmd.CommandFlag{
 			Name:        "version",
-			Description: fmt.Sprintf("container image tag (default %q)", o.DefaultVersion.LatestString()),
+			Description: fmt.Sprintf("application version (default %q)", o.DefaultVersion.LatestString()),
 			Shorthand:   "v",
 			Validate: func() error {
 				if o.UsePrevious && o.Version != "" {
 					return fmt.Errorf("%q flag cannot be used with %q flag", "use-previous", "version")
+				}
+
+				if o.LockVersionFlag {
+					return fmt.Errorf("version is locked and cannot be changed")
 				}
 
 				if o.UsePrevious {
