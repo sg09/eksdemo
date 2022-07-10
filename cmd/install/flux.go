@@ -3,6 +3,7 @@ package install
 import (
 	"eksdemo/pkg/application"
 	"eksdemo/pkg/application/flux/flux_controllers"
+	"eksdemo/pkg/application/flux/flux_sync"
 
 	"github.com/spf13/cobra"
 )
@@ -44,5 +45,6 @@ func NewUninstallFluxCmd() *cobra.Command {
 func init() {
 	fluxApps = []func() *application.Application{
 		flux_controllers.NewApp,
+		flux_sync.NewApp,
 	}
 }
