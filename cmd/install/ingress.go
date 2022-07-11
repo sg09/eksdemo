@@ -2,6 +2,7 @@ package install
 
 import (
 	"eksdemo/pkg/application"
+	"eksdemo/pkg/application/ingress/emissary"
 	"eksdemo/pkg/application/ingress/nginx"
 
 	"github.com/spf13/cobra"
@@ -43,6 +44,7 @@ func NewUninstallIngressCmd() *cobra.Command {
 
 func init() {
 	ingressControllers = []func() *application.Application{
+		emissary.NewApp,
 		nginx.NewApp,
 	}
 }

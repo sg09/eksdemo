@@ -74,4 +74,18 @@ spec:
     secretName: ingress-2048-cert # < cert-manager will store the created certificate in this secret
   {{- end }}
 {{- end }}
+{{- if eq .IngressClass "ambassador" }}
+---
+# Workaround due to issue "Emissary can't find tlsSecret for Ingress resource"
+# https://github.com/emissary-ingress/emissary/issues/3959
+apiVersion: getambassador.io/v3alpha1
+kind: TLSContext
+metadata:
+  namespace: {{ .Namespace }}
+  name: ingress-tls
+spec:
+  hosts:
+    - ingress-2048-0-0
+  secret: ingress-2048-cert
+{{- end }}
 ...`
