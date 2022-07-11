@@ -29,7 +29,8 @@ func CheckVersion() error {
 
 	v, err := version.NewVersion(strings.TrimSpace(string(eksctlVersion)))
 	if err != nil {
-		return fmt.Errorf("unable to parse eksctl version: %s", err)
+		fmt.Printf("Warning: unable to parse eksctl version :%s\n", err)
+		return nil
 	}
 
 	if v.LessThan(version.Must(version.NewVersion(minVersion))) {
