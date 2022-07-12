@@ -3,7 +3,7 @@ module eksdemo
 go 1.17
 
 require (
-	github.com/Masterminds/sprig v2.22.0+incompatible
+	github.com/Masterminds/sprig/v3 v3.2.2
 	github.com/aws/aws-sdk-go v1.42.2
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/hako/durafmt v0.0.0-20210608085754-5c1018a4e16b
@@ -29,9 +29,7 @@ require (
 	github.com/BurntSushi/toml v0.3.1 // indirect
 	github.com/MakeNowJust/heredoc v0.0.0-20170808103936-bb23615498cd // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
-	github.com/Masterminds/semver v1.5.0 // indirect
 	github.com/Masterminds/semver/v3 v3.1.1 // indirect
-	github.com/Masterminds/sprig/v3 v3.2.2 // indirect
 	github.com/Masterminds/squirrel v1.5.0 // indirect
 	github.com/Microsoft/go-winio v0.4.17 // indirect
 	github.com/Microsoft/hcsshim v0.8.21 // indirect
