@@ -2,10 +2,10 @@ package create
 
 import (
 	"eksdemo/pkg/resource"
+	"eksdemo/pkg/resource/acm_certificate"
 	"eksdemo/pkg/resource/addon"
 	"eksdemo/pkg/resource/amg"
 	"eksdemo/pkg/resource/amp"
-	"eksdemo/pkg/resource/certificate"
 	"eksdemo/pkg/resource/cluster"
 	"eksdemo/pkg/resource/fargate_profile"
 	"eksdemo/pkg/resource/irsa"
@@ -29,10 +29,10 @@ func NewCreateCmd() *cobra.Command {
 	for _, c := range NewCreateAliasCmds(ack, "ack-") {
 		cmd.AddCommand(c)
 	}
+	cmd.AddCommand(acm_certificate.NewResource().NewCreateCmd())
 	cmd.AddCommand(addon.NewResource().NewCreateCmd())
 	cmd.AddCommand(amg.NewResource().NewCreateCmd())
 	cmd.AddCommand(amp.NewResource().NewCreateCmd())
-	cmd.AddCommand(certificate.NewResource().NewCreateCmd())
 	cmd.AddCommand(cluster.NewResource().NewCreateCmd())
 	cmd.AddCommand(fargate_profile.NewResource().NewCreateCmd())
 	cmd.AddCommand(irsa.NewResource().NewCreateCmd())

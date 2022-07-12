@@ -6,11 +6,11 @@ import (
 	"eksdemo/pkg/helm"
 	"eksdemo/pkg/kubernetes"
 	"eksdemo/pkg/printer"
+	"eksdemo/pkg/resource/acm_certificate"
 	"eksdemo/pkg/resource/addon"
 	"eksdemo/pkg/resource/amg"
 	"eksdemo/pkg/resource/amp"
 	"eksdemo/pkg/resource/auto_scaling_group"
-	"eksdemo/pkg/resource/certificate"
 	"eksdemo/pkg/resource/cloudformation"
 	"eksdemo/pkg/resource/cluster"
 	"eksdemo/pkg/resource/dns_record"
@@ -71,12 +71,12 @@ var getHelmCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(getCmd)
 
+	getCmd.AddCommand(acm_certificate.NewResource().NewGetCmd())
 	getCmd.AddCommand(addon.NewResource().NewGetCmd())
 	getCmd.AddCommand(addon.NewVersionsResource().NewGetCmd())
 	getCmd.AddCommand(amg.NewResource().NewGetCmd())
 	getCmd.AddCommand(amp.NewResource().NewGetCmd())
 	getCmd.AddCommand(auto_scaling_group.NewResource().NewGetCmd())
-	getCmd.AddCommand(certificate.NewResource().NewGetCmd())
 	getCmd.AddCommand(cloudformation.NewResource().NewGetCmd())
 	getCmd.AddCommand(cluster.NewResource().NewGetCmd())
 	getCmd.AddCommand(dns_record.NewResource().NewGetCmd())

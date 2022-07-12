@@ -1,4 +1,4 @@
-package certificate
+package acm_certificate
 
 import (
 	"eksdemo/pkg/aws"

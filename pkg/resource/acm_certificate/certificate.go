@@ -1,4 +1,4 @@
-package certificate
+package acm_certificate
 
 import (
 	"eksdemo/pkg/cmd"
@@ -8,9 +8,9 @@ import (
 func NewResource() *resource.Resource {
 	res := &resource.Resource{
 		Command: cmd.Command{
-			Name:        "certificate",
+			Name:        "acm-certificate",
 			Description: "ACM Cerificate",
-			Aliases:     []string{"certificates", "certs", "cert", "acm"},
+			Aliases:     []string{"acm-certificates", "acm-certs", "acm-cert", "acm"},
 			Args:        []string{"NAME"},
 		},
 
