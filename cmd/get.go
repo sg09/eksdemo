@@ -64,7 +64,7 @@ var getHelmCmd = &cobra.Command{
 			return err
 		}
 
-		return output.Print(os.Stdout, printer.NewHelmPrinter(releases))
+		return output.Print(os.Stdout, printer.NewApplicationPrinter(releases))
 	},
 }
 

@@ -7,15 +7,15 @@ import (
 	"helm.sh/helm/v3/pkg/release"
 )
 
-type HelmPrinter struct {
+type ApplicationPrinter struct {
 	releases []*release.Release
 }
 
-func NewHelmPrinter(releases []*release.Release) *HelmPrinter {
-	return &HelmPrinter{releases}
+func NewApplicationPrinter(releases []*release.Release) *ApplicationPrinter {
+	return &ApplicationPrinter{releases}
 }
 
-func (p *HelmPrinter) PrintTable(writer io.Writer) error {
+func (p *ApplicationPrinter) PrintTable(writer io.Writer) error {
 	if len(p.releases) == 0 {
 		fmt.Fprint(writer, "No helm releases found.\n")
 		return nil
@@ -38,10 +38,10 @@ func (p *HelmPrinter) PrintTable(writer io.Writer) error {
 	return nil
 }
 
-func (p *HelmPrinter) PrintJSON(writer io.Writer) error {
+func (p *ApplicationPrinter) PrintJSON(writer io.Writer) error {
 	return EncodeJSON(writer, p.releases)
 }
 
-func (p *HelmPrinter) PrintYAML(writer io.Writer) error {
+func (p *ApplicationPrinter) PrintYAML(writer io.Writer) error {
 	return EncodeYAML(writer, p.releases)
 }
