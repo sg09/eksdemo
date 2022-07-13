@@ -13,20 +13,20 @@ import (
 // GitHub:  https://github.com/kubernetes-sigs/aws-load-balancer-controller
 // Helm:    https://github.com/aws/eks-charts/tree/master/stable/aws-load-balancer-controller
 // Repo:    602401143452.dkr.ecr.us-west-2.amazonaws.com/amazon/aws-load-balancer-controller
-// Version: Latest is v2.4.2 (as of 06/21/22)
+// Version: Latest is v2.4.2 (as of 07/12/22)
 
 func NewApp() *application.Application {
 	app := &application.Application{
 		Command: cmd.Command{
-			Name:        "aws-lb",
+			Name:        "aws-lb-controller",
 			Description: "AWS Load Balancer Controller",
-			Aliases:     []string{"aws-load-balancer-controller", "awslb"},
+			Aliases:     []string{"aws-lb", "awslb"},
 		},
 
 		Dependencies: []*resource.Resource{
 			irsa.NewResourceWithOptions(&irsa.IrsaOptions{
 				CommonOptions: resource.CommonOptions{
-					Name: "aws-load-balancer-controller-irsa",
+					Name: "aws-lb-controller-irsa",
 				},
 				PolicyType: irsa.WellKnown,
 				Policy:     []string{"awsLoadBalancerController"},
@@ -34,8 +34,8 @@ func NewApp() *application.Application {
 		},
 
 		Options: &application.ApplicationOptions{
-			Namespace:      "aws-lb",
-			ServiceAccount: "aws-lb-controller",
+			Namespace:      "awslb",
+			ServiceAccount: "aws-load-balancer-controller",
 			DefaultVersion: &application.LatestPrevious{
 				LatestChart:   "1.4.2",
 				Latest:        "v2.4.2",
@@ -46,7 +46,7 @@ func NewApp() *application.Application {
 
 		Installer: &installer.HelmInstaller{
 			ChartName:     "aws-load-balancer-controller",
-			ReleaseName:   "aws-load-balancer-controller",
+			ReleaseName:   "aws-lb-controller",
 			RepositoryURL: "https://aws.github.io/eks-charts",
 			ValuesTemplate: &template.TextTemplate{
 				Template: valuesTemplate,
@@ -56,13 +56,16 @@ func NewApp() *application.Application {
 	return app
 }
 
-const valuesTemplate = `
-clusterName: {{ .ClusterName }}
+const valuesTemplate = `---
 replicaCount: 1
+image:
+  tag: {{ .Version }}
+fullnameOverride: aws-load-balancer-controller
+clusterName: {{ .ClusterName }}
 serviceAccount:
   annotations:
     {{ .IrsaAnnotation }}
   name: {{ .ServiceAccount }}
-image:
-  tag: {{ .Version }}
+region: {{ .Region }}
+vpcId: {{ .Cluster.ResourcesVpcConfig.VpcId }}
 `
