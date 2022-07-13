@@ -9,6 +9,7 @@ import (
 	"eksdemo/pkg/kustomize"
 	"eksdemo/pkg/template"
 	"fmt"
+	"os"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
@@ -17,7 +18,6 @@ import (
 
 type HelmInstaller struct {
 	ChartName           string
-	ChartVersion        string
 	DryRun              bool
 	PostRenderKustomize template.Template
 	PVCLabels           map[string]string
@@ -36,6 +36,21 @@ func (i *HelmInstaller) Install(options application.Options) error {
 		return err
 	}
 
+	if i.DryRun {
+		fmt.Println("\nHelm Installer Dry Run:")
+		NewHelmPrinter(i, options, valuesFile).PrintTable(os.Stdout)
+
+		if i.PostRenderKustomize != nil {
+			kustomization, err := i.PostRenderKustomize.Render(options)
+			if err != nil {
+				return err
+			}
+			fmt.Println("Helm Installer Post Render Kustomize Dry Run:")
+			fmt.Println(kustomization)
+		}
+		return nil
+	}
+
 	helm := &helm.Helm{
 		AppVersion:    options.Common().Version,
 		ChartName:     i.ChartName,
@@ -46,21 +61,6 @@ func (i *HelmInstaller) Install(options application.Options) error {
 		Wait:          i.Wait,
 		SetValues:     options.Common().SetValues,
 		ValuesFile:    valuesFile,
-	}
-
-	if i.DryRun {
-		fmt.Println("\nHelm Installer Dry Run:")
-		fmt.Printf("%+v\n", helm)
-
-		if i.PostRenderKustomize != nil {
-			kustomization, err := i.PostRenderKustomize.Render(options)
-			if err != nil {
-				return err
-			}
-			fmt.Println("\nHelm Installer Post Render Kustomize Dry Run:")
-			fmt.Printf("%s\n", kustomization)
-		}
-		return nil
 	}
 
 	if i.PostRenderKustomize != nil {

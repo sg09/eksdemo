@@ -38,8 +38,7 @@ func NewResourceWithOptions(options *IrsaOptions) *resource.Resource {
 const eksctlIamHeader = `
 iam:
   withOIDC: true
-  serviceAccounts:
-`
+  serviceAccounts:`
 
 const EksctlTemplate = `
   - metadata:
