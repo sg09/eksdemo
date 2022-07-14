@@ -77,7 +77,7 @@ Statement:
   Resource: "*"
 `
 
-const valuesTemplate = `
+const valuesTemplate = `---
 fullnameOverride: prometheus-amp
 defaultRules:
   rules:
@@ -124,7 +124,7 @@ prometheus:
     scrapeInterval: 30s
 `
 
-const postRenderKustomize = `
+const postRenderKustomize = `---
 resources:
 - manifest.yaml
 patches:

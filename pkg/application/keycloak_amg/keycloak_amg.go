@@ -58,7 +58,7 @@ func NewApp() *application.Application {
 
 const keycloakReleasName = `keycloak`
 
-const valuesTemplate = `
+const valuesTemplate = `---
 auth:
   adminUser: admin
   adminPassword: {{ .AdminPassword }}

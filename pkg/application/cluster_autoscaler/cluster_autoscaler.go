@@ -66,7 +66,7 @@ func NewApp() *application.Application {
 	return app
 }
 
-const valuesTemplate = `
+const valuesTemplate = `---
 autoDiscovery:
   clusterName: {{ .ClusterName }}
 awsRegion: {{ .Region }}

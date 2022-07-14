@@ -66,7 +66,7 @@ Statement:
   Resource: "*"
 `
 
-const valuesTemplate = `
+const valuesTemplate = `---
 fullnameOverride: grafana-amp
 defaultRules:
   create: false
@@ -158,7 +158,7 @@ prometheus:
 `
 
 // https://github.com/kubernetes-sigs/kustomize/blob/master/examples/patchMultipleObjects.md
-const postRenderKustomize = `
+const postRenderKustomize = `---
 resources:
 - manifest.yaml
 patches:

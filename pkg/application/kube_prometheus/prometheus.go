@@ -38,7 +38,7 @@ func NewApp() *application.Application {
 	return addOptions(app)
 }
 
-const valuesTemplate = `
+const valuesTemplate = `---
 fullnameOverride: prometheus
 grafana:
   adminPassword: {{ .GrafanaAdminPassword }}

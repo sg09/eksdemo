@@ -1,7 +1,6 @@
 package aws_fluentbit
 
-const valuesTemplate = `
----
+const valuesTemplate = `---
 image:
   repository: public.ecr.aws/aws-observability/aws-for-fluent-bit
   tag: {{ .Version }}

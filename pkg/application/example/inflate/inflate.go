@@ -30,8 +30,7 @@ func NewApp() *application.Application {
 	return app
 }
 
-const manifestTemplate = `
----
+const manifestTemplate = `---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -54,4 +53,4 @@ spec:
           resources:
             requests:
               cpu: 1
-...`
+`

@@ -21,7 +21,7 @@ func gp3StorageClass() *resource.Resource {
 	return res
 }
 
-const yamlTemplate = `
+const yamlTemplate = `---
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:

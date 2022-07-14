@@ -21,7 +21,7 @@ func karpenterDefaultProvisioner() *resource.Resource {
 	return res
 }
 
-const yamlTemplate = `
+const yamlTemplate = `---
 apiVersion: karpenter.sh/v1alpha5
 kind: Provisioner
 metadata:

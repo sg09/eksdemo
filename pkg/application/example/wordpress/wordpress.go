@@ -43,7 +43,7 @@ func NewApp() *application.Application {
 
 const wordpressReleaseName = `wordpress`
 
-const valuesTemplate = `
+const valuesTemplate = `---
 global:
   storageClass: {{ .StorageClass }}
 image:

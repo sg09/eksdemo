@@ -91,7 +91,7 @@ Statement:
   - ssm:GetParameter
 `
 
-const valuesTemplate = `
+const valuesTemplate = `---
 serviceAccount:
   name: {{ .ServiceAccount }}
   annotations:

@@ -21,7 +21,7 @@ func clusterIssuer() *resource.Resource {
 	return res
 }
 
-const yamlTemplate = `
+const yamlTemplate = `---
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:

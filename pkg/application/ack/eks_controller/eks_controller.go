@@ -81,7 +81,7 @@ Statement:
 //   StringLike:
 //     "iam:PassedToService": eks-fargate-pods.amazonaws.com
 
-const valuesTemplate = `
+const valuesTemplate = `---
 image:
   tag: {{ .Version }}
 fullnameOverride: ack-eks-controller

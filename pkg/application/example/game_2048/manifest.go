@@ -1,7 +1,6 @@
 package game_2048
 
-const gameManifestTemplate = `
----
+const gameManifestTemplate = `---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -88,4 +87,4 @@ spec:
     - ingress-2048-0-0
   secret: ingress-2048-cert
 {{- end }}
-...`
+`

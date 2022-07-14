@@ -58,7 +58,7 @@ func NewApp() *application.Application {
 	return app
 }
 
-const valuesTemplate = `
+const valuesTemplate = `---
 controller:
   replicaCount: 1
   serviceAccount:

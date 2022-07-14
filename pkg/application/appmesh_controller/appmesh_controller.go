@@ -59,7 +59,7 @@ func NewApp() *application.Application {
 	return app
 }
 
-const valuesTemplate = `
+const valuesTemplate = `---
 region: {{ .Region }}
 accountId: {{ .Account }}
 serviceAccount:

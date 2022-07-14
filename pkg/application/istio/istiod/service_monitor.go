@@ -23,8 +23,7 @@ func serviceMonitor() *resource.Resource {
 	return res
 }
 
-const serviceMonitorYamlTemplate = `
----
+const serviceMonitorYamlTemplate = `---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
@@ -44,5 +43,4 @@ spec:
   endpoints:
   - port: http-monitoring
     interval: 15s
-...
 `

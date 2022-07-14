@@ -33,7 +33,7 @@ func NewApp() *application.Application {
 	return app
 }
 
-const valuesTemplate = `
+const valuesTemplate = `---
 gitRepository:
   spec:
     # -- The repository URL, can be an HTTP/S or SSH address.

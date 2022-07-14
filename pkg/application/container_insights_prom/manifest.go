@@ -1,6 +1,6 @@
 package container_insights_prom
 
-const kustomizeTemplate = `
+const kustomizeTemplate = `---
 resources:
 - manifest.yaml
 patches:
@@ -16,7 +16,7 @@ patches:
     version: v1
 `
 
-const manifestTemplate = `
+const manifestTemplate = `---
 # create amazon-cloudwatch namespace
 apiVersion: v1
 kind: Namespace

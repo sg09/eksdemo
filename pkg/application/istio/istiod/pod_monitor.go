@@ -23,8 +23,7 @@ func podMonitor() *resource.Resource {
 	return res
 }
 
-const podMonitorYamlTemplate = `
----
+const podMonitorYamlTemplate = `---
 apiVersion: monitoring.coreos.com/v1
 kind: PodMonitor
 metadata:
@@ -62,5 +61,4 @@ spec:
     - sourceLabels: [__meta_kubernetes_pod_name]
       action: replace
       targetLabel: pod_name
-...
 `

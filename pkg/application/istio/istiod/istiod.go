@@ -54,7 +54,7 @@ func NewApp() *application.Application {
 	return app
 }
 
-const valuesTemplate = `
+const valuesTemplate = `---
 pilot:
   tag: {{ .Version }}
 global:

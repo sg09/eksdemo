@@ -43,7 +43,7 @@ func NewApp() *application.Application {
 	return app
 }
 
-const valuesTemplate = `
+const valuesTemplate = `---
 controller:
   image:
     tag: {{ .Version }}

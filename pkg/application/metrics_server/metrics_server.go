@@ -44,7 +44,7 @@ func NewApp() *application.Application {
 	return app
 }
 
-const valuesTemplate = `
+const valuesTemplate = `---
 image:
   tag: {{ .Version }}
 serviceAccount:

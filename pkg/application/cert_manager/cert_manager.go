@@ -62,7 +62,7 @@ func NewApp() *application.Application {
 	return app
 }
 
-const valuesTemplate = `
+const valuesTemplate = `---
 installCRDs: true
 replicaCount: 1
 serviceAccount:

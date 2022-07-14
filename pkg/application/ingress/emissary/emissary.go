@@ -37,7 +37,7 @@ func NewApp() *application.Application {
 // TODO: Consider proxy protocol if in the future the Helm chart can configure it
 //       https://github.com/emissary-ingress/emissary/issues/3300
 
-const valuesTemplate = `
+const valuesTemplate = `---
 fullnameOverride: emissary-ingress
 replicaCount: {{ .Replicas }}
 image:

@@ -33,7 +33,7 @@ func NewApp() *application.Application {
 	return addOptions(app)
 }
 
-const valuesTemplate = `
+const valuesTemplate = `---
 image:
   tag: {{ .Version }}
 serviceAccount:

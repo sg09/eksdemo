@@ -1,6 +1,6 @@
 package container_insights
 
-const fluentBitKustomizeTemplate = `
+const fluentBitKustomizeTemplate = `---
 resources:
 - manifest.yaml
 patches:
@@ -16,8 +16,7 @@ patches:
     version: v1
 `
 
-const fluentBitManifestTemplate = `
----
+const fluentBitManifestTemplate = `---
 
 # create configmap for cluster name and aws region for CloudWatch Logs
 # need to replace the placeholders {{/*cluster_name*/}} and {{/*region_name*/}}

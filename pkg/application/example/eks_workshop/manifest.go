@@ -1,7 +1,6 @@
 package eks_workshop
 
-const manifestTemplate = `
----
+const manifestTemplate = `---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -165,4 +164,4 @@ spec:
   - hosts:
     - {{ .IngressHost }}
 {{- end }}
-...`
+`
