@@ -47,8 +47,9 @@ func (i *ManifestInstaller) Install(options application.Options) error {
 
 	chart := &chart.Chart{
 		Metadata: &chart.Metadata{
-			Name: i.AppName,
-			Type: "application",
+			Name:    i.AppName,
+			Version: "n/a",
+			Type:    "application",
 		},
 		Templates: []*chart.File{
 			{
