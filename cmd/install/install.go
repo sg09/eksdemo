@@ -42,6 +42,10 @@ func NewInstallCmd() *cobra.Command {
 	}
 	cmd.AddCommand(adot_operator.NewApp().NewInstallCmd())
 	cmd.AddCommand(appmesh_controller.NewApp().NewInstallCmd())
+	cmd.AddCommand(NewInstallArgoCmd())
+	for _, c := range NewInstallAliasCmds(argoApps, "argo-") {
+		cmd.AddCommand(c)
+	}
 	cmd.AddCommand(aws_fluentbit.NewApp().NewInstallCmd())
 	cmd.AddCommand(aws_lb.NewApp().NewInstallCmd())
 	cmd.AddCommand(cert_manager.NewApp().NewInstallCmd())

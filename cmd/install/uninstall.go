@@ -43,6 +43,10 @@ func NewUninstallCmd() *cobra.Command {
 	}
 	cmd.AddCommand(adot_operator.NewApp().NewUninstallCmd())
 	cmd.AddCommand(appmesh_controller.NewApp().NewUninstallCmd())
+	cmd.AddCommand(NewUninstallArgoCmd())
+	for _, c := range NewUninstallAliasCmds(argoApps, "argo-") {
+		cmd.AddCommand(c)
+	}
 	cmd.AddCommand(aws_fluentbit.NewApp().NewUninstallCmd())
 	cmd.AddCommand(aws_lb.NewApp().NewUninstallCmd())
 	cmd.AddCommand(cert_manager.NewApp().NewUninstallCmd())
