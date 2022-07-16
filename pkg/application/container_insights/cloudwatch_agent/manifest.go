@@ -1,4 +1,4 @@
-package container_insights
+package cloudwatch_agent
 
 const kustomizeTemplate = `---
 resources:
@@ -16,22 +16,14 @@ patches:
     version: v1
 `
 
-const containerInsightsManifestTemplate = `---
-# create amazon-cloudwatch namespace
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: amazon-cloudwatch
-  labels:
-    name: amazon-cloudwatch
----
-
+// Manfiest: https://github.com/aws-samples/amazon-cloudwatch-container-insights/blob/master/k8s-deployment-manifest-templates/deployment-mode/daemonset/container-insights-monitoring/cwagent/cwagent-serviceaccount.yaml
+const serviceAccountTemplate = `---
 # create cwagent service account and role binding
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: cloudwatch-agent
-  namespace: amazon-cloudwatch
+  name: {{ .ServiceAccount }}
+  namespace: {{ .Namespace }}
 
 ---
 kind: ClusterRole
@@ -66,14 +58,18 @@ metadata:
   name: cloudwatch-agent-role-binding
 subjects:
   - kind: ServiceAccount
-    name: cloudwatch-agent
-    namespace: amazon-cloudwatch
+    name: {{ .ServiceAccount }}
+    namespace: {{ .Namespace }}
 roleRef:
   kind: ClusterRole
   name: cloudwatch-agent-role
   apiGroup: rbac.authorization.k8s.io
----
+`
 
+// Manfiest: https://github.com/aws-samples/amazon-cloudwatch-container-insights/blob/master/k8s-deployment-manifest-templates/deployment-mode/daemonset/container-insights-monitoring/cwagent/cwagent-configmap.yaml
+// Note: Only difference from the manifest above is the addition of the agent.region. That is included in the Quick Start config below:
+// https://github.com/aws-samples/amazon-cloudwatch-container-insights/blob/master/k8s-deployment-manifest-templates/deployment-mode/daemonset/container-insights-monitoring/quickstart/cwagent-fluent-bit-quickstart.yaml#L65
+const configMapTemplate = `---
 # create configmap for cwagent config
 apiVersion: v1
 data:
@@ -97,15 +93,17 @@ data:
 kind: ConfigMap
 metadata:
   name: cwagentconfig
-  namespace: amazon-cloudwatch
----
+  namespace: {{ .Namespace }}
+`
 
+// Manifest: https://github.com/aws-samples/amazon-cloudwatch-container-insights/blob/master/k8s-deployment-manifest-templates/deployment-mode/daemonset/container-insights-monitoring/cwagent/cwagent-daemonset.yaml
+const daemonSetTemplate = `---
 # deploy cwagent as daemonset
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: cloudwatch-agent
-  namespace: amazon-cloudwatch
+  namespace: {{ .Namespace }}
 spec:
   selector:
     matchLabels:

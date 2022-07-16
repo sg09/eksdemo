@@ -1,6 +1,6 @@
-package container_insights
+package fluentbit
 
-const fluentBitKustomizeTemplate = `---
+const kustomizeTemplate = `---
 resources:
 - manifest.yaml
 patches:
@@ -11,13 +11,13 @@ patches:
         {{ .IrsaAnnotation }}
   target:
     kind: ServiceAccount
-    name: fluent-bit
-    namespace: amazon-cloudwatch
+    name: {{ .ServiceAccount }}
+    namespace: {{ .Namespace }}
     version: v1
 `
 
-const fluentBitManifestTemplate = `---
-
+// Manifest: https://github.com/aws-samples/amazon-cloudwatch-container-insights/blob/master/k8s-deployment-manifest-templates/deployment-mode/daemonset/container-insights-monitoring/fluent-bit/fluent-bit-configmap.yaml
+const configMapTemplate = `---
 # create configmap for cluster name and aws region for CloudWatch Logs
 # need to replace the placeholders {{/*cluster_name*/}} and {{/*region_name*/}}
 # and need to replace {{/*http_server_toggle*/}} and {{/*http_server_port/*}}
@@ -33,14 +33,16 @@ data:
 kind: ConfigMap
 metadata:
   name: fluent-bit-cluster-info
-  namespace: amazon-cloudwatch
----
+  namespace: {{ .Namespace }}
+`
 
+// Manifest: https://github.com/aws-samples/amazon-cloudwatch-container-insights/blob/master/k8s-deployment-manifest-templates/deployment-mode/daemonset/container-insights-monitoring/fluent-bit/fluent-bit.yaml
+const fluentBitManifestTemplate = `---
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: fluent-bit
-  namespace: amazon-cloudwatch
+  name: {{ .ServiceAccount }}
+  namespace: {{ .Namespace }}
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
@@ -70,14 +72,14 @@ roleRef:
   name: fluent-bit-role
 subjects:
   - kind: ServiceAccount
-    name: fluent-bit
-    namespace: amazon-cloudwatch
+    name: {{ .ServiceAccount }}
+    namespace: {{ .Namespace }}
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: fluent-bit-config
-  namespace: amazon-cloudwatch
+  namespace: {{ .Namespace }}
   labels:
     k8s-app: fluent-bit
 data:
@@ -294,7 +296,7 @@ apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: fluent-bit
-  namespace: amazon-cloudwatch
+  namespace: {{ .Namespace }}
   labels:
     k8s-app: fluent-bit
     version: v1

@@ -9,8 +9,6 @@ import (
 	"eksdemo/pkg/application/cert_manager"
 	"eksdemo/pkg/application/cilium"
 	"eksdemo/pkg/application/cluster_autoscaler"
-	"eksdemo/pkg/application/container_insights"
-	"eksdemo/pkg/application/container_insights_prom"
 	"eksdemo/pkg/application/ebs_csi"
 	"eksdemo/pkg/application/efs_csi"
 	"eksdemo/pkg/application/external_dns"
@@ -52,8 +50,13 @@ func NewInstallCmd() *cobra.Command {
 	cmd.AddCommand(cert_manager.NewApp().NewInstallCmd())
 	cmd.AddCommand(cilium.NewApp().NewInstallCmd())
 	cmd.AddCommand(cluster_autoscaler.NewApp().NewInstallCmd())
-	cmd.AddCommand(container_insights.NewApp().NewInstallCmd())
-	cmd.AddCommand(container_insights_prom.NewApp().NewInstallCmd())
+	cmd.AddCommand(NewInstallContainerInsightsCmd())
+	for _, c := range NewInstallAliasCmds(containerInsightsApps, "container-insights-") {
+		cmd.AddCommand(c)
+	}
+	for _, c := range NewInstallAliasCmds(containerInsightsApps, "ci-") {
+		cmd.AddCommand(c)
+	}
 	cmd.AddCommand(ebs_csi.NewApp().NewInstallCmd())
 	cmd.AddCommand(efs_csi.NewApp().NewInstallCmd())
 	cmd.AddCommand(NewInstallExampleCmd())

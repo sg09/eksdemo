@@ -1,4 +1,4 @@
-package container_insights
+package fluentbit
 
 import (
 	"eksdemo/pkg/application"
@@ -9,39 +9,41 @@ import (
 	"eksdemo/pkg/template"
 )
 
-// Docs:     https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Container-Insights-setup-EKS-quickstart.html
-// GitHub:   https://github.com/aws-samples/amazon-cloudwatch-container-insights, see Releases for versions
+// Docs:     https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Container-Insights-setup-logs-FluentBit.html
+// GitHub:   https://github.com/aws/aws-for-fluent-bit
 // Manifest: https://github.com/aws-samples/amazon-cloudwatch-container-insights/blob/master/k8s-deployment-manifest-templates/deployment-mode/daemonset/container-insights-monitoring/quickstart/cwagent-fluent-bit-quickstart.yaml
-// Repo:     https://gallery.ecr.aws/cloudwatch-agent/cloudwatch-agent
-// Version:  Latest is 1.247352.0b251908 aka k8s/1.3.10 (as of 06/22/22)
+// Repo:     https://gallery.ecr.aws/aws-observability/aws-for-fluent-bit
+// Version:  CloudWatch documentation uses "stable" tag
 
 func NewApp() *application.Application {
 	app := &application.Application{
 		Command: cmd.Command{
-			Name:        "container-insights",
-			Description: "CloudWatch Container Insights",
-			Aliases:     []string{"ci"},
+			Name:        "fluent-bit",
+			Description: "Container Insights Fluent Bit Logs",
+			Aliases:     []string{"fluentbit"},
 		},
 
 		Dependencies: []*resource.Resource{
 			irsa.NewResourceWithOptions(&irsa.IrsaOptions{
 				CommonOptions: resource.CommonOptions{
-					Name: "container-insights-irsa",
+					Name: "container-insights-fluent-bit-irsa",
 				},
 				PolicyType: irsa.PolicyARNs,
 				Policy:     []string{"arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"},
 			}),
 		},
 
-		Installer: &installer.KustomizeInstaller{
+		Installer: &installer.ManifestInstaller{
+			AppName: "container-insights-fluent-bit",
 			ResourceTemplate: &template.TextTemplate{
-				Template: containerInsightsManifestTemplate,
+				Template: configMapTemplate + fluentBitManifestTemplate,
 			},
 			KustomizeTemplate: &template.TextTemplate{
 				Template: kustomizeTemplate,
 			},
 		},
 	}
+	app.Options, app.Flags = newOptions()
 
-	return addOptions(app)
+	return app
 }

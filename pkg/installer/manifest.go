@@ -35,6 +35,7 @@ func (i *ManifestInstaller) Install(options application.Options) error {
 		if err != nil {
 			return err
 		}
+		yaml = "---\n" + yaml
 	} else {
 		yaml = resources
 	}

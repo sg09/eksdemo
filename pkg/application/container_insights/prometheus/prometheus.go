@@ -1,4 +1,4 @@
-package container_insights_prom
+package prometheus
 
 import (
 	"eksdemo/pkg/application"
@@ -13,14 +13,14 @@ import (
 // GitHub:   https://github.com/aws-samples/amazon-cloudwatch-container-insights, see Releases for versions
 // Manifest: https://github.com/aws-samples/amazon-cloudwatch-container-insights/blob/master/k8s-deployment-manifest-templates/deployment-mode/service/cwagent-prometheus/prometheus-eks.yaml
 // Repo:     https://gallery.ecr.aws/cloudwatch-agent/cloudwatch-agent
-// Version:  Latest is 1.247352.0b251908 aka k8s/1.3.10 (as of 06/22/22)
+// Version:  Latest is 1.247352.0b251908 aka k8s/1.3.10 (as of 07/16/22)
 
 func NewApp() *application.Application {
 	app := &application.Application{
 		Command: cmd.Command{
-			Name:        "container-insights-prometheus",
-			Description: "CloudWatch Container Insights monitoring for Prometheus",
-			Aliases:     []string{"cip", "ciprom"},
+			Name:        "prometheus",
+			Description: "Container Insights monitoring for Prometheus",
+			Aliases:     []string{"prom"},
 		},
 
 		Dependencies: []*resource.Resource{
@@ -34,15 +34,16 @@ func NewApp() *application.Application {
 		},
 
 		Options: &application.ApplicationOptions{
-			Namespace:      "amazon-cloudwatch",
-			ServiceAccount: "cwagent-prometheus",
+			DisableServiceAccountFlag: true,
+			Namespace:                 "amazon-cloudwatch",
+			ServiceAccount:            "cwagent-prometheus",
 			DefaultVersion: &application.LatestPrevious{
 				Latest:   "1.247352.0b251908",
 				Previous: "1.247350.0b251780",
 			},
 		},
 
-		Installer: &installer.KustomizeInstaller{
+		Installer: &installer.ManifestInstaller{
 			ResourceTemplate: &template.TextTemplate{
 				Template: manifestTemplate,
 			},

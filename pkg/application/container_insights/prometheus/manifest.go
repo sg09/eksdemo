@@ -1,4 +1,4 @@
-package container_insights_prom
+package prometheus
 
 const kustomizeTemplate = `---
 resources:
@@ -11,21 +11,13 @@ patches:
         {{ .IrsaAnnotation }}
   target:
     kind: ServiceAccount
-    name: cwagent-prometheus
-    namespace: amazon-cloudwatch
+    name: {{ .ServiceAccount }}
+    namespace: {{ .Namespace }}
     version: v1
 `
 
+// Manifest: https://github.com/aws-samples/amazon-cloudwatch-container-insights/blob/master/k8s-deployment-manifest-templates/deployment-mode/service/cwagent-prometheus/prometheus-eks.yaml
 const manifestTemplate = `---
-# create amazon-cloudwatch namespace
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: amazon-cloudwatch
-  labels:
-    name: amazon-cloudwatch
-
----
 # create configmap for prometheus cwagent config
 apiVersion: v1
 data:
@@ -58,8 +50,8 @@ data:
                   "metric_selectors": ["^nginx_ingress_controller_requests$"]
                 },
                 {
-                  "source_labels": ["Service", "frontend"],
-                  "label_matcher": ".*haproxy-ingress-.*metrics;(httpfront-shared-frontend|httpfront-default-backend|httpsfront|_front_http)",
+                  "source_labels": ["Service"],
+                  "label_matcher": ".*haproxy-ingress-.*metrics",
                   "dimensions": [["Service","Namespace","ClusterName","frontend","code"]],
                   "metric_selectors": [
                     "^haproxy_frontend_http_responses_total$"
@@ -198,7 +190,7 @@ data:
 kind: ConfigMap
 metadata:
   name: prometheus-cwagentconfig
-  namespace: amazon-cloudwatch
+  namespace: {{ .Namespace }}
 
 ---
 # create configmap for prometheus scrape config
@@ -403,15 +395,15 @@ data:
 kind: ConfigMap
 metadata:
   name: prometheus-config
-  namespace: amazon-cloudwatch
+  namespace: {{ .Namespace }}
 
 ---
 # create cwagent service account and role binding
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  name: cwagent-prometheus
-  namespace: amazon-cloudwatch
+  name: {{ .ServiceAccount }}
+  namespace: {{ .Namespace }}
 
 ---
 kind: ClusterRole
@@ -442,8 +434,8 @@ metadata:
   name: cwagent-prometheus-role-binding
 subjects:
   - kind: ServiceAccount
-    name: cwagent-prometheus
-    namespace: amazon-cloudwatch
+    name: {{ .ServiceAccount }}
+    namespace: {{ .Namespace }}
 roleRef:
   kind: ClusterRole
   name: cwagent-prometheus-role
@@ -455,7 +447,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: cwagent-prometheus
-  namespace: amazon-cloudwatch
+  namespace: {{ .Namespace }}
 spec:
   replicas: 1
   selector:
