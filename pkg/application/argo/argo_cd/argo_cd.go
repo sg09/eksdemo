@@ -34,7 +34,7 @@ func NewApp() *application.Application {
 	return app
 }
 
-const valuesTemplate = `
+const valuesTemplate = `---
 fullnameOverride: argocd
 global:
   image:
