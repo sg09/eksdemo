@@ -23,6 +23,7 @@ import (
 	"eksdemo/pkg/resource/node"
 	"eksdemo/pkg/resource/nodegroup"
 	"eksdemo/pkg/resource/organization"
+	"eksdemo/pkg/resource/s3_bucket"
 	"eksdemo/pkg/resource/security_group"
 	"eksdemo/pkg/resource/security_group_rule"
 	"eksdemo/pkg/resource/subnet"
@@ -89,6 +90,7 @@ func init() {
 	getCmd.AddCommand(node.NewResource().NewGetCmd())
 	getCmd.AddCommand(nodegroup.NewResource().NewGetCmd())
 	getCmd.AddCommand(organization.NewResource().NewGetCmd())
+	getCmd.AddCommand(s3_bucket.NewResource().NewGetCmd())
 	getCmd.AddCommand(security_group.NewResource().NewGetCmd())
 	getCmd.AddCommand(security_group_rule.NewResource().NewGetCmd())
 	getCmd.AddCommand(subnet.NewResource().NewGetCmd())

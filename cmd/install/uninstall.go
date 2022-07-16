@@ -2,7 +2,6 @@ package install
 
 import (
 	"eksdemo/pkg/application"
-	"eksdemo/pkg/application/ack/s3_controller"
 	"eksdemo/pkg/application/adot_operator"
 	"eksdemo/pkg/application/appmesh_controller"
 	"eksdemo/pkg/application/aws_fluentbit"
@@ -23,6 +22,7 @@ import (
 	"eksdemo/pkg/application/kube_prometheus"
 	"eksdemo/pkg/application/metrics_server"
 	"eksdemo/pkg/application/prometheus_amp"
+	"eksdemo/pkg/application/velero"
 
 	"github.com/spf13/cobra"
 )
@@ -81,8 +81,7 @@ func NewUninstallCmd() *cobra.Command {
 	cmd.AddCommand(kube_prometheus.NewApp().NewUninstallCmd())
 	cmd.AddCommand(metrics_server.NewApp().NewUninstallCmd())
 	cmd.AddCommand(prometheus_amp.NewApp().NewUninstallCmd())
-
-	cmd.AddCommand(s3_controller.NewApp().NewUninstallCmd())
+	cmd.AddCommand(velero.NewApp().NewUninstallCmd())
 
 	return cmd
 }
