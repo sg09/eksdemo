@@ -51,7 +51,7 @@ func (o *ApplicationOptions) NewClusterFlag(action Action) *cmd.StringFlag {
 				if err != nil {
 					return err
 				}
-				if o.kubeContext == "" {
+				if o.kubeContext == "" && !o.DryRun {
 					return fmt.Errorf("cluster \"%s\" not found in Kubeconfig", o.ClusterName)
 				}
 
