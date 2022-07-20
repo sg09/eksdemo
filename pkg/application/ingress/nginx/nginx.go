@@ -11,24 +11,13 @@ import (
 // GitHub:  https://github.com/kubernetes/ingress-nginx
 // Helm:    https://github.com/kubernetes/ingress-nginx/tree/main/charts/ingress-nginx
 // Repo:    registry.k8s.io/ingress-nginx/controller
-// Version: Latest is Chart 4.1.4 and App v1.2.1 (as of 07/04/22)
+// Version: Latest is Chart 4.2.0 and App v1.3.0 (as of 07/20/22)
 
 func NewApp() *application.Application {
 	app := &application.Application{
 		Command: cmd.Command{
 			Name:        "nginx",
 			Description: "NGINX Ingress Controller",
-		},
-
-		Options: &application.ApplicationOptions{
-			Namespace:      "ingress-nginx",
-			ServiceAccount: "ingress-nginx",
-			DefaultVersion: &application.LatestPrevious{
-				LatestChart:   "4.1.4",
-				Latest:        "v1.2.1",
-				PreviousChart: "4.1.4",
-				Previous:      "v1.2.1",
-			},
 		},
 
 		Installer: &installer.HelmInstaller{
@@ -40,6 +29,8 @@ func NewApp() *application.Application {
 			},
 		},
 	}
+	app.Options, app.Flags = newOptions()
+
 	return app
 }
 
@@ -47,6 +38,7 @@ const valuesTemplate = `---
 controller:
   image:
     tag: {{ .Version }}
+  replicaCount: {{ .Replicas }}
   service:
     annotations:
       service.beta.kubernetes.io/aws-load-balancer-backend-protocol: tcp
