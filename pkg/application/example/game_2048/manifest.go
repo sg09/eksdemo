@@ -28,14 +28,16 @@ kind: Service
 metadata:
   namespace: {{ .Namespace }}
   name: service-2048
+{{- if eq .ServiceType "LoadBalancer" }}
+  annotations:
+    {{- .ServiceAnnotations | nindent 4 }}
+{{- end }}
 spec:
   ports:
     - port: 80
       targetPort: 80
       protocol: TCP
-{{- if not .IngressHost }}
-  type: LoadBalancer
-{{- end }}
+  type: {{ .ServiceType }}
   selector:
     app.kubernetes.io/name: app-2048
 {{- if .IngressHost }}
@@ -46,13 +48,7 @@ metadata:
   namespace: {{ .Namespace }}
   name: ingress-2048
   annotations:
-{{- if eq .IngressClass "alb" }}
-    alb.ingress.kubernetes.io/scheme: internet-facing
-    alb.ingress.kubernetes.io/target-type: ip
-    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
-{{- else }}
-    cert-manager.io/cluster-issuer: letsencrypt-prod
-{{- end }}
+   {{- .IngressAnnotations | nindent 4 }}
 spec:
   ingressClassName: {{ .IngressClass }}
   rules:
@@ -70,7 +66,7 @@ spec:
   - hosts:
     - {{ .IngressHost }}
   {{- if ne .IngressClass "alb" }}
-    secretName: ingress-2048-cert # < cert-manager will store the created certificate in this secret
+    secretName: ingress-2048-cert
   {{- end }}
 {{- end }}
 {{- if eq .IngressClass "ambassador" }}

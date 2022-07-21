@@ -27,7 +27,7 @@ func NewApp() *application.Application {
 		},
 	}
 
-	app.Options, app.Flags = NewOptions()
+	app.Options, app.Flags = newOptions()
 
 	return app
 }

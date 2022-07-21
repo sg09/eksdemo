@@ -8,41 +8,24 @@ import (
 type Game2048Options struct {
 	application.ApplicationOptions
 
-	IngressClass string
-	IngressHost  string
-	Replicas     int
+	Replicas int
 }
 
-func NewOptions() (options *Game2048Options, flags cmd.Flags) {
+func newOptions() (options *Game2048Options, flags cmd.Flags) {
 	options = &Game2048Options{
 		ApplicationOptions: application.ApplicationOptions{
-			Namespace: "game-2048",
+			EnableIngress: true,
+			Namespace:     "game-2048",
 			DefaultVersion: &application.LatestPrevious{
 				Latest:   "latest",
 				Previous: "latest",
 			},
 			DisableServiceAccountFlag: true,
 		},
-		IngressClass: "alb",
-		Replicas:     1,
+		Replicas: 1,
 	}
 
 	flags = cmd.Flags{
-		&cmd.StringFlag{
-			CommandFlag: cmd.CommandFlag{
-				Name:        "ingress-class",
-				Description: "name of IngressClass",
-			},
-			Option: &options.IngressClass,
-		},
-		&cmd.StringFlag{
-			CommandFlag: cmd.CommandFlag{
-				Name:        "ingress-host",
-				Description: "hostname for Ingress with TLS (requires Ingress Controller and ExternalDNS)",
-				Shorthand:   "I",
-			},
-			Option: &options.IngressHost,
-		},
 		&cmd.IntFlag{
 			CommandFlag: cmd.CommandFlag{
 				Name:        "replicas",
