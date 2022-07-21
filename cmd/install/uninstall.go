@@ -18,6 +18,7 @@ import (
 	"eksdemo/pkg/application/karpenter"
 	"eksdemo/pkg/application/keycloak_amg"
 	"eksdemo/pkg/application/kube_prometheus"
+	"eksdemo/pkg/application/kubecost"
 	"eksdemo/pkg/application/metrics_server"
 	"eksdemo/pkg/application/prometheus_amp"
 	"eksdemo/pkg/application/velero"
@@ -82,6 +83,7 @@ func NewUninstallCmd() *cobra.Command {
 	cmd.AddCommand(karpenter.NewApp().NewUninstallCmd())
 	cmd.AddCommand(keycloak_amg.NewApp().NewUninstallCmd())
 	cmd.AddCommand(kube_prometheus.NewApp().NewUninstallCmd())
+	cmd.AddCommand(kubecost.NewApp().NewUninstallCmd())
 	cmd.AddCommand(metrics_server.NewApp().NewUninstallCmd())
 	cmd.AddCommand(prometheus_amp.NewApp().NewUninstallCmd())
 	cmd.AddCommand(velero.NewApp().NewUninstallCmd())
