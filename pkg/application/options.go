@@ -26,10 +26,13 @@ type ApplicationOptions struct {
 	Version      string
 
 	DefaultVersion
+	IngressOptions
+
 	DeleteDependencies        bool
 	DisableNamespaceFlag      bool
 	DisableServiceAccountFlag bool
 	DisableVersionFlag        bool
+	EnableIngress             bool
 	LockVersionFlag           bool
 	SetValues                 []string
 	UsePrevious               bool
@@ -63,6 +66,11 @@ func (o *ApplicationOptions) AddInstallFlags(cobraCmd *cobra.Command, flags cmd.
 
 	if !o.DisableServiceAccountFlag {
 		flags = append(flags, o.NewServiceAccountFlag())
+	}
+
+	if o.EnableIngress {
+		o.IngressOptions = NewIngressOptions()
+		flags = append(flags, o.NewIngressFlags()...)
 	}
 
 	if it == HelmInstaller {
