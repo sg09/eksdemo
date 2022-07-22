@@ -20,6 +20,7 @@ import (
 	"eksdemo/pkg/application/kube_prometheus"
 	"eksdemo/pkg/application/kubecost"
 	"eksdemo/pkg/application/metrics_server"
+	"eksdemo/pkg/application/opa_gatekeeper"
 	"eksdemo/pkg/application/prometheus_amp"
 	"eksdemo/pkg/application/velero"
 
@@ -85,6 +86,7 @@ func NewInstallCmd() *cobra.Command {
 	cmd.AddCommand(kube_prometheus.NewApp().NewInstallCmd())
 	cmd.AddCommand(kubecost.NewApp().NewInstallCmd())
 	cmd.AddCommand(metrics_server.NewApp().NewInstallCmd())
+	cmd.AddCommand(opa_gatekeeper.NewApp().NewInstallCmd())
 	cmd.AddCommand(prometheus_amp.NewApp().NewInstallCmd())
 	cmd.AddCommand(velero.NewApp().NewInstallCmd())
 
