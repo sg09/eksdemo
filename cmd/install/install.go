@@ -47,6 +47,10 @@ func NewInstallCmd() *cobra.Command {
 	for _, c := range NewInstallAliasCmds(argoApps, "argo-") {
 		cmd.AddCommand(c)
 	}
+	cmd.AddCommand(NewInstallAutoscalingCmd())
+	for _, c := range NewInstallAliasCmds(autoscalingApps, "autoscaling-") {
+		cmd.AddCommand(c)
+	}
 	cmd.AddCommand(aws_fluentbit.NewApp().NewInstallCmd())
 	cmd.AddCommand(aws_lb.NewApp().NewInstallCmd())
 	cmd.AddCommand(cert_manager.NewApp().NewInstallCmd())
