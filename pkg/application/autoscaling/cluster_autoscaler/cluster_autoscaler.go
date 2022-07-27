@@ -13,7 +13,7 @@ import (
 // GitHub:  https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler/cloudprovider/aws
 // Helm:    https://github.com/kubernetes/autoscaler/tree/master/charts/cluster-autoscaler
 // Repo:    k8s.gcr.io/autoscaling/cluster-autoscaler
-// Version: Latest for k8s 1.22 is v1.22.3 (as of 06/22/22)
+// Version: Latest for k8s 1.22 is v1.22.3 (as of 07/27/22)
 
 func NewApp() *application.Application {
 	app := &application.Application{
@@ -37,7 +37,7 @@ func NewApp() *application.Application {
 			Namespace:      "kube-system",
 			ServiceAccount: "cluster-autoscaler",
 			DefaultVersion: &application.KubernetesVersionDependent{
-				LatestChart: "9.19.1",
+				LatestChart: "9.19.2",
 				Latest: map[string]string{
 					"1.22": "v1.22.3",
 					"1.21": "v1.21.3",
@@ -56,7 +56,7 @@ func NewApp() *application.Application {
 
 		Installer: &installer.HelmInstaller{
 			ChartName:     "cluster-autoscaler",
-			ReleaseName:   "cluster-autoscaler",
+			ReleaseName:   "autoscaling-cluster-autoscaler",
 			RepositoryURL: "https://kubernetes.github.io/autoscaler",
 			ValuesTemplate: &template.TextTemplate{
 				Template: valuesTemplate,
