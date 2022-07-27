@@ -15,7 +15,7 @@ import (
 // GitHub:  https://github.com/awslabs/karpenter
 // Helm:    https://github.com/awslabs/karpenter/tree/main/charts/karpenter
 // Repo:    https://gallery.ecr.aws/karpenter/controller
-// Version: Latest is v0.13.2 (as of 07/14/22)
+// Version: Latest is v0.13.2 (as of 07/27/22)
 
 func NewApp() *application.Application {
 	app := &application.Application{
@@ -49,7 +49,7 @@ func NewApp() *application.Application {
 
 		Installer: &installer.HelmInstaller{
 			ChartName:     "karpenter",
-			ReleaseName:   "karpenter",
+			ReleaseName:   "autoscaling-karpenter",
 			RepositoryURL: "https://charts.karpenter.sh",
 			ValuesTemplate: &template.TextTemplate{
 				Template: valuesTemplate,
@@ -92,6 +92,7 @@ Statement:
 `
 
 const valuesTemplate = `---
+fullnameOverride: karpenter
 serviceAccount:
   name: {{ .ServiceAccount }}
   annotations:

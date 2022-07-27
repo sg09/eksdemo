@@ -4,6 +4,7 @@ import (
 	"eksdemo/pkg/application"
 	"eksdemo/pkg/application/autoscaling/cluster_autoscaler"
 	"eksdemo/pkg/application/autoscaling/goldilocks"
+	"eksdemo/pkg/application/autoscaling/karpenter"
 	"eksdemo/pkg/application/autoscaling/keda"
 	"eksdemo/pkg/application/autoscaling/vpa"
 
@@ -48,6 +49,7 @@ func init() {
 	autoscalingApps = []func() *application.Application{
 		cluster_autoscaler.NewApp,
 		goldilocks.NewApp,
+		karpenter.NewApp,
 		keda.NewApp,
 		vpa.NewApp,
 	}

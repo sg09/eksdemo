@@ -14,7 +14,6 @@ import (
 	"eksdemo/pkg/application/falco"
 	"eksdemo/pkg/application/fsx_lustre_csi"
 	"eksdemo/pkg/application/grafana_amp"
-	"eksdemo/pkg/application/karpenter"
 	"eksdemo/pkg/application/keycloak_amg"
 	"eksdemo/pkg/application/kube_prometheus"
 	"eksdemo/pkg/application/kubecost"
@@ -83,7 +82,6 @@ func NewInstallCmd() *cobra.Command {
 	for _, c := range NewInstallAliasCmds(istioApps, "istio-") {
 		cmd.AddCommand(c)
 	}
-	cmd.AddCommand(karpenter.NewApp().NewInstallCmd())
 	cmd.AddCommand(keycloak_amg.NewApp().NewInstallCmd())
 	cmd.AddCommand(kube_prometheus.NewApp().NewInstallCmd())
 	cmd.AddCommand(kubecost.NewApp().NewInstallCmd())

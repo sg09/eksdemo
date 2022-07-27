@@ -3,9 +3,9 @@ package cluster
 import (
 	"eksdemo/pkg/application"
 	"eksdemo/pkg/application/autoscaling/cluster_autoscaler"
+	"eksdemo/pkg/application/autoscaling/karpenter"
 	"eksdemo/pkg/application/aws_lb"
 	"eksdemo/pkg/application/external_dns"
-	"eksdemo/pkg/application/karpenter"
 	"eksdemo/pkg/aws"
 	"eksdemo/pkg/cmd"
 	"eksdemo/pkg/resource"
