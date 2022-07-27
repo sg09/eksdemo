@@ -3,6 +3,7 @@ package install
 import (
 	"eksdemo/pkg/application"
 	"eksdemo/pkg/application/autoscaling/keda"
+	"eksdemo/pkg/application/autoscaling/vpa"
 
 	"github.com/spf13/cobra"
 )
@@ -44,5 +45,6 @@ func NewUninstallAutoscalingCmd() *cobra.Command {
 func init() {
 	autoscalingApps = []func() *application.Application{
 		keda.NewApp,
+		vpa.NewApp,
 	}
 }
