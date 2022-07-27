@@ -2,6 +2,7 @@ package install
 
 import (
 	"eksdemo/pkg/application"
+	"eksdemo/pkg/application/autoscaling/goldilocks"
 	"eksdemo/pkg/application/autoscaling/keda"
 	"eksdemo/pkg/application/autoscaling/vpa"
 
@@ -44,6 +45,7 @@ func NewUninstallAutoscalingCmd() *cobra.Command {
 
 func init() {
 	autoscalingApps = []func() *application.Application{
+		goldilocks.NewApp,
 		keda.NewApp,
 		vpa.NewApp,
 	}
