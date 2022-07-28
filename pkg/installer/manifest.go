@@ -60,14 +60,19 @@ func (i *ManifestInstaller) Install(options application.Options) error {
 		},
 	}
 
+	o := options.Common()
+	if o.Version == "" {
+		o.Version = "n/a"
+	}
+
 	h := helm.Helm{
-		AppVersion:  options.Common().Version,
-		Namespace:   options.Common().Namespace,
+		AppVersion:  o.Version,
+		Namespace:   o.Namespace,
 		ReleaseName: i.AppName,
 		ValuesFile:  "",
 	}
 
-	return h.Install(chart, options.KubeContext())
+	return h.Install(chart, o.KubeContext())
 }
 
 func (i *ManifestInstaller) SetDryRun() {
