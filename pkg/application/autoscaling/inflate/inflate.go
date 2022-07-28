@@ -14,11 +14,11 @@ func NewApp() *application.Application {
 	app := &application.Application{
 		Command: cmd.Command{
 			Name:        "inflate",
-			Description: "Karpenter Example App to Demonstrate Autoscaling",
+			Description: "Example App to Demonstrate Autoscaling",
 		},
 
 		Installer: &installer.ManifestInstaller{
-			AppName: "example-inflate",
+			AppName: "autoscaling-inflate",
 			ResourceTemplate: &template.TextTemplate{
 				Template: manifestTemplate,
 			},

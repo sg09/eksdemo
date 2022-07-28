@@ -14,9 +14,9 @@ type InflateOptions struct {
 func NewOptions() (options *InflateOptions, flags cmd.Flags) {
 	options = &InflateOptions{
 		ApplicationOptions: application.ApplicationOptions{
-			Namespace:                 "inflate",
 			DisableServiceAccountFlag: true,
 			DisableVersionFlag:        true,
+			Namespace:                 "inflate",
 		},
 		Replicas: 0,
 	}
@@ -25,7 +25,7 @@ func NewOptions() (options *InflateOptions, flags cmd.Flags) {
 		&cmd.IntFlag{
 			CommandFlag: cmd.CommandFlag{
 				Name:        "replicas",
-				Description: "number of replicas for the deployment",
+				Description: "number of replicas for the deployment (default 0)",
 			},
 			Option: &options.Replicas,
 		},
