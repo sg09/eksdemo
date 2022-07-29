@@ -44,7 +44,7 @@ const EksctlTemplate = `
   - metadata:
       name: {{ .ServiceAccount }}
       namespace: {{ .Namespace }}
-    roleName: eksdemo.{{ .ClusterName }}.{{ .Namespace }}.{{ .ServiceAccount }}
+    roleName: {{ .RoleName }}
     roleOnly: true
 {{- if .PolicyType | .IsPolicyDocument }}
     attachPolicy:

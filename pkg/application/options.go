@@ -4,6 +4,7 @@ import (
 	"eksdemo/pkg/aws"
 	"eksdemo/pkg/cmd"
 	"eksdemo/pkg/resource"
+	"eksdemo/pkg/resource/irsa"
 	"fmt"
 
 	"github.com/aws/aws-sdk-go/service/eks"
@@ -124,8 +125,14 @@ func (o *ApplicationOptions) Common() *ApplicationOptions {
 }
 
 func (o *ApplicationOptions) IrsaAnnotation() string {
-	return fmt.Sprintf("eks.amazonaws.com/role-arn: arn:aws:iam::%s:role/eksdemo.%s.%s.%s",
-		o.Account, o.ClusterName, o.Namespace, o.ServiceAccount)
+	roleOptions := irsa.IrsaOptions{
+		CommonOptions: resource.CommonOptions{
+			ClusterName:    o.ClusterName,
+			Namespace:      o.Namespace,
+			ServiceAccount: o.ServiceAccount,
+		},
+	}
+	return fmt.Sprintf("eks.amazonaws.com/role-arn: arn:aws:iam::%s:role/%s", o.Account, roleOptions.RoleName())
 }
 
 func (o *ApplicationOptions) KubeContext() string {

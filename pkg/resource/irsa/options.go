@@ -5,6 +5,7 @@ import (
 	"eksdemo/pkg/resource"
 	"eksdemo/pkg/template"
 	"fmt"
+	"hash/fnv"
 )
 
 type IrsaOptions struct {
@@ -102,6 +103,20 @@ func (o *IrsaOptions) PreDelete() error {
 	o.PolicyType = WellKnown
 	o.Policy = []string{"autoScaler"}
 	return nil
+}
+
+func (o *IrsaOptions) RoleName() string {
+	roleName := fmt.Sprintf("eksdemo.%s.%s.%s", o.ClusterName, o.Namespace, o.ServiceAccount)
+
+	nameinRunes := []rune(roleName)
+	if len(nameinRunes) <= 64 {
+		return roleName
+	}
+
+	hash := fnv.New32a()
+	hash.Write([]byte(roleName))
+
+	return fmt.Sprintf("%s-%x", string(nameinRunes[:55]), hash.Sum(nil))
 }
 
 func (o *IrsaOptions) SetName(name string) {
