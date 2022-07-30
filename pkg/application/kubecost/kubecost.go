@@ -19,6 +19,18 @@ func NewApp() *application.Application {
 			Description: "Monitor & Reduce Kubernetes Spend",
 		},
 
+		Options: &application.ApplicationOptions{
+			EnableIngress:  true,
+			Namespace:      "kubecost",
+			ServiceAccount: "kubecost-cost-analyzer",
+			DefaultVersion: &application.LatestPrevious{
+				LatestChart:   "1.95.0",
+				Latest:        "1.95.0",
+				PreviousChart: "1.94.3",
+				Previous:      "1.94.3",
+			},
+		},
+
 		Installer: &installer.HelmInstaller{
 			ChartName:     "cost-analyzer",
 			ReleaseName:   "kubecost",
@@ -28,7 +40,6 @@ func NewApp() *application.Application {
 			},
 		},
 	}
-	app.Options, app.Flags = newOptions()
 
 	return app
 }
@@ -40,11 +51,6 @@ ingress:
   className: {{ .IngressClass }}
   annotations:
     {{- .IngressAnnotations | nindent 4 }}
-  {{- if .AdminPassword }}
-    nginx.ingress.kubernetes.io/auth-type: basic
-    nginx.ingress.kubernetes.io/auth-secret: basic-auth
-    nginx.ingress.kubernetes.io/auth-realm: "Authentication Required"
-  {{- end }}
   pathType: Prefix
   hosts:
     - {{ .IngressHost }}

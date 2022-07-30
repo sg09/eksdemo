@@ -1,17 +1,20 @@
 package application
 
 import (
+	"eksdemo/pkg/application/ingress"
 	"eksdemo/pkg/cmd"
+	"eksdemo/pkg/resource"
 	"eksdemo/pkg/template"
 	"fmt"
 	"strings"
 )
 
 type IngressOptions struct {
-	IngressClass string
-	IngressHost  string
-	NLB          bool
-	TargetType   string
+	IngressClass       string
+	IngressHost        string
+	NginxBasicAuthPass string
+	NLB                bool
+	TargetType         string
 
 	ingressTemplate template.Template
 	serviceTemplate template.Template
@@ -34,24 +37,18 @@ func (o *IngressOptions) IngressAnnotations() (string, error) {
 	return o.ingressTemplate.Render(o)
 }
 
-func (o *IngressOptions) ServiceAnnotations() (string, error) {
-	return o.serviceTemplate.Render(o)
-}
-
-func (o *IngressOptions) ServiceType() string {
-	if o.IngressHost != "" {
-		return `ClusterIP`
-	} else {
-		return `LoadBalancer`
-	}
-}
-
 func (o *IngressOptions) NewIngressFlags() cmd.Flags {
 	return cmd.Flags{
 		&cmd.StringFlag{
 			CommandFlag: cmd.CommandFlag{
 				Name:        "ingress-class",
 				Description: "name of IngressClass",
+				Validate: func() error {
+					if o.IngressClass != "alb" && o.IngressHost == "" {
+						return fmt.Errorf("%q flag can only be used with %q flag", "ingress-class", "ingress-host")
+					}
+					return nil
+				},
 			},
 			Option: &o.IngressClass,
 		},
@@ -63,6 +60,20 @@ func (o *IngressOptions) NewIngressFlags() cmd.Flags {
 			},
 			Option: &o.IngressHost,
 		},
+		&cmd.StringFlag{
+			CommandFlag: cmd.CommandFlag{
+				Name:        "nginx-pass",
+				Description: "basic auth password for admin user (only valid with --ingress-class=nginx)",
+				Shorthand:   "X",
+				Validate: func() error {
+					if o.NginxBasicAuthPass != "" && o.IngressClass != "nginx" {
+						return fmt.Errorf("%q flag can only be used with %q)", "nginx-pass", "--ingress-class=nginx")
+					}
+					return nil
+				},
+			},
+			Option: &o.NginxBasicAuthPass,
+		},
 		&cmd.BoolFlag{
 			CommandFlag: cmd.CommandFlag{
 				Name:        "nlb",
@@ -71,7 +82,6 @@ func (o *IngressOptions) NewIngressFlags() cmd.Flags {
 					if o.NLB && o.IngressHost != "" {
 						return fmt.Errorf("%q flag cannot be used with %q flag", "nlb", "ingress-host")
 					}
-
 					return nil
 				},
 			},
@@ -95,6 +105,25 @@ func (o *IngressOptions) NewIngressFlags() cmd.Flags {
 	}
 }
 
+func (o *IngressOptions) PostInstallResources(name string) []*resource.Resource {
+	if len(o.NginxBasicAuthPass) > 0 {
+		return []*resource.Resource{ingress.BasicAuthSecret(name, o.NginxBasicAuthPass)}
+	}
+	return nil
+}
+
+func (o *IngressOptions) ServiceAnnotations() (string, error) {
+	return o.serviceTemplate.Render(o)
+}
+
+func (o *IngressOptions) ServiceType() string {
+	if o.IngressHost != "" {
+		return `ClusterIP`
+	} else {
+		return `LoadBalancer`
+	}
+}
+
 const ingressAnnotationsTemplate = `
 {{- if eq .IngressClass "alb" -}}
 alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
@@ -102,6 +131,11 @@ alb.ingress.kubernetes.io/scheme: internet-facing
 alb.ingress.kubernetes.io/target-type: {{ .TargetType }}
 {{- else -}}
 cert-manager.io/cluster-issuer: letsencrypt-prod
+{{- end -}}
+{{- if .NginxBasicAuthPass }}
+nginx.ingress.kubernetes.io/auth-type: basic
+nginx.ingress.kubernetes.io/auth-secret: basic-auth
+nginx.ingress.kubernetes.io/auth-realm: "Authentication Required"
 {{- end -}}
 `
 

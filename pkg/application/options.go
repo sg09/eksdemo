@@ -148,6 +148,10 @@ func (o *ApplicationOptions) PreInstall() error {
 }
 
 func (o *ApplicationOptions) PostInstall(name string, postInstallRes []*resource.Resource) error {
+	if res := o.IngressOptions.PostInstallResources(name); res != nil {
+		postInstallRes = append(postInstallRes, res...)
+	}
+
 	if len(postInstallRes) > 0 {
 		fmt.Printf("Creating %d post-install resources for %s\n", len(postInstallRes), name)
 	}
