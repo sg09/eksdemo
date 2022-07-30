@@ -3,6 +3,7 @@ package install
 import (
 	"eksdemo/pkg/application"
 	"eksdemo/pkg/application/argo/argo_cd"
+	"eksdemo/pkg/application/argo/argo_workflows"
 
 	"github.com/spf13/cobra"
 )
@@ -44,5 +45,6 @@ func NewUninstallArgoCmd() *cobra.Command {
 func init() {
 	argoApps = []func() *application.Application{
 		argo_cd.NewApp,
+		argo_workflows.NewApp,
 	}
 }
