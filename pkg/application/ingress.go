@@ -113,6 +113,10 @@ func (o *IngressOptions) PostInstallResources(name string) []*resource.Resource 
 }
 
 func (o *IngressOptions) ServiceAnnotations() (string, error) {
+	if o.IngressHost != "" {
+		return "{}", nil
+	}
+
 	return o.serviceTemplate.Render(o)
 }
 

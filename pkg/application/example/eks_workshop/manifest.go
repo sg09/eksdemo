@@ -127,12 +127,12 @@ apiVersion: v1
 kind: Service
 metadata:
   name: ecsdemo-frontend
+  annotations:
+    {{- .ServiceAnnotations | nindent 4 }}
 spec:
   selector:
     app: ecsdemo-frontend
-{{- if not .IngressHost }}
-  type: LoadBalancer
-{{- end }}
+  type: {{ .ServiceType }}
   ports:
    -  protocol: TCP
       port: 80
@@ -145,11 +145,9 @@ metadata:
   namespace: {{ .Namespace }}
   name: ecsdemo-frontend
   annotations:
-    alb.ingress.kubernetes.io/scheme: internet-facing
-    alb.ingress.kubernetes.io/target-type: ip
-    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+    {{- .IngressAnnotations | nindent 4 }}
 spec:
-  ingressClassName: alb
+  ingressClassName: {{ .IngressClass }}
   rules:
   - http:
       paths:
@@ -163,5 +161,8 @@ spec:
   tls:
   - hosts:
     - {{ .IngressHost }}
+  {{- if ne .IngressClass "alb" }}
+    secretName: eks-workshop-tls
+  {{- end }}
 {{- end }}
 `

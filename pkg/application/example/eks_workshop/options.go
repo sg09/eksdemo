@@ -10,7 +10,6 @@ type EksWorkshopOptions struct {
 
 	CrystalReplicas  int
 	FrontendReplicas int
-	IngressHost      string
 	NodeReplicas     int
 }
 
@@ -20,6 +19,7 @@ func NewOptions() (options *EksWorkshopOptions, flags cmd.Flags) {
 			Namespace:                 "eks-workshop",
 			DisableServiceAccountFlag: true,
 			DisableVersionFlag:        true,
+			EnableIngress:             true,
 		},
 		CrystalReplicas:  3,
 		FrontendReplicas: 3,
@@ -40,14 +40,6 @@ func NewOptions() (options *EksWorkshopOptions, flags cmd.Flags) {
 				Description: "number of replicas for the Frontend deployment",
 			},
 			Option: &options.FrontendReplicas,
-		},
-		&cmd.StringFlag{
-			CommandFlag: cmd.CommandFlag{
-				Name:        "ingress-host",
-				Description: "hostname for Ingress with TLS (requires ACM cert, AWS LB Controller and ExternalDNS)",
-				Shorthand:   "I",
-			},
-			Option: &options.IngressHost,
 		},
 		&cmd.IntFlag{
 			CommandFlag: cmd.CommandFlag{
