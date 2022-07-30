@@ -2,6 +2,7 @@ package install
 
 import (
 	"eksdemo/pkg/application"
+	"eksdemo/pkg/application/container_insights/adot_collector"
 	"eksdemo/pkg/application/container_insights/cloudwatch_agent"
 	"eksdemo/pkg/application/container_insights/fluentbit"
 	"eksdemo/pkg/application/container_insights/prometheus"
@@ -46,6 +47,7 @@ func NewUninstallContainerInsightsCmd() *cobra.Command {
 
 func init() {
 	containerInsightsApps = []func() *application.Application{
+		adot_collector.NewApp,
 		cloudwatch_agent.NewApp,
 		fluentbit.NewApp,
 		prometheus.NewApp,
