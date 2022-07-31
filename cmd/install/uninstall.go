@@ -88,6 +88,10 @@ func NewUninstallCmd() *cobra.Command {
 	cmd.AddCommand(metrics_server.NewApp().NewUninstallCmd())
 	cmd.AddCommand(opa_gatekeeper.NewApp().NewUninstallCmd())
 	cmd.AddCommand(prometheus_amp.NewApp().NewUninstallCmd())
+	cmd.AddCommand(NewUninstallStorageCmd())
+	for _, c := range NewUninstallAliasCmds(storageApps, "storage-") {
+		cmd.AddCommand(c)
+	}
 	cmd.AddCommand(velero.NewApp().NewUninstallCmd())
 
 	return cmd

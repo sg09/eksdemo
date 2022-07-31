@@ -88,6 +88,10 @@ func NewInstallCmd() *cobra.Command {
 	cmd.AddCommand(metrics_server.NewApp().NewInstallCmd())
 	cmd.AddCommand(opa_gatekeeper.NewApp().NewInstallCmd())
 	cmd.AddCommand(prometheus_amp.NewApp().NewInstallCmd())
+	cmd.AddCommand(NewInstallStorageCmd())
+	for _, c := range NewInstallAliasCmds(storageApps, "storage-") {
+		cmd.AddCommand(c)
+	}
 	cmd.AddCommand(velero.NewApp().NewInstallCmd())
 
 	return cmd
