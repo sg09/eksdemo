@@ -19,7 +19,7 @@ func NewApp() *application.Application {
 	app := &application.Application{
 		Command: cmd.Command{
 			Name:        "ebs-csi",
-			Description: "CSI driver for Amazon EBS",
+			Description: "Amazon EBS CSI driver",
 			Aliases:     []string{"ebscsi", "ebs"},
 		},
 
