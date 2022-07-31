@@ -8,7 +8,6 @@ import (
 	"eksdemo/pkg/application/aws_lb"
 	"eksdemo/pkg/application/cert_manager"
 	"eksdemo/pkg/application/cilium"
-	"eksdemo/pkg/application/ebs_csi"
 	"eksdemo/pkg/application/efs_csi"
 	"eksdemo/pkg/application/external_dns"
 	"eksdemo/pkg/application/falco"
@@ -60,7 +59,6 @@ func NewUninstallCmd() *cobra.Command {
 	for _, c := range NewUninstallAliasCmds(containerInsightsApps, "ci-") {
 		cmd.AddCommand(c)
 	}
-	cmd.AddCommand(ebs_csi.NewApp().NewUninstallCmd())
 	cmd.AddCommand(efs_csi.NewApp().NewUninstallCmd())
 	cmd.AddCommand(NewUninstallExampleCmd())
 	for _, c := range NewUninstallAliasCmds(exampleApps, "example-") {

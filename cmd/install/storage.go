@@ -2,6 +2,7 @@ package install
 
 import (
 	"eksdemo/pkg/application"
+	"eksdemo/pkg/application/storage/ebs_csi"
 	"eksdemo/pkg/application/storage/openebs"
 
 	"github.com/spf13/cobra"
@@ -43,6 +44,7 @@ func NewUninstallStorageCmd() *cobra.Command {
 
 func init() {
 	storageApps = []func() *application.Application{
+		ebs_csi.NewApp,
 		openebs.NewApp,
 	}
 }
