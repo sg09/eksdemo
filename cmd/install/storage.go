@@ -4,6 +4,7 @@ import (
 	"eksdemo/pkg/application"
 	"eksdemo/pkg/application/storage/ebs_csi"
 	"eksdemo/pkg/application/storage/efs_csi"
+	"eksdemo/pkg/application/storage/fsx_lustre_csi"
 	"eksdemo/pkg/application/storage/openebs"
 
 	"github.com/spf13/cobra"
@@ -47,6 +48,7 @@ func init() {
 	storageApps = []func() *application.Application{
 		ebs_csi.NewApp,
 		efs_csi.NewApp,
+		fsx_lustre_csi.NewApp,
 		openebs.NewApp,
 	}
 }

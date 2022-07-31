@@ -10,7 +10,6 @@ import (
 	"eksdemo/pkg/application/cilium"
 	"eksdemo/pkg/application/external_dns"
 	"eksdemo/pkg/application/falco"
-	"eksdemo/pkg/application/fsx_lustre_csi"
 	"eksdemo/pkg/application/grafana_amp"
 	"eksdemo/pkg/application/keycloak_amg"
 	"eksdemo/pkg/application/kube_prometheus"
@@ -68,7 +67,6 @@ func NewInstallCmd() *cobra.Command {
 	for _, c := range NewInstallAliasCmds(fluxApps, "flux-") {
 		cmd.AddCommand(c)
 	}
-	cmd.AddCommand(fsx_lustre_csi.NewApp().NewInstallCmd())
 	cmd.AddCommand(grafana_amp.NewApp().NewInstallCmd())
 	cmd.AddCommand(NewInstallIngressCmd())
 	for _, c := range NewInstallAliasCmds(ingressControllers, "ingress-") {

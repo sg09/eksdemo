@@ -13,20 +13,20 @@ import (
 // GitHub:  https://github.com/kubernetes-sigs/aws-fsx-csi-driver
 // Helm:    https://github.com/kubernetes-sigs/aws-fsx-csi-driver/tree/master/charts/aws-fsx-csi-driver
 // Repo:    amazon/aws-fsx-csi-driver
-// Version: Latest is v0.8.2 (as of 06/25/22)
+// Version: Latest is Chart 1.4.2, App v0.8.2 (as of 07/31/22)
 
 func NewApp() *application.Application {
 	app := &application.Application{
 		Command: cmd.Command{
-			Name:        "fsx-lustre-csi",
-			Description: "CSI Driver of Amazon FSx for Lustre",
-			Aliases:     []string{"aws-fsx-csi-driver", "fsx-csi", "fsxcsi", "fsx-lustre", "fsx"},
+			Name:        "fsx-csi",
+			Description: "Amazon FSx for Lustre CSI Driver",
+			Aliases:     []string{"fsxcsi", "fsx"},
 		},
 
 		Dependencies: []*resource.Resource{
 			irsa.NewResourceWithOptions(&irsa.IrsaOptions{
 				CommonOptions: resource.CommonOptions{
-					Name: "fsx-lustre-csi-irsa",
+					Name: "fsx-csi-irsa",
 				},
 				PolicyType: irsa.PolicyDocument,
 				PolicyDocTemplate: &template.TextTemplate{
@@ -48,7 +48,7 @@ func NewApp() *application.Application {
 
 		Installer: &installer.HelmInstaller{
 			ChartName:     "aws-fsx-csi-driver",
-			ReleaseName:   "aws-fsx-csi-driver",
+			ReleaseName:   "storage-fsx-csi",
 			RepositoryURL: "https://kubernetes-sigs.github.io/aws-fsx-csi-driver",
 			ValuesTemplate: &template.TextTemplate{
 				Template: valuesTemplate,
@@ -59,14 +59,14 @@ func NewApp() *application.Application {
 }
 
 const valuesTemplate = `---
+image:
+  tag: {{ .Version }}
 controller:
   replicaCount: 1
   serviceAccount:
+    name: {{ .ServiceAccount }}
     annotations:
       {{ .IrsaAnnotation }}
-    name: {{ .ServiceAccount }}
-image:
-  tag: {{ .Version }}
 `
 
 const policyDocument = `
