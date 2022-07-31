@@ -13,14 +13,14 @@ import (
 // GitHub:  https://github.com/kubernetes-sigs/aws-efs-csi-driver
 // Helm:    https://github.com/kubernetes-sigs/aws-efs-csi-driver/tree/master/charts/aws-efs-csi-driver
 // Repo:    amazon/aws-efs-csi-driver
-// Version: Latest is v1.4.0 (as of 06/25/22)
+// Version: Latest is Chart 2.2.7, App v1.4.0 (as of 07/31/22)
 
 func NewApp() *application.Application {
 	app := &application.Application{
 		Command: cmd.Command{
 			Name:        "efs-csi",
 			Description: "CSI driver for Amazon EFS",
-			Aliases:     []string{"aws-efs-csi-driver", "efscsi", "efs"},
+			Aliases:     []string{"efscsi", "efs"},
 		},
 
 		Dependencies: []*resource.Resource{
@@ -48,7 +48,7 @@ func NewApp() *application.Application {
 
 		Installer: &installer.HelmInstaller{
 			ChartName:     "aws-efs-csi-driver",
-			ReleaseName:   "aws-efs-csi-driver",
+			ReleaseName:   "storage-efs-csi",
 			RepositoryURL: "https://kubernetes-sigs.github.io/aws-efs-csi-driver",
 			ValuesTemplate: &template.TextTemplate{
 				Template: valuesTemplate,
@@ -60,13 +60,13 @@ func NewApp() *application.Application {
 
 const valuesTemplate = `---
 replicaCount: 1
+image:
+  tag: {{ .Version }}
 controller:
   serviceAccount:
     annotations:
       {{ .IrsaAnnotation }}
     name: {{ .ServiceAccount }}
-image:
-  tag: {{ .Version }}
 `
 
 const policyDocument = `
