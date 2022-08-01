@@ -14,6 +14,7 @@ import (
 	"eksdemo/pkg/resource/cloudformation"
 	"eksdemo/pkg/resource/cluster"
 	"eksdemo/pkg/resource/dns_record"
+	"eksdemo/pkg/resource/ec2_instance"
 	"eksdemo/pkg/resource/fargate_profile"
 	"eksdemo/pkg/resource/hosted_zone"
 	"eksdemo/pkg/resource/iam_role"
@@ -81,6 +82,7 @@ func init() {
 	getCmd.AddCommand(cloudformation.NewResource().NewGetCmd())
 	getCmd.AddCommand(cluster.NewResource().NewGetCmd())
 	getCmd.AddCommand(dns_record.NewResource().NewGetCmd())
+	getCmd.AddCommand(ec2_instance.NewResource().NewGetCmd())
 	getCmd.AddCommand(fargate_profile.NewResource().NewGetCmd())
 	getCmd.AddCommand(hosted_zone.NewResource().NewGetCmd())
 	getCmd.AddCommand(iam_role.NewResource().NewGetCmd())

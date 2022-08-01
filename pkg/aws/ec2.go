@@ -20,6 +20,49 @@ func EC2CreateTags(resources []string, tags map[string]string) error {
 	return nil
 }
 
+func EC2DescribeInstances(id, vpcId string) ([]*ec2.Reservation, error) {
+	sess := GetSession()
+	svc := ec2.New(sess)
+
+	filters := []*ec2.Filter{}
+	reservations := []*ec2.Reservation{}
+	pageNum := 0
+
+	if id != "" {
+		filters = append(filters, &ec2.Filter{
+			Name:   aws.String("instance-id"),
+			Values: aws.StringSlice([]string{id}),
+		})
+	}
+
+	if vpcId != "" {
+		filters = append(filters, &ec2.Filter{
+			Name:   aws.String("vpc-id"),
+			Values: aws.StringSlice([]string{vpcId}),
+		})
+	}
+
+	input := &ec2.DescribeInstancesInput{}
+
+	if len(filters) > 0 {
+		input.Filters = filters
+	}
+
+	err := svc.DescribeInstancesPages(input,
+		func(page *ec2.DescribeInstancesOutput, lastPage bool) bool {
+			pageNum++
+			reservations = append(reservations, page.Reservations...)
+			return pageNum <= maxPages
+		},
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return reservations, nil
+}
+
 func EC2DescribeNetworkInterfaces(id, vpcId, description, instanceId, ip, securityGroupId string) ([]*ec2.NetworkInterface, error) {
 	sess := GetSession()
 	svc := ec2.New(sess)
