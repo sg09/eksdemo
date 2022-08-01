@@ -339,6 +339,42 @@ func EC2DescribeVpcs(id, vpcId string) ([]*ec2.Vpc, error) {
 	return vpcs, nil
 }
 
+func EC2DescribeVolumes(id string) ([]*ec2.Volume, error) {
+	sess := GetSession()
+	svc := ec2.New(sess)
+
+	filters := []*ec2.Filter{}
+	volumes := []*ec2.Volume{}
+	pageNum := 0
+
+	if id != "" {
+		filters = append(filters, &ec2.Filter{
+			Name:   aws.String("volume-id"),
+			Values: aws.StringSlice([]string{id}),
+		})
+	}
+
+	input := &ec2.DescribeVolumesInput{}
+
+	if len(filters) > 0 {
+		input.Filters = filters
+	}
+
+	err := svc.DescribeVolumesPages(input,
+		func(page *ec2.DescribeVolumesOutput, lastPage bool) bool {
+			pageNum++
+			volumes = append(volumes, page.Volumes...)
+			return pageNum <= maxPages
+		},
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return volumes, nil
+}
+
 func createEC2Tags(tags map[string]string) (ec2tags []*ec2.Tag) {
 	for k, v := range tags {
 		ec2tags = append(ec2tags, &ec2.Tag{

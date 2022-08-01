@@ -28,6 +28,7 @@ import (
 	"eksdemo/pkg/resource/security_group"
 	"eksdemo/pkg/resource/security_group_rule"
 	"eksdemo/pkg/resource/subnet"
+	"eksdemo/pkg/resource/volume"
 	"eksdemo/pkg/resource/vpc"
 	"fmt"
 	"os"
@@ -96,6 +97,7 @@ func init() {
 	getCmd.AddCommand(security_group.NewResource().NewGetCmd())
 	getCmd.AddCommand(security_group_rule.NewResource().NewGetCmd())
 	getCmd.AddCommand(subnet.NewResource().NewGetCmd())
+	getCmd.AddCommand(volume.NewResource().NewGetCmd())
 	getCmd.AddCommand(vpc.NewResource().NewGetCmd())
 
 	// Don't show flag errors for install without a subcommand
