@@ -20,6 +20,17 @@ func EC2CreateTags(resources []string, tags map[string]string) error {
 	return nil
 }
 
+func EC2DeleteVolume(id string) error {
+	sess := GetSession()
+	svc := ec2.New(sess)
+
+	_, err := svc.DeleteVolume(&ec2.DeleteVolumeInput{
+		VolumeId: aws.String(id),
+	})
+
+	return err
+}
+
 func EC2DescribeInstances(id, vpcId string) ([]*ec2.Reservation, error) {
 	sess := GetSession()
 	svc := ec2.New(sess)

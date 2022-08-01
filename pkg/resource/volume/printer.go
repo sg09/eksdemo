@@ -23,13 +23,14 @@ func NewPrinter(volumes []*ec2.Volume) *EC2Printer {
 
 func (p *EC2Printer) PrintTable(writer io.Writer) error {
 	table := printer.NewTablePrinter()
-	table.SetHeader([]string{"Age", "Id", "Name", "Type", "GiB", "AZ"})
+	table.SetHeader([]string{"Age", "State", "Id", "Name", "Type", "GiB", "AZ"})
 
 	for _, v := range p.volumes {
 		age := durafmt.ParseShort(time.Since(aws.TimeValue(v.CreateTime)))
 
 		table.AppendRow([]string{
 			age.String(),
+			aws.StringValue(v.State),
 			aws.StringValue(v.VolumeId),
 			p.getVolumeName(v),
 			aws.StringValue(v.VolumeType),

@@ -12,6 +12,7 @@ import (
 	"eksdemo/pkg/resource/irsa"
 	"eksdemo/pkg/resource/nodegroup"
 	"eksdemo/pkg/resource/organization"
+	"eksdemo/pkg/resource/volume"
 
 	"github.com/spf13/cobra"
 )
@@ -36,6 +37,7 @@ func newCmdDelete() *cobra.Command {
 	cmd.AddCommand(irsa.NewResource().NewDeleteCmd())
 	cmd.AddCommand(nodegroup.NewResource().NewDeleteCmd())
 	cmd.AddCommand(organization.NewResource().NewDeleteCmd())
+	cmd.AddCommand(volume.NewResource().NewDeleteCmd())
 
 	return cmd
 }
