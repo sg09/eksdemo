@@ -51,3 +51,26 @@ func ELBDescribeLoadBalancersv2(name string) ([]*elbv2.LoadBalancer, error) {
 
 	return elbs, err
 }
+
+func ELBDescribeTargetGroups(name string) ([]*elbv2.TargetGroup, error) {
+	sess := GetSession()
+	svc := elbv2.New(sess)
+
+	targetGroups := []*elbv2.TargetGroup{}
+	input := &elbv2.DescribeTargetGroupsInput{}
+	pageNum := 0
+
+	if name != "" {
+		input.Names = aws.StringSlice([]string{name})
+	}
+
+	err := svc.DescribeTargetGroupsPages(input,
+		func(page *elbv2.DescribeTargetGroupsOutput, lastPage bool) bool {
+			pageNum++
+			targetGroups = append(targetGroups, page.TargetGroups...)
+			return pageNum <= maxPages
+		},
+	)
+
+	return targetGroups, err
+}
