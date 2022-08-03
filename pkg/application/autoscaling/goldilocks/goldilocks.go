@@ -53,10 +53,8 @@ dashboard:
   replicaCount: 1
   service:
     type: {{ .ServiceType }}
-  {{- if eq .ServiceType "LoadBalancer" }}
     annotations:
       {{- .ServiceAnnotations | nindent 6 }}
-  {{- end }}
 {{- if .IngressHost }}
   ingress:
     enabled: true

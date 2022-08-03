@@ -28,10 +28,8 @@ kind: Service
 metadata:
   namespace: {{ .Namespace }}
   name: service-2048
-{{- if eq .ServiceType "LoadBalancer" }}
   annotations:
     {{- .ServiceAnnotations | nindent 4 }}
-{{- end }}
 spec:
   ports:
     - port: 80
@@ -66,7 +64,7 @@ spec:
   - hosts:
     - {{ .IngressHost }}
   {{- if ne .IngressClass "alb" }}
-    secretName: ingress-2048-cert
+    secretName: ingress-2048-tls
   {{- end }}
 {{- end }}
 {{- if eq .IngressClass "ambassador" }}

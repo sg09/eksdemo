@@ -65,10 +65,8 @@ podSecurityPolicy:
   enabled: false
 service:
   type: {{ .ServiceType }}
-{{- if eq .ServiceType "LoadBalancer" }}
   annotations: 
     {{- .ServiceAnnotations | nindent 4 }}
-{{- end }}
 grafana:
   rbac:
     pspEnabled: false

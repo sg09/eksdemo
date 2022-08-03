@@ -11,7 +11,7 @@ import (
 // GitHub:  https://github.com/WordPress/WordPress
 // Helm:    https://github.com/bitnami/charts/tree/master/bitnami/wordpress
 // Repo:    https://hub.docker.com/r/bitnami/wordpress
-// Version: Latest is 6.0.0 (as of 06/25/22)
+// Version: Latest is Chart 15.0.13, App 6.0.1 (as of 08/03/22)
 
 func NewApp() *application.Application {
 	options, flags := NewOptions()
@@ -41,26 +41,31 @@ func NewApp() *application.Application {
 	return app
 }
 
-const wordpressReleaseName = `wordpress`
+const wordpressReleaseName = `example-wordpress`
 
 const valuesTemplate = `---
+{{- if .StorageClass }}
 global:
   storageClass: {{ .StorageClass }}
+{{- end }}
+fullnameOverride: wordpress
 image:
   tag: {{ .Version }}
 wordpressPassword: {{ .WordpressPassword }}
-{{- if .IngressHost }}
 service:
-  type: ClusterIP
+  type: {{ .ServiceType }}
+  annotations:
+    {{- .ServiceAnnotations | nindent 4 }}
+{{- if .IngressHost }}
 ingress:
   enabled: true
   pathType: Prefix
-  ingressClassName: alb
+  ingressClassName: {{ .IngressClass }}
   hostname: {{ .IngressHost }}
   annotations:
-    alb.ingress.kubernetes.io/scheme: internet-facing
-    alb.ingress.kubernetes.io/target-type: 'ip'
-    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+    {{- .IngressAnnotations | nindent 4 }}
   tls: true
 {{- end }}
+mariadb:
+  fullnameOverride: wordpress-mariadb
 `

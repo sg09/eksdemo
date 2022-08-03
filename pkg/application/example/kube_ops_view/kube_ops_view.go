@@ -20,7 +20,7 @@ func NewApp() *application.Application {
 		},
 
 		Installer: &installer.ManifestInstaller{
-			AppName: "kube-ops-view",
+			AppName: "example-kube-ops-view",
 			ResourceTemplate: &template.TextTemplate{
 				Template: deploymentTemplate + rbacTemplate + serviceTemplate,
 			},

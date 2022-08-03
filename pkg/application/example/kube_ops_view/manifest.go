@@ -110,10 +110,8 @@ metadata:
     component: frontend
   name: kube-ops-view
   namespace: {{ .Namespace }}
-{{- if eq .ServiceType "LoadBalancer" }}
   annotations:
     {{- .ServiceAnnotations | nindent 4 }}
-{{- end }}
 spec:
   selector:
     application: kube-ops-view

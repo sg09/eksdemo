@@ -8,7 +8,6 @@ import (
 type WordpressOptions struct {
 	application.ApplicationOptions
 
-	IngressHost       string
 	StorageClass      string
 	WordpressPassword string
 }
@@ -16,26 +15,19 @@ type WordpressOptions struct {
 func NewOptions() (options *WordpressOptions, flags cmd.Flags) {
 	options = &WordpressOptions{
 		ApplicationOptions: application.ApplicationOptions{
-			Namespace:                 "wordpress",
 			DisableServiceAccountFlag: true,
 			DefaultVersion: &application.LatestPrevious{
-				LatestChart:   "15.0.4",
-				Latest:        "6.0.0",
-				PreviousChart: "14.3.7",
-				Previous:      "5.9.3",
+				LatestChart:   "15.0.13",
+				Latest:        "6.0.1",
+				PreviousChart: "15.0.4",
+				Previous:      "6.0.0",
 			},
+			EnableIngress: true,
+			Namespace:     "wordpress",
 		},
 	}
 
 	flags = cmd.Flags{
-		&cmd.StringFlag{
-			CommandFlag: cmd.CommandFlag{
-				Name:        "ingress-host",
-				Description: "hostname for Ingress with TLS (requires ACM cert, AWS LB Controller and ExternalDNS)",
-				Shorthand:   "I",
-			},
-			Option: &options.IngressHost,
-		},
 		&cmd.StringFlag{
 			CommandFlag: cmd.CommandFlag{
 				Name:        "storage-class",
@@ -48,6 +40,7 @@ func NewOptions() (options *WordpressOptions, flags cmd.Flags) {
 				Name:        "wordpress-pass",
 				Description: "WordPress admin password (required)",
 				Required:    true,
+				Shorthand:   "P",
 			},
 			Option: &options.WordpressPassword,
 		},
