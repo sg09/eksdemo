@@ -6,6 +6,18 @@ import (
 	"github.com/aws/aws-sdk-go/service/elbv2"
 )
 
+func ELBDeleteTargetGroup(arn string) error {
+	sess := GetSession()
+	svc := elbv2.New(sess)
+
+	input := &elbv2.DeleteTargetGroupInput{
+		TargetGroupArn: aws.String(arn),
+	}
+	_, err := svc.DeleteTargetGroup(input)
+
+	return err
+}
+
 func ELBDescribeLoadBalancersv1(name string) ([]*elb.LoadBalancerDescription, error) {
 	sess := GetSession()
 	svc := elb.New(sess)

@@ -4,14 +4,16 @@ import (
 	"eksdemo/pkg/aws"
 	"eksdemo/pkg/printer"
 	"eksdemo/pkg/resource"
+	"fmt"
 	"os"
 
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/elbv2"
 )
 
 type Getter struct{}
 
-func (g *Getter) Get(id string, output printer.Output, options resource.Options) error {
+func (g *Getter) Get(name string, output printer.Output, options resource.Options) error {
 	var vpcId string
 
 	cluster := options.Common().Cluster
@@ -19,7 +21,7 @@ func (g *Getter) Get(id string, output printer.Output, options resource.Options)
 		vpcId = aws.StringValue(cluster.ResourcesVpcConfig.VpcId)
 	}
 
-	targetGroups, err := aws.ELBDescribeTargetGroups(id)
+	targetGroups, err := aws.ELBDescribeTargetGroups(name)
 	if err != nil {
 		return err
 	}
@@ -36,4 +38,19 @@ func (g *Getter) Get(id string, output printer.Output, options resource.Options)
 	}
 
 	return output.Print(os.Stdout, NewPrinter(targetGroups))
+}
+
+func (g *Getter) GetTargetGroupByName(name string) (*elbv2.TargetGroup, error) {
+	tg, err := aws.ELBDescribeTargetGroups(name)
+	if err != nil {
+		if awsErr, ok := err.(awserr.Error); ok {
+			switch awsErr.Code() {
+			case elbv2.ErrCodeTargetGroupNotFoundException:
+				return nil, fmt.Errorf("target-group %q not found", name)
+			}
+		}
+		return nil, err
+	}
+
+	return tg[0], nil
 }
