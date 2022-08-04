@@ -29,7 +29,7 @@ func NewOptions() (options *FluxSyncOptions, flags cmd.Flags) {
 		&cmd.StringFlag{
 			CommandFlag: cmd.CommandFlag{
 				Name:        "git-url",
-				Description: "git repository url to sync with (required)",
+				Description: "git repository url to sync with",
 				Required:    true,
 			},
 			Option: &options.GitUrl,

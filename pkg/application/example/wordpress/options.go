@@ -38,7 +38,7 @@ func NewOptions() (options *WordpressOptions, flags cmd.Flags) {
 		&cmd.StringFlag{
 			CommandFlag: cmd.CommandFlag{
 				Name:        "wordpress-pass",
-				Description: "WordPress admin password (required)",
+				Description: "WordPress admin password",
 				Required:    true,
 				Shorthand:   "P",
 			},

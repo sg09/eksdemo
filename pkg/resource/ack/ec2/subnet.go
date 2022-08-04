@@ -42,7 +42,7 @@ func NewSubnetResource() *resource.Resource {
 		&cmd.StringFlag{
 			CommandFlag: cmd.CommandFlag{
 				Name:        "cidr",
-				Description: "ipv4 network range for the VPC, in CIDR notation (required)",
+				Description: "ipv4 network range for the VPC, in CIDR notation",
 				Required:    true,
 			},
 			Option: &options.CidrBlock,

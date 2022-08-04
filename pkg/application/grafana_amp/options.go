@@ -34,7 +34,7 @@ func NewOptions() (options *GrafanaAmpOptions, flags cmd.Flags) {
 		&cmd.StringFlag{
 			CommandFlag: cmd.CommandFlag{
 				Name:        "grafana-pass",
-				Description: "Grafana admin password (required)",
+				Description: "Grafana admin password",
 				Required:    true,
 			},
 			Option: &options.GrafanaAdminPassword,

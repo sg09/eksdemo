@@ -32,7 +32,7 @@ func newOptions() (options *ArgoCdOptions, flags cmd.Flags) {
 		&cmd.StringFlag{
 			CommandFlag: cmd.CommandFlag{
 				Name:        "admin-pass",
-				Description: "Argo CD admin password (required)",
+				Description: "Argo CD admin password",
 				Required:    true,
 				Shorthand:   "P",
 			},

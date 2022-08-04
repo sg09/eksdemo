@@ -7,15 +7,10 @@ import (
 )
 
 func (o *CommonOptions) NewClusterFlag(action Action, required bool) *cmd.StringFlag {
-	desc := fmt.Sprintf("cluster to %s resource", action)
-	if required {
-		desc += " (required)"
-	}
-
 	flag := &cmd.StringFlag{
 		CommandFlag: cmd.CommandFlag{
 			Name:        "cluster",
-			Description: desc,
+			Description: fmt.Sprintf("cluster to %s resource", action),
 			Shorthand:   "c",
 			Required:    required,
 			Validate: func() error {

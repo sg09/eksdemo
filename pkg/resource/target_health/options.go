@@ -22,7 +22,7 @@ func newOptions() (options *TargetHealthOptions, flags cmd.Flags) {
 		&cmd.StringFlag{
 			CommandFlag: cmd.CommandFlag{
 				Name:        "target-group",
-				Description: "name of Target Group (required)",
+				Description: "name of Target Group",
 				Shorthand:   "T",
 				Required:    true,
 			},

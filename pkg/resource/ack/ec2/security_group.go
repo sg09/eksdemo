@@ -40,7 +40,7 @@ func NewSecurityGroupResource() *resource.Resource {
 		&cmd.StringFlag{
 			CommandFlag: cmd.CommandFlag{
 				Name:        "desc",
-				Description: "description (required)",
+				Description: "description",
 				Required:    true,
 			},
 			Option: &options.Description,

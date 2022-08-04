@@ -49,7 +49,7 @@ func NewOptions() (options *KeycloakOptions, flags cmd.Flags) {
 		&cmd.StringFlag{
 			CommandFlag: cmd.CommandFlag{
 				Name:        "admin-pass",
-				Description: "Keycloak admin password (required)",
+				Description: "Keycloak admin password",
 				Required:    true,
 			},
 			Option: &options.AdminPassword,

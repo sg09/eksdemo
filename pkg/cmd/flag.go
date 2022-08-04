@@ -23,6 +23,8 @@ type CommandFlag struct {
 	Validate    func() error
 }
 
+const required = " (required)"
+
 type BoolFlag struct {
 	CommandFlag
 	Option *bool
@@ -57,10 +59,6 @@ func (f *BoolFlag) AddFlagToCommand(cmd *cobra.Command) {
 	} else {
 		cmd.Flags().BoolVar(f.Option, f.Name, *f.Option, f.Description)
 	}
-
-	if f.Required {
-		cmd.MarkFlagRequired(f.Name)
-	}
 }
 
 func (f *BoolFlag) ValidateFlag() error {
@@ -72,6 +70,10 @@ func (f *BoolFlag) ValidateFlag() error {
 
 // Int flag methods
 func (f *IntFlag) AddFlagToCommand(cmd *cobra.Command) {
+	if f.Required {
+		f.Description += required
+	}
+
 	if f.Shorthand != "" {
 		cmd.Flags().IntVarP(f.Option, f.Name, f.Shorthand, *f.Option, f.Description)
 	} else {
@@ -92,6 +94,10 @@ func (f *IntFlag) ValidateFlag() error {
 
 // String flag methods
 func (f *StringFlag) AddFlagToCommand(cmd *cobra.Command) {
+	if f.Required {
+		f.Description += required
+	}
+
 	if f.Shorthand != "" {
 		cmd.Flags().StringVarP(f.Option, f.Name, f.Shorthand, *f.Option, f.Description)
 	} else {
@@ -127,7 +133,12 @@ func (f *StringFlag) ValidateFlag() error {
 
 // StringSlice flag methods
 func (f *StringSliceFlag) AddFlagToCommand(cmd *cobra.Command) {
+	if f.Required {
+		f.Description += required
+	}
+
 	cmd.Flags().StringSliceVarP(f.Option, f.Name, f.Shorthand, *f.Option, f.Description)
+
 	if f.Required {
 		cmd.MarkFlagRequired(f.Name)
 	}

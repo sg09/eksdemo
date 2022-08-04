@@ -38,7 +38,7 @@ func (o *ApplicationOptions) NewClusterFlag(action Action) *cmd.StringFlag {
 	flag := &cmd.StringFlag{
 		CommandFlag: cmd.CommandFlag{
 			Name:        "cluster",
-			Description: fmt.Sprintf("cluster to %s application (required)", action),
+			Description: fmt.Sprintf("cluster to %s application", action),
 			Shorthand:   "c",
 			Required:    true,
 			Validate: func() error {

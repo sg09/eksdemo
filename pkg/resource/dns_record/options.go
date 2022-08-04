@@ -23,7 +23,7 @@ func NewOptions() (options *DnsRecordOptions, deleteFlags cmd.Flags, getFlags cm
 		&cmd.StringFlag{
 			CommandFlag: cmd.CommandFlag{
 				Name:        "zone",
-				Description: "hosted zone name (required)",
+				Description: "hosted zone name",
 				Shorthand:   "z",
 				Required:    true,
 			},
