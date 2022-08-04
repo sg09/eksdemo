@@ -86,3 +86,24 @@ func ELBDescribeTargetGroups(name string) ([]*elbv2.TargetGroup, error) {
 
 	return targetGroups, err
 }
+
+func ELBDescribeTargetHealth(arn, id string) ([]*elbv2.TargetHealthDescription, error) {
+	sess := GetSession()
+	svc := elbv2.New(sess)
+
+	input := &elbv2.DescribeTargetHealthInput{
+		TargetGroupArn: aws.String(arn),
+	}
+
+	if id != "" {
+		input.Targets = []*elbv2.TargetDescription{
+			{
+				Id: aws.String(id),
+			},
+		}
+	}
+
+	res, err := svc.DescribeTargetHealth(input)
+
+	return res.TargetHealthDescriptions, err
+}

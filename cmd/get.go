@@ -29,6 +29,7 @@ import (
 	"eksdemo/pkg/resource/security_group_rule"
 	"eksdemo/pkg/resource/subnet"
 	"eksdemo/pkg/resource/target_group"
+	"eksdemo/pkg/resource/target_health"
 	"eksdemo/pkg/resource/volume"
 	"eksdemo/pkg/resource/vpc"
 	"fmt"
@@ -99,6 +100,7 @@ func init() {
 	getCmd.AddCommand(security_group_rule.NewResource().NewGetCmd())
 	getCmd.AddCommand(subnet.NewResource().NewGetCmd())
 	getCmd.AddCommand(target_group.NewResource().NewGetCmd())
+	getCmd.AddCommand(target_health.NewResource().NewGetCmd())
 	getCmd.AddCommand(volume.NewResource().NewGetCmd())
 	getCmd.AddCommand(vpc.NewResource().NewGetCmd())
 
