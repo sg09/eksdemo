@@ -83,6 +83,10 @@ func NewInstallCmd() *cobra.Command {
 	cmd.AddCommand(kubecost.NewApp().NewInstallCmd())
 	cmd.AddCommand(metrics_server.NewApp().NewInstallCmd())
 	cmd.AddCommand(opa_gatekeeper.NewApp().NewInstallCmd())
+	cmd.AddCommand(NewInstallPolicyCmd())
+	for _, c := range NewInstallAliasCmds(policyApps, "policy-") {
+		cmd.AddCommand(c)
+	}
 	cmd.AddCommand(prometheus_amp.NewApp().NewInstallCmd())
 	cmd.AddCommand(NewInstallStorageCmd())
 	for _, c := range NewInstallAliasCmds(storageApps, "storage-") {

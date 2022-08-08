@@ -83,6 +83,10 @@ func NewUninstallCmd() *cobra.Command {
 	cmd.AddCommand(kubecost.NewApp().NewUninstallCmd())
 	cmd.AddCommand(metrics_server.NewApp().NewUninstallCmd())
 	cmd.AddCommand(opa_gatekeeper.NewApp().NewUninstallCmd())
+	cmd.AddCommand(NewUninstallPolicyCmd())
+	for _, c := range NewUninstallAliasCmds(policyApps, "policy-") {
+		cmd.AddCommand(c)
+	}
 	cmd.AddCommand(prometheus_amp.NewApp().NewUninstallCmd())
 	cmd.AddCommand(NewUninstallStorageCmd())
 	for _, c := range NewUninstallAliasCmds(storageApps, "storage-") {
