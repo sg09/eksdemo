@@ -20,6 +20,7 @@ import (
 	"eksdemo/pkg/resource/iam_role"
 	"eksdemo/pkg/resource/irsa"
 	"eksdemo/pkg/resource/load_balancer"
+	"eksdemo/pkg/resource/log_group"
 	"eksdemo/pkg/resource/network_interface"
 	"eksdemo/pkg/resource/node"
 	"eksdemo/pkg/resource/nodegroup"
@@ -91,6 +92,7 @@ func init() {
 	getCmd.AddCommand(iam_role.NewResource().NewGetCmd())
 	getCmd.AddCommand(irsa.NewResource().NewGetCmd())
 	getCmd.AddCommand(load_balancer.NewResource().NewGetCmd())
+	getCmd.AddCommand(log_group.NewResource().NewGetCmd())
 	getCmd.AddCommand(network_interface.NewResource().NewGetCmd())
 	getCmd.AddCommand(node.NewResource().NewGetCmd())
 	getCmd.AddCommand(nodegroup.NewResource().NewGetCmd())

@@ -13,15 +13,15 @@ import (
 
 const maxNameLength = 25
 
-type EC2Printer struct {
+type VolumePrinter struct {
 	volumes []*ec2.Volume
 }
 
-func NewPrinter(volumes []*ec2.Volume) *EC2Printer {
-	return &EC2Printer{volumes}
+func NewPrinter(volumes []*ec2.Volume) *VolumePrinter {
+	return &VolumePrinter{volumes}
 }
 
-func (p *EC2Printer) PrintTable(writer io.Writer) error {
+func (p *VolumePrinter) PrintTable(writer io.Writer) error {
 	table := printer.NewTablePrinter()
 	table.SetHeader([]string{"Age", "State", "Id", "Name", "Type", "GiB", "AZ"})
 
@@ -43,15 +43,15 @@ func (p *EC2Printer) PrintTable(writer io.Writer) error {
 	return nil
 }
 
-func (p *EC2Printer) PrintJSON(writer io.Writer) error {
+func (p *VolumePrinter) PrintJSON(writer io.Writer) error {
 	return printer.EncodeJSON(writer, p.volumes)
 }
 
-func (p *EC2Printer) PrintYAML(writer io.Writer) error {
+func (p *VolumePrinter) PrintYAML(writer io.Writer) error {
 	return printer.EncodeYAML(writer, p.volumes)
 }
 
-func (p *EC2Printer) getVolumeName(instance *ec2.Volume) string {
+func (p *VolumePrinter) getVolumeName(instance *ec2.Volume) string {
 	name := ""
 	for _, tag := range instance.Tags {
 		if aws.StringValue(tag.Key) == "Name" {
