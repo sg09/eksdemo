@@ -3,6 +3,7 @@ package install
 import (
 	"eksdemo/pkg/application"
 	"eksdemo/pkg/application/policy/kyverno"
+	"eksdemo/pkg/application/policy/opa_gatekeeper"
 
 	"github.com/spf13/cobra"
 )
@@ -12,7 +13,7 @@ var policyApps []func() *application.Application
 func NewInstallPolicyCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "policy",
-		Short: "Kubernetes Policy",
+		Short: "Kubernetes Policy Controllers",
 	}
 
 	// Don't show flag errors for `install policy` without a subcommand
@@ -28,7 +29,7 @@ func NewInstallPolicyCmd() *cobra.Command {
 func NewUninstallPolicyCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "policy",
-		Short: "Kubernetes Policy",
+		Short: "Kubernetes Policy Controllers",
 	}
 
 	// Don't show flag errors for `uninstall policy` without a subcommand
@@ -44,5 +45,6 @@ func NewUninstallPolicyCmd() *cobra.Command {
 func init() {
 	policyApps = []func() *application.Application{
 		kyverno.NewApp,
+		opa_gatekeeper.NewApp,
 	}
 }

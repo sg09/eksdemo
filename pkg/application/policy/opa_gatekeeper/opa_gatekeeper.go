@@ -25,7 +25,7 @@ func NewApp() *application.Application {
 
 		Installer: &installer.HelmInstaller{
 			ChartName:     "gatekeeper",
-			ReleaseName:   "opa-gatekeeper",
+			ReleaseName:   "policy-opa-gatekeeper",
 			RepositoryURL: "https://open-policy-agent.github.io/gatekeeper/charts",
 			ValuesTemplate: &template.TextTemplate{
 				Template: valuesTemplate,
