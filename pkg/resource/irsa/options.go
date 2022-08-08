@@ -1,11 +1,13 @@
 package irsa
 
 import (
+	"eksdemo/pkg/aws"
 	"eksdemo/pkg/cmd"
 	"eksdemo/pkg/resource"
 	"eksdemo/pkg/template"
 	"fmt"
 	"hash/fnv"
+	"strings"
 )
 
 type IrsaOptions struct {
@@ -85,6 +87,21 @@ func addOptions(res *resource.Resource) *resource.Resource {
 	}
 
 	return res
+}
+
+func (o *IrsaOptions) ClusterOIDCProvider() (string, error) {
+	issuer := aws.StringValue(o.Cluster.Identity.Oidc.Issuer)
+
+	slices := strings.Split(issuer, "//")
+	if len(slices) < 2 {
+		return "", fmt.Errorf("failed to parse Cluster OIDC Provider URL")
+	}
+
+	return slices[1], nil
+}
+
+func (o *IrsaOptions) IrsaAnnotation() string {
+	return fmt.Sprintf("eks.amazonaws.com/role-arn: arn:aws:iam::%s:role/%s", o.Account, o.RoleName())
 }
 
 func (o *IrsaOptions) IsPolicyDocument(t PolicyType) bool {

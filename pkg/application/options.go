@@ -125,14 +125,14 @@ func (o *ApplicationOptions) Common() *ApplicationOptions {
 }
 
 func (o *ApplicationOptions) IrsaAnnotation() string {
-	roleOptions := irsa.IrsaOptions{
+	irsaOptions := irsa.IrsaOptions{
 		CommonOptions: resource.CommonOptions{
 			ClusterName:    o.ClusterName,
 			Namespace:      o.Namespace,
 			ServiceAccount: o.ServiceAccount,
 		},
 	}
-	return fmt.Sprintf("eks.amazonaws.com/role-arn: arn:aws:iam::%s:role/%s", o.Account, roleOptions.RoleName())
+	return irsaOptions.IrsaAnnotation()
 }
 
 func (o *ApplicationOptions) KubeContext() string {

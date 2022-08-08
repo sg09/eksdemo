@@ -5,6 +5,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/eks"
+	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
@@ -54,6 +55,22 @@ func ClusterURLForCurrentContext() string {
 	}
 
 	return raw.Clusters[raw.Contexts[raw.CurrentContext].Cluster].Server
+}
+
+func DynamicClient(context string) (dynamic.Interface, error) {
+	clientConfig := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
+		clientcmd.NewDefaultClientConfigLoadingRules(),
+		&clientcmd.ConfigOverrides{
+			CurrentContext: context,
+		},
+	)
+
+	restConfig, err := clientConfig.ClientConfig()
+	if err != nil {
+		return nil, err
+	}
+
+	return dynamic.NewForConfig(restConfig)
 }
 
 func KubeContextForCluster(cluster *eks.Cluster) (string, error) {

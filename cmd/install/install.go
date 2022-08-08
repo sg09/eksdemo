@@ -8,6 +8,7 @@ import (
 	"eksdemo/pkg/application/aws_lb"
 	"eksdemo/pkg/application/cert_manager"
 	"eksdemo/pkg/application/cilium"
+	"eksdemo/pkg/application/crossplane"
 	"eksdemo/pkg/application/external_dns"
 	"eksdemo/pkg/application/falco"
 	"eksdemo/pkg/application/grafana_amp"
@@ -57,6 +58,7 @@ func NewInstallCmd() *cobra.Command {
 	for _, c := range NewInstallAliasCmds(containerInsightsApps, "ci-") {
 		cmd.AddCommand(c)
 	}
+	cmd.AddCommand(crossplane.NewApp().NewInstallCmd())
 	cmd.AddCommand(NewInstallExampleCmd())
 	for _, c := range NewInstallAliasCmds(exampleApps, "example-") {
 		cmd.AddCommand(c)
