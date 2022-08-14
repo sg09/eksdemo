@@ -130,8 +130,9 @@ func (o *IngressOptions) ServiceType() string {
 
 const ingressAnnotationsTemplate = `
 {{- if eq .IngressClass "alb" -}}
-alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS":443}]'
 alb.ingress.kubernetes.io/scheme: internet-facing
+alb.ingress.kubernetes.io/ssl-redirect: '443'
 alb.ingress.kubernetes.io/target-type: {{ .TargetType }}
 {{- else -}}
 cert-manager.io/cluster-issuer: letsencrypt-prod
