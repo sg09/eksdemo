@@ -14,8 +14,8 @@ type KubeOpsViewOptions struct {
 func newOptions() (options *KubeOpsViewOptions, flags cmd.Flags) {
 	options = &KubeOpsViewOptions{
 		ApplicationOptions: application.ApplicationOptions{
-			EnableIngress: true,
-			Namespace:     "kube-ops-view",
+			ExposeIngressAndLoadBalancer: true,
+			Namespace:                    "kube-ops-view",
 			DefaultVersion: &application.LatestPrevious{
 				Latest:   "latest",
 				Previous: "20.4.0",

@@ -36,9 +36,9 @@ func NewApp() *application.Application {
 				PreviousChart: "6.1.4",
 				Previous:      "v4.3.3",
 			},
-			DisableServiceAccountFlag: true,
-			EnableIngress:             true,
-			Namespace:                 "goldilocks",
+			DisableServiceAccountFlag:    true,
+			ExposeIngressAndLoadBalancer: true,
+			Namespace:                    "goldilocks",
 		},
 	}
 

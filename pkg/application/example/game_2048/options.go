@@ -14,8 +14,8 @@ type Game2048Options struct {
 func newOptions() (options *Game2048Options, flags cmd.Flags) {
 	options = &Game2048Options{
 		ApplicationOptions: application.ApplicationOptions{
-			EnableIngress: true,
-			Namespace:     "game-2048",
+			ExposeIngressAndLoadBalancer: true,
+			Namespace:                    "game-2048",
 			DefaultVersion: &application.LatestPrevious{
 				Latest:   "latest",
 				Previous: "latest",

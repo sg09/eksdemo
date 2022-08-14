@@ -21,9 +21,9 @@ func newOptions() (options *ArgoWorkflowOptions, flags cmd.Flags) {
 				PreviousChart: "0.16.8",
 				Previous:      "v3.3.8",
 			},
-			DisableServiceAccountFlag: true,
-			EnableIngress:             true,
-			Namespace:                 "argo",
+			DisableServiceAccountFlag:    true,
+			ExposeIngressAndLoadBalancer: true,
+			Namespace:                    "argo",
 		},
 		AuthMode: "server",
 	}

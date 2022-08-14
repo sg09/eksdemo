@@ -16,10 +16,10 @@ type EksWorkshopOptions struct {
 func NewOptions() (options *EksWorkshopOptions, flags cmd.Flags) {
 	options = &EksWorkshopOptions{
 		ApplicationOptions: application.ApplicationOptions{
-			Namespace:                 "eks-workshop",
-			DisableServiceAccountFlag: true,
-			DisableVersionFlag:        true,
-			EnableIngress:             true,
+			Namespace:                    "eks-workshop",
+			DisableServiceAccountFlag:    true,
+			DisableVersionFlag:           true,
+			ExposeIngressAndLoadBalancer: true,
 		},
 		CrystalReplicas:  3,
 		FrontendReplicas: 3,

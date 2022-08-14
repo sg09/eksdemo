@@ -20,9 +20,9 @@ func NewApp() *application.Application {
 		},
 
 		Options: &application.ApplicationOptions{
-			EnableIngress:  true,
-			Namespace:      "kubecost",
-			ServiceAccount: "kubecost-cost-analyzer",
+			ExposeIngressAndLoadBalancer: true,
+			Namespace:                    "kubecost",
+			ServiceAccount:               "kubecost-cost-analyzer",
 			DefaultVersion: &application.LatestPrevious{
 				LatestChart:   "1.95.0",
 				Latest:        "1.95.0",

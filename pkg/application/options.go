@@ -29,14 +29,15 @@ type ApplicationOptions struct {
 	DefaultVersion
 	IngressOptions
 
-	DeleteDependencies        bool
-	DisableNamespaceFlag      bool
-	DisableServiceAccountFlag bool
-	DisableVersionFlag        bool
-	EnableIngress             bool
-	LockVersionFlag           bool
-	SetValues                 []string
-	UsePrevious               bool
+	DeleteDependencies           bool
+	DisableNamespaceFlag         bool
+	DisableServiceAccountFlag    bool
+	DisableVersionFlag           bool
+	ExposeIngressAndLoadBalancer bool
+	ExposeIngressOnly            bool
+	LockVersionFlag              bool
+	SetValues                    []string
+	UsePrevious                  bool
 
 	Account        string
 	ClusterName    string
@@ -69,8 +70,8 @@ func (o *ApplicationOptions) AddInstallFlags(cobraCmd *cobra.Command, flags cmd.
 		flags = append(flags, o.NewServiceAccountFlag())
 	}
 
-	if o.EnableIngress {
-		o.IngressOptions = NewIngressOptions()
+	if o.ExposeIngressAndLoadBalancer || o.ExposeIngressOnly {
+		o.IngressOptions = NewIngressOptions(o.ExposeIngressOnly)
 		flags = append(flags, o.NewIngressFlags()...)
 	}
 
@@ -127,6 +128,7 @@ func (o *ApplicationOptions) Common() *ApplicationOptions {
 func (o *ApplicationOptions) IrsaAnnotation() string {
 	irsaOptions := irsa.IrsaOptions{
 		CommonOptions: resource.CommonOptions{
+			Account:        o.Account,
 			ClusterName:    o.ClusterName,
 			Namespace:      o.Namespace,
 			ServiceAccount: o.ServiceAccount,

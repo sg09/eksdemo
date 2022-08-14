@@ -22,8 +22,8 @@ func NewOptions() (options *WordpressOptions, flags cmd.Flags) {
 				PreviousChart: "15.0.4",
 				Previous:      "6.0.0",
 			},
-			EnableIngress: true,
-			Namespace:     "wordpress",
+			ExposeIngressAndLoadBalancer: true,
+			Namespace:                    "wordpress",
 		},
 	}
 

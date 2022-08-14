@@ -12,6 +12,7 @@ import (
 type IngressOptions struct {
 	IngressClass       string
 	IngressHost        string
+	IngressOnly        bool
 	NginxBasicAuthPass string
 	NLB                bool
 	TargetType         string
@@ -20,9 +21,10 @@ type IngressOptions struct {
 	serviceTemplate template.Template
 }
 
-func NewIngressOptions() IngressOptions {
+func NewIngressOptions(ingressOnly bool) IngressOptions {
 	return IngressOptions{
 		IngressClass: "alb",
+		IngressOnly:  ingressOnly,
 		TargetType:   "ip",
 		ingressTemplate: &template.TextTemplate{
 			Template: ingressAnnotationsTemplate,
@@ -38,7 +40,17 @@ func (o *IngressOptions) IngressAnnotations() (string, error) {
 }
 
 func (o *IngressOptions) NewIngressFlags() cmd.Flags {
-	return cmd.Flags{
+	var ingressHostDesc, targetTypeDesc string
+
+	if o.IngressOnly {
+		ingressHostDesc += "hostname for Ingress with TLS"
+		targetTypeDesc += "target type when deploying ALB Ingress"
+	} else {
+		ingressHostDesc += "hostname for Ingress with TLS (default is Service of type LoadBalancer)"
+		targetTypeDesc += "target type when deploying NLB or ALB Ingress"
+	}
+
+	ingressFlags := cmd.Flags{
 		&cmd.StringFlag{
 			CommandFlag: cmd.CommandFlag{
 				Name:        "ingress-class",
@@ -55,8 +67,9 @@ func (o *IngressOptions) NewIngressFlags() cmd.Flags {
 		&cmd.StringFlag{
 			CommandFlag: cmd.CommandFlag{
 				Name:        "ingress-host",
-				Description: "hostname for Ingress with TLS (default is Service of type LoadBalancer)",
+				Description: ingressHostDesc,
 				Shorthand:   "I",
+				Required:    o.IngressOnly,
 			},
 			Option: &o.IngressHost,
 		},
@@ -74,23 +87,10 @@ func (o *IngressOptions) NewIngressFlags() cmd.Flags {
 			},
 			Option: &o.NginxBasicAuthPass,
 		},
-		&cmd.BoolFlag{
-			CommandFlag: cmd.CommandFlag{
-				Name:        "nlb",
-				Description: "use NLB instead of CLB (when not using Ingress)",
-				Validate: func() error {
-					if o.NLB && o.IngressHost != "" {
-						return fmt.Errorf("%q flag cannot be used with %q flag", "nlb", "ingress-host")
-					}
-					return nil
-				},
-			},
-			Option: &o.NLB,
-		},
 		&cmd.StringFlag{
 			CommandFlag: cmd.CommandFlag{
 				Name:        "target-type",
-				Description: "target type when deploying NLB or ALB Ingress",
+				Description: targetTypeDesc,
 				Validate: func() error {
 					if o.TargetType == "instance" && !o.NLB && o.IngressHost == "" {
 						return fmt.Errorf("%q flag can only be used with %q or %q flags", "target-type", "nlb", "ingress-host")
@@ -103,6 +103,26 @@ func (o *IngressOptions) NewIngressFlags() cmd.Flags {
 			Option:  &o.TargetType,
 		},
 	}
+
+	if !o.IngressOnly {
+		serviceFlag := &cmd.BoolFlag{
+			CommandFlag: cmd.CommandFlag{
+				Name:        "nlb",
+				Description: "use NLB instead of CLB (when not using Ingress)",
+				Validate: func() error {
+					if o.NLB && o.IngressHost != "" {
+						return fmt.Errorf("%q flag cannot be used with %q flag", "nlb", "ingress-host")
+					}
+					return nil
+				},
+			},
+			Option: &o.NLB,
+		}
+
+		ingressFlags = append(ingressFlags, serviceFlag)
+	}
+
+	return ingressFlags
 }
 
 func (o *IngressOptions) PostInstallResources(name string) []*resource.Resource {
