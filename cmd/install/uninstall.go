@@ -12,6 +12,7 @@ import (
 	"eksdemo/pkg/application/external_dns"
 	"eksdemo/pkg/application/falco"
 	"eksdemo/pkg/application/grafana_amp"
+	"eksdemo/pkg/application/harbor"
 	"eksdemo/pkg/application/keycloak_amg"
 	"eksdemo/pkg/application/kube_prometheus"
 	"eksdemo/pkg/application/kubecost"
@@ -69,6 +70,7 @@ func NewUninstallCmd() *cobra.Command {
 		cmd.AddCommand(c)
 	}
 	cmd.AddCommand(grafana_amp.NewApp().NewUninstallCmd())
+	cmd.AddCommand(harbor.NewApp().NewUninstallCmd())
 	cmd.AddCommand(NewUninstallIngressCmd())
 	for _, c := range NewUninstallAliasCmds(ingressControllers, "ingress-") {
 		cmd.AddCommand(c)

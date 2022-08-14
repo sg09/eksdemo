@@ -12,6 +12,7 @@ import (
 	"eksdemo/pkg/application/external_dns"
 	"eksdemo/pkg/application/falco"
 	"eksdemo/pkg/application/grafana_amp"
+	"eksdemo/pkg/application/harbor"
 	"eksdemo/pkg/application/keycloak_amg"
 	"eksdemo/pkg/application/kube_prometheus"
 	"eksdemo/pkg/application/kubecost"
@@ -69,6 +70,7 @@ func NewInstallCmd() *cobra.Command {
 		cmd.AddCommand(c)
 	}
 	cmd.AddCommand(grafana_amp.NewApp().NewInstallCmd())
+	cmd.AddCommand(harbor.NewApp().NewInstallCmd())
 	cmd.AddCommand(NewInstallIngressCmd())
 	for _, c := range NewInstallAliasCmds(ingressControllers, "ingress-") {
 		cmd.AddCommand(c)
