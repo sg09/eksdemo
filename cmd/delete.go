@@ -10,6 +10,7 @@ import (
 	"eksdemo/pkg/resource/dns_record"
 	"eksdemo/pkg/resource/fargate_profile"
 	"eksdemo/pkg/resource/irsa"
+	"eksdemo/pkg/resource/load_balancer"
 	"eksdemo/pkg/resource/log_group"
 	"eksdemo/pkg/resource/nodegroup"
 	"eksdemo/pkg/resource/organization"
@@ -37,6 +38,7 @@ func newCmdDelete() *cobra.Command {
 	cmd.AddCommand(dns_record.NewResource().NewDeleteCmd())
 	cmd.AddCommand(fargate_profile.NewResource().NewDeleteCmd())
 	cmd.AddCommand(irsa.NewResource().NewDeleteCmd())
+	cmd.AddCommand(load_balancer.NewResource().NewDeleteCmd())
 	cmd.AddCommand(log_group.NewResource().NewDeleteCmd())
 	cmd.AddCommand(nodegroup.NewResource().NewDeleteCmd())
 	cmd.AddCommand(organization.NewResource().NewDeleteCmd())
