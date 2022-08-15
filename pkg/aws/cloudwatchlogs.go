@@ -5,6 +5,17 @@ import (
 	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
 )
 
+func CloudWatchLogsDeleteLogGroup(name string) error {
+	sess := GetSession()
+	svc := cloudwatchlogs.New(sess)
+
+	_, err := svc.DeleteLogGroup(&cloudwatchlogs.DeleteLogGroupInput{
+		LogGroupName: aws.String(name),
+	})
+
+	return err
+}
+
 func CloudWatchLogsDescribeLogGroups(namePrefix string) ([]*cloudwatchlogs.LogGroup, error) {
 	sess := GetSession()
 	svc := cloudwatchlogs.New(sess)
