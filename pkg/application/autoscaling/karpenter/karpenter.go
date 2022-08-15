@@ -15,7 +15,7 @@ import (
 // GitHub:  https://github.com/awslabs/karpenter
 // Helm:    https://github.com/awslabs/karpenter/tree/main/charts/karpenter
 // Repo:    https://gallery.ecr.aws/karpenter/controller
-// Version: Latest is v0.13.2 (as of 07/27/22)
+// Version: Latest is v0.14.0 (as of 08/14/22)
 
 func NewApp() *application.Application {
 	app := &application.Application{
@@ -77,7 +77,6 @@ Statement:
   - ec2:CreateFleet
   - ec2:RunInstances
   - ec2:CreateTags
-  - iam:PassRole
   - ec2:TerminateInstances
   - ec2:DeleteLaunchTemplate
   # Read Operations
@@ -85,10 +84,17 @@ Statement:
   - ec2:DescribeInstances
   - ec2:DescribeSecurityGroups
   - ec2:DescribeSubnets
+  - ec2:DescribeImages
   - ec2:DescribeInstanceTypes
   - ec2:DescribeInstanceTypeOfferings
   - ec2:DescribeAvailabilityZones
+  - ec2:DescribeSpotPriceHistory
   - ssm:GetParameter
+  - pricing:GetProducts
+- Effect: Allow
+  Action:
+  - iam:PassRole
+  Resource: arn:aws:iam::{{ .Account }}:role/KarpenterNodeRole-{{ .ClusterName }}
 `
 
 const valuesTemplate = `---
