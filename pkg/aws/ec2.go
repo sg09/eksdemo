@@ -85,6 +85,49 @@ func EC2DescribeInstances(id, vpcId string) ([]*ec2.Reservation, error) {
 	return reservations, nil
 }
 
+func EC2DescribeNATGateways(id, vpcId string) ([]*ec2.NatGateway, error) {
+	sess := GetSession()
+	svc := ec2.New(sess)
+
+	filters := []*ec2.Filter{}
+	nats := []*ec2.NatGateway{}
+	pageNum := 0
+
+	if id != "" {
+		filters = append(filters, &ec2.Filter{
+			Name:   aws.String("nat-gateway-id"),
+			Values: aws.StringSlice([]string{id}),
+		})
+	}
+
+	if vpcId != "" {
+		filters = append(filters, &ec2.Filter{
+			Name:   aws.String("vpc-id"),
+			Values: aws.StringSlice([]string{vpcId}),
+		})
+	}
+
+	input := &ec2.DescribeNatGatewaysInput{}
+
+	if len(filters) > 0 {
+		input.Filter = filters
+	}
+
+	err := svc.DescribeNatGatewaysPages(input,
+		func(page *ec2.DescribeNatGatewaysOutput, lastPage bool) bool {
+			pageNum++
+			nats = append(nats, page.NatGateways...)
+			return pageNum <= maxPages
+		},
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return nats, nil
+}
+
 func EC2DescribeNetworkInterfaces(id, vpcId, description, instanceId, ip, securityGroupId string) ([]*ec2.NetworkInterface, error) {
 	sess := GetSession()
 	svc := ec2.New(sess)
