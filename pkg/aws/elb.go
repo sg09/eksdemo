@@ -64,7 +64,7 @@ func ELBDescribeLoadBalancersv2(name string) ([]*elbv2.LoadBalancer, error) {
 	return elbs, err
 }
 
-func ELBDescribeTargetGroups(name string) ([]*elbv2.TargetGroup, error) {
+func ELBDescribeTargetGroups(name, loadBalancerArn string) ([]*elbv2.TargetGroup, error) {
 	sess := GetSession()
 	svc := elbv2.New(sess)
 
@@ -74,6 +74,10 @@ func ELBDescribeTargetGroups(name string) ([]*elbv2.TargetGroup, error) {
 
 	if name != "" {
 		input.Names = aws.StringSlice([]string{name})
+	}
+
+	if loadBalancerArn != "" {
+		input.LoadBalancerArn = aws.String(loadBalancerArn)
 	}
 
 	err := svc.DescribeTargetGroupsPages(input,
