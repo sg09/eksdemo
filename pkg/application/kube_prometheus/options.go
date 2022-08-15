@@ -8,41 +8,32 @@ import (
 type KubePrometheusOptions struct {
 	*application.ApplicationOptions
 	GrafanaAdminPassword string
-	IngressHost          string
 }
 
-func addOptions(a *application.Application) *application.Application {
-	options := &KubePrometheusOptions{
+func newOptions() (options *KubePrometheusOptions, flags cmd.Flags) {
+	options = &KubePrometheusOptions{
 		ApplicationOptions: &application.ApplicationOptions{
-			DisableServiceAccountFlag: true,
-			Namespace:                 "monitoring",
 			DefaultVersion: &application.LatestPrevious{
-				LatestChart:   "34.10.0",
-				Latest:        "v0.55.0",
+				LatestChart:   "39.6.0",
 				PreviousChart: "34.10.0",
-				Previous:      "v0.55.0",
 			},
+			DisableServiceAccountFlag:    true,
+			DisableVersionFlag:           true,
+			ExposeIngressAndLoadBalancer: true,
+			Namespace:                    "monitoring",
 		},
 	}
-	a.Options = options
 
-	a.Flags = cmd.Flags{
+	flags = cmd.Flags{
 		&cmd.StringFlag{
 			CommandFlag: cmd.CommandFlag{
 				Name:        "grafana-pass",
-				Description: "Grafana admin password",
+				Description: "grafana admin password",
 				Required:    true,
+				Shorthand:   "P",
 			},
 			Option: &options.GrafanaAdminPassword,
 		},
-		&cmd.StringFlag{
-			CommandFlag: cmd.CommandFlag{
-				Name:        "ingress-host",
-				Description: "hostname for Ingress with TLS (requires ACM cert, AWS LB Controller and ExternalDNS)",
-				Shorthand:   "I",
-			},
-			Option: &options.IngressHost,
-		},
 	}
-	return a
+	return
 }

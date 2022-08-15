@@ -11,12 +11,9 @@ import (
 // GitHub:  https://github.com/prometheus-operator/kube-prometheus
 // Helm:    https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
 // Repo:    https://quay.io/prometheus-operator/prometheus-operator
-// Version: Latest is Chart 36.2.0, PromOperator v0.57.0 (as of 06/28/22)
-//          But pinning to Chart 34.10.0, PromOperator v0.55.0 due to breaking API Server graphs
+// Version: Latest is Chart 39.6.0 (as of 08/14/22)
+//          But pinning to Previous Chart to 34.10.0 due to breaking API Server graphs for k8s < 1.23
 //          https://github.com/prometheus-community/helm-charts/issues/2018
-
-// TODO: consider no version flag, perhaps mark as "n/a"
-//       and instead consider --grafana-version, --kube-state-metrics-version, --prom-operator-version, etc.
 
 func NewApp() *application.Application {
 	app := &application.Application{
@@ -35,7 +32,9 @@ func NewApp() *application.Application {
 			},
 		},
 	}
-	return addOptions(app)
+	app.Options, app.Flags = newOptions()
+
+	return app
 }
 
 const valuesTemplate = `---
@@ -50,18 +49,17 @@ grafana:
 {{- if .IngressHost }}
   ingress:
     enabled: true
-    ingressClassName: alb
+    ingressClassName: {{ .IngressClass }}
     annotations:
-      alb.ingress.kubernetes.io/scheme: internet-facing
-      alb.ingress.kubernetes.io/target-type: 'ip'
-      alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+      {{- .IngressAnnotations | nindent 6 }}
     tls:
     - hosts:
       - {{ .IngressHost }}
-{{- else }}
-  service:
-    type: LoadBalancer
 {{- end }}
+  service:
+    annotations:
+      {{- .ServiceAnnotations | nindent 6 }}
+    type: {{ .ServiceType }}
 kubeControllerManager:
   enabled: false
 kubeEtcd:
@@ -77,7 +75,4 @@ prometheus-node-exporter:
     annotations:
       # Remove with null when https://github.com/helm/helm/issues/9136 is fixed
       prometheus.io/scrape: "false"
-prometheusOperator:
-  image:
-    tag: {{ .Version }}
 `
