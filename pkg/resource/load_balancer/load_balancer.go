@@ -10,7 +10,7 @@ func NewResource() *resource.Resource {
 		Command: cmd.Command{
 			Name:        "load-balancer",
 			Description: "Elastic Load Balancer",
-			Aliases:     []string{"load-balancers", "elbs", "elb"},
+			Aliases:     []string{"load-balancers", "elbs", "elb", "lb"},
 			Args:        []string{"NAME"},
 		},
 

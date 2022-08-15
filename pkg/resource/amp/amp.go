@@ -16,8 +16,9 @@ func NewResource() *resource.Resource {
 func NewResourceWithOptions(options *AmpOptions) *resource.Resource {
 	res := &resource.Resource{
 		Command: cmd.Command{
-			Name:        "amp",
-			Description: "Amazon Managed Prometheus",
+			Name:        "amp-workspace",
+			Description: "Amazon Managed Prometheus Workspace",
+			Aliases:     []string{"amp"},
 			Args:        []string{"ALIAS"},
 		},
 

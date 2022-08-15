@@ -17,8 +17,9 @@ func NewResource() *resource.Resource {
 func NewResourceWithOptions(options *AmgOptions) *resource.Resource {
 	res := &resource.Resource{
 		Command: cmd.Command{
-			Name:        "amg",
-			Description: "Amazon Managed Grafana",
+			Name:        "amg-workspace",
+			Description: "Amazon Managed Grafana Workspace",
+			Aliases:     []string{"amg"},
 			Args:        []string{"NAME"},
 		},
 
