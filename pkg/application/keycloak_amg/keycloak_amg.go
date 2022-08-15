@@ -56,14 +56,15 @@ func NewApp() *application.Application {
 	return app
 }
 
-const keycloakReleaseName = `keycloak`
+const keycloakReleaseName = `keycloak-amg`
 
 const valuesTemplate = `---
+fullnameOverride: keycloak
+image:
+  tag: {{ .Version }}
 auth:
   adminUser: admin
   adminPassword: {{ .AdminPassword }}
-image:
-  tag: {{ .Version }}
 service:
   type: {{ .ServiceType }}
 ingress:
