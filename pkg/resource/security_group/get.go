@@ -45,7 +45,7 @@ func (g *Getter) Get(id string, output printer.Output, options resource.Options)
 		return err
 	}
 
-	return output.Print(os.Stdout, NewPrinter(securityGroups, options.Common().ClusterName))
+	return output.Print(os.Stdout, NewPrinter(securityGroups))
 }
 
 func (g *Getter) GetSecurityGroupsByIdAndVpcFilter(id, vpcId string) ([]*ec2.SecurityGroup, error) {

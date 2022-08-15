@@ -20,6 +20,17 @@ func EC2CreateTags(resources []string, tags map[string]string) error {
 	return nil
 }
 
+func EC2DeleteSecurityGroup(id string) error {
+	sess := GetSession()
+	svc := ec2.New(sess)
+
+	_, err := svc.DeleteSecurityGroup(&ec2.DeleteSecurityGroupInput{
+		GroupId: aws.String(id),
+	})
+
+	return err
+}
+
 func EC2DeleteVolume(id string) error {
 	sess := GetSession()
 	svc := ec2.New(sess)

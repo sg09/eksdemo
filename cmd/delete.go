@@ -15,6 +15,7 @@ import (
 	"eksdemo/pkg/resource/log_group"
 	"eksdemo/pkg/resource/nodegroup"
 	"eksdemo/pkg/resource/organization"
+	"eksdemo/pkg/resource/security_group"
 	"eksdemo/pkg/resource/target_group"
 	"eksdemo/pkg/resource/volume"
 
@@ -44,6 +45,7 @@ func newCmdDelete() *cobra.Command {
 	cmd.AddCommand(log_group.NewResource().NewDeleteCmd())
 	cmd.AddCommand(nodegroup.NewResource().NewDeleteCmd())
 	cmd.AddCommand(organization.NewResource().NewDeleteCmd())
+	cmd.AddCommand(security_group.NewResource().NewDeleteCmd())
 	cmd.AddCommand(target_group.NewResource().NewDeleteCmd())
 	cmd.AddCommand(volume.NewResource().NewDeleteCmd())
 
