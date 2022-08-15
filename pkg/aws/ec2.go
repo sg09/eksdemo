@@ -386,6 +386,17 @@ func EC2DescribeVolumes(id string) ([]*ec2.Volume, error) {
 	return volumes, nil
 }
 
+func EC2TerminateInstances(id string) error {
+	sess := GetSession()
+	svc := ec2.New(sess)
+
+	_, err := svc.TerminateInstances(&ec2.TerminateInstancesInput{
+		InstanceIds: aws.StringSlice([]string{id}),
+	})
+
+	return err
+}
+
 func createEC2Tags(tags map[string]string) (ec2tags []*ec2.Tag) {
 	for k, v := range tags {
 		ec2tags = append(ec2tags, &ec2.Tag{

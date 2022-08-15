@@ -8,6 +8,7 @@ import (
 	"eksdemo/pkg/resource/cloudformation"
 	"eksdemo/pkg/resource/cluster"
 	"eksdemo/pkg/resource/dns_record"
+	"eksdemo/pkg/resource/ec2_instance"
 	"eksdemo/pkg/resource/fargate_profile"
 	"eksdemo/pkg/resource/irsa"
 	"eksdemo/pkg/resource/load_balancer"
@@ -36,6 +37,7 @@ func newCmdDelete() *cobra.Command {
 	cmd.AddCommand(cloudformation.NewResource().NewDeleteCmd())
 	cmd.AddCommand(cluster.NewResource().NewDeleteCmd())
 	cmd.AddCommand(dns_record.NewResource().NewDeleteCmd())
+	cmd.AddCommand(ec2_instance.NewResource().NewDeleteCmd())
 	cmd.AddCommand(fargate_profile.NewResource().NewDeleteCmd())
 	cmd.AddCommand(irsa.NewResource().NewDeleteCmd())
 	cmd.AddCommand(load_balancer.NewResource().NewDeleteCmd())
