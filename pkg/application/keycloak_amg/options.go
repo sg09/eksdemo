@@ -26,7 +26,6 @@ type KeycloakOptions struct {
 
 	AdminPassword   string
 	AmgWorkspaceUrl string
-	IngressHost     string
 	amgWorkspaceId  string
 	*amg.AmgOptions
 }
@@ -34,14 +33,15 @@ type KeycloakOptions struct {
 func NewOptions() (options *KeycloakOptions, flags cmd.Flags) {
 	options = &KeycloakOptions{
 		ApplicationOptions: application.ApplicationOptions{
-			Namespace:      "keycloak",
-			ServiceAccount: "keycloak",
 			DefaultVersion: &application.LatestPrevious{
-				LatestChart:   "9.2.10",
-				Latest:        "18.0.0",
+				LatestChart:   "9.6.8",
+				Latest:        "18.0.2",
 				PreviousChart: "9.2.10",
 				Previous:      "18.0.0",
 			},
+			ExposeIngressOnly: true,
+			Namespace:         "keycloak",
+			ServiceAccount:    "keycloak",
 		},
 	}
 
@@ -51,16 +51,9 @@ func NewOptions() (options *KeycloakOptions, flags cmd.Flags) {
 				Name:        "admin-pass",
 				Description: "Keycloak admin password",
 				Required:    true,
+				Shorthand:   "P",
 			},
 			Option: &options.AdminPassword,
-		},
-		&cmd.StringFlag{
-			CommandFlag: cmd.CommandFlag{
-				Name:        "ingress-host",
-				Description: "hostname for Ingress with TLS (requires ACM cert, AWS LB Controller and ExternalDNS)",
-				Shorthand:   "I",
-			},
-			Option: &options.IngressHost,
 		},
 	}
 	return
@@ -90,6 +83,11 @@ func (o *KeycloakOptions) PreInstall() error {
 }
 
 func (o *KeycloakOptions) PostInstall(_ string, _ []*resource.Resource) error {
+	if o.DryRun {
+		fmt.Println("Postinstall will update AMG Workspace to complete SAML configuration")
+		return nil
+	}
+
 	fmt.Print("Waiting for Keycloak SAML metadata URL to become active...")
 
 	var metadataUrl string
@@ -99,7 +97,7 @@ func (o *KeycloakOptions) PostInstall(_ string, _ []*resource.Resource) error {
 			return err
 		}
 
-		svc, err := k8sclient.CoreV1().Services(o.Namespace).Get(context.Background(), keycloakReleasName, metav1.GetOptions{})
+		svc, err := k8sclient.CoreV1().Services(o.Namespace).Get(context.Background(), keycloakReleaseName, metav1.GetOptions{})
 		if err != nil {
 			return err
 		}

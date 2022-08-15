@@ -14,7 +14,7 @@ import (
 // GitHub:  https://github.com/bitnami/bitnami-docker-keycloak
 // Helm:    https://github.com/bitnami/charts/tree/master/bitnami/keycloak
 // Repo:    https://hub.docker.com/r/bitnami/keycloak
-// Version: Latest is 18.0.2, but the chart is broken, so using 18.0.0 (as of 06/27/22)
+// Version: Latest is Chart 9.6.8, App 18.0.2 (as of 08/14/22)
 
 func NewApp() *application.Application {
 	options, flags := NewOptions()
@@ -39,13 +39,13 @@ func NewApp() *application.Application {
 
 		Installer: &installer.HelmInstaller{
 			ChartName:     "keycloak",
-			ReleaseName:   keycloakReleasName,
+			ReleaseName:   keycloakReleaseName,
 			RepositoryURL: "https://charts.bitnami.com/bitnami",
 			ValuesTemplate: &template.TextTemplate{
 				Template: valuesTemplate,
 			},
 			PVCLabels: map[string]string{
-				"app.kubernetes.io/instance": keycloakReleasName,
+				"app.kubernetes.io/instance": keycloakReleaseName,
 			},
 		},
 	}
@@ -56,7 +56,7 @@ func NewApp() *application.Application {
 	return app
 }
 
-const keycloakReleasName = `keycloak`
+const keycloakReleaseName = `keycloak`
 
 const valuesTemplate = `---
 auth:
@@ -64,7 +64,16 @@ auth:
   adminPassword: {{ .AdminPassword }}
 image:
   tag: {{ .Version }}
-proxyAddressForwarding: true
+service:
+  type: {{ .ServiceType }}
+ingress:
+  enabled: true
+  ingressClassName: {{ .IngressClass }}
+  pathType: Prefix
+  hostname: {{ .IngressHost }}
+  annotations:
+    {{- .IngressAnnotations | nindent 4 }}
+  tls: true
 keycloakConfigCli:
   enabled: true
   command:
@@ -83,9 +92,6 @@ keycloakConfigCli:
             }
           ]
         },
-{{- if not .IngressHost }}
-        "sslRequired": "none",
-{{- end }}
         "users": [
           {
             "username": "admin",
@@ -159,17 +165,4 @@ keycloakConfigCli:
           }
         ]
       }
-{{- if .IngressHost }}
-service:
-  type: ClusterIP
-ingress:
-  enabled: true
-  ingressClassName: alb
-  pathType: Prefix
-  annotations:
-    alb.ingress.kubernetes.io/scheme: internet-facing
-    alb.ingress.kubernetes.io/target-type: 'ip'
-    alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
-  hostname: {{ .IngressHost }}
-{{- end }}
 `
