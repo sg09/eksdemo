@@ -13,20 +13,20 @@ type GrafanaAmpOptions struct {
 
 	AmpEndpoint          string
 	GrafanaAdminPassword string
-	IngressHost          string
 }
 
-func NewOptions() (options *GrafanaAmpOptions, flags cmd.Flags) {
+func newOptions() (options *GrafanaAmpOptions, flags cmd.Flags) {
 	options = &GrafanaAmpOptions{
 		ApplicationOptions: application.ApplicationOptions{
-			Namespace:      "grafana",
-			ServiceAccount: "grafana",
 			DefaultVersion: &application.LatestPrevious{
-				LatestChart:   "34.10.0",
-				Latest:        "8.5.0",
+				LatestChart:   "39.6.0",
+				Latest:        "9.0.5",
 				PreviousChart: "34.10.0",
 				Previous:      "8.5.0",
 			},
+			ExposeIngressAndLoadBalancer: true,
+			Namespace:                    "grafana",
+			ServiceAccount:               "grafana",
 		},
 	}
 
@@ -36,16 +36,9 @@ func NewOptions() (options *GrafanaAmpOptions, flags cmd.Flags) {
 				Name:        "grafana-pass",
 				Description: "Grafana admin password",
 				Required:    true,
+				Shorthand:   "P",
 			},
 			Option: &options.GrafanaAdminPassword,
-		},
-		&cmd.StringFlag{
-			CommandFlag: cmd.CommandFlag{
-				Name:        "ingress-host",
-				Description: "hostname for Ingress with TLS (requires ACM cert, AWS LB Controller and ExternalDNS)",
-				Shorthand:   "I",
-			},
-			Option: &options.IngressHost,
 		},
 	}
 	return

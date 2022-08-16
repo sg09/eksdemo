@@ -20,14 +20,14 @@ type PrometheusAmpOptions struct {
 func NewOptions() (options *PrometheusAmpOptions, flags cmd.Flags) {
 	options = &PrometheusAmpOptions{
 		ApplicationOptions: application.ApplicationOptions{
-			Namespace:      "prometheus",
-			ServiceAccount: "prometheus",
 			DefaultVersion: &application.LatestPrevious{
-				LatestChart:   "34.10.0",
-				Latest:        "v0.55.0",
+				LatestChart:   "39.6.0",
+				Latest:        "v0.58.0",
 				PreviousChart: "34.10.0",
 				Previous:      "v0.55.0",
 			},
+			Namespace:      "prometheus",
+			ServiceAccount: "prometheus",
 		},
 	}
 	return

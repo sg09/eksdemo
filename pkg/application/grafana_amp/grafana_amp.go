@@ -14,8 +14,8 @@ import (
 // Helm:    https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
 // Helm:    https://github.com/grafana/helm-charts/tree/main/charts/grafana
 // Repo:    https://hub.docker.com/r/grafana/grafana
-// Version: Latest is kube-prom chart 36.2.0, Grafana v9.0.1 (as of 06/29/22)
-//          But pinning to Chart 34.10.0, Grafana v8.5.0 due to breaking API Server graphs
+// Version: Latest is Chart 39.6.0, Grafana v9.0.5 (as of 08/14/22)
+//          But pinning to Previous Chart to 34.10.0 due to breaking API Server graphs for k8s < 1.23
 //          https://github.com/prometheus-community/helm-charts/issues/2018
 
 func NewApp() *application.Application {
@@ -49,7 +49,7 @@ func NewApp() *application.Application {
 			},
 		},
 	}
-	app.Options, app.Flags = NewOptions()
+	app.Options, app.Flags = newOptions()
 
 	return app
 }
@@ -80,10 +80,10 @@ grafana:
       sigv4_auth_enabled: true
   image:
     tag: {{ .Version }}
-  {{- if not .IngressHost }}
   service:
-    type: LoadBalancer
-  {{- end }}
+    type: {{ .ServiceType }}
+    annotations:
+      {{- .ServiceAnnotations | nindent 6 }}
   # Temporary fix for Issue: https://github.com/prometheus-community/helm-charts/issues/1867
   serviceMonitor:
     labels:
@@ -91,14 +91,17 @@ grafana:
 {{- if .IngressHost }}
   ingress:
     enabled: true
-    ingressClassName: alb
+    ingressClassName: {{ .IngressClass }}
     annotations:
-      alb.ingress.kubernetes.io/scheme: internet-facing
-      alb.ingress.kubernetes.io/target-type: 'ip'
-      alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
+      {{- .IngressAnnotations | nindent 6 }}
+    hosts:
+    - {{ .IngressHost }}
     tls:
     - hosts:
       - {{ .IngressHost }}
+    {{- if ne .IngressClass "alb" }}
+      secretName: grafana-amp-tls
+    {{- end}}
 {{- end }}
   sidecar:
     datasources:
