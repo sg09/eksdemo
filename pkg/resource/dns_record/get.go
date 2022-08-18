@@ -16,15 +16,6 @@ type Getter struct {
 	zoneGetter hosted_zone.Getter
 }
 
-// Record types to skip when getting
-var getFilterTypes = map[string]bool{
-	"SOA": true,
-	"TXT": true,
-}
-
-// Don't skip any record types when getting with --all flag
-var getFilterTypesAll = map[string]bool{}
-
 func (g *Getter) Get(name string, output printer.Output, options resource.Options) error {
 	dnsOptions, ok := options.(*DnsRecordOptions)
 	if !ok {
@@ -36,9 +27,9 @@ func (g *Getter) Get(name string, output printer.Output, options resource.Option
 		return err
 	}
 
-	filterTypes := getFilterTypes
-	if dnsOptions.All {
-		filterTypes = getFilterTypesAll
+	filterTypes := map[string]bool{}
+	for _, f := range dnsOptions.Filter {
+		filterTypes[f] = true
 	}
 
 	recordSets, err := g.GetRecords(name, aws.StringValue(zone.Id), filterTypes)
@@ -69,7 +60,7 @@ func (g *Getter) GetRecords(name, zoneId string, filterTypes map[string]bool) ([
 	if len(filterTypes) > 0 {
 		filtered := make([]*route53.ResourceRecordSet, 0, len(recordSets))
 		for _, rs := range recordSets {
-			if !filterTypes[aws.StringValue(rs.Type)] {
+			if filterTypes[aws.StringValue(rs.Type)] {
 				filtered = append(filtered, rs)
 			}
 		}

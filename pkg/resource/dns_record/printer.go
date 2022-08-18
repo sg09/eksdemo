@@ -9,15 +9,15 @@ import (
 	"github.com/aws/aws-sdk-go/service/route53"
 )
 
-const MAX_NAME_WITH_UNDERSCORE_LENGTH int = 17
-const MAX_RECORD_LENGTH int = 70
+const MAX_COMBINED_NAME_AND_RECORD_LENGTH int = 90
 
 type RecordSetPrinter struct {
-	recordSets []*route53.ResourceRecordSet
+	recordSets        []*route53.ResourceRecordSet
+	longestNameLength int
 }
 
 func NewPrinter(recordSets []*route53.ResourceRecordSet) *RecordSetPrinter {
-	return &RecordSetPrinter{recordSets}
+	return &RecordSetPrinter{recordSets: recordSets}
 }
 
 func (p *RecordSetPrinter) PrintTable(writer io.Writer) error {
@@ -25,26 +25,19 @@ func (p *RecordSetPrinter) PrintTable(writer io.Writer) error {
 	table.SetHeader([]string{"Name", "Type", "Value"})
 
 	for _, rs := range p.recordSets {
-		name := aws.StringValue(rs.Name)
-
-		if strings.HasPrefix(name, "_") {
-			if len(name) > MAX_NAME_WITH_UNDERSCORE_LENGTH {
-				name = name[:MAX_NAME_WITH_UNDERSCORE_LENGTH] + "..."
-			}
-		} else {
-			name = strings.TrimSuffix(name, ".")
+		if l := len(aws.StringValue(rs.Name)); l > p.longestNameLength {
+			p.longestNameLength = l
 		}
+	}
 
+	for _, rs := range p.recordSets {
 		records := ""
 		if rs.AliasTarget != nil {
-			records = aws.StringValue(rs.AliasTarget.DNSName)
+			records = p.limitLength(aws.StringValue(rs.AliasTarget.DNSName))
 		} else {
 			for i, rec := range rs.ResourceRecords {
 				if i == 0 {
-					records = aws.StringValue(rec.Value)
-					if len(records) > MAX_RECORD_LENGTH {
-						records = records[:MAX_RECORD_LENGTH] + "..."
-					}
+					records = p.limitLength(aws.StringValue(rec.Value))
 				} else {
 					records += "\n" + aws.StringValue(rec.Value)
 				}
@@ -52,7 +45,7 @@ func (p *RecordSetPrinter) PrintTable(writer io.Writer) error {
 		}
 
 		table.AppendRow([]string{
-			name,
+			strings.TrimSuffix(aws.StringValue(rs.Name), "."),
 			aws.StringValue(rs.Type),
 			records,
 		})
@@ -69,4 +62,11 @@ func (p *RecordSetPrinter) PrintJSON(writer io.Writer) error {
 
 func (p *RecordSetPrinter) PrintYAML(writer io.Writer) error {
 	return printer.EncodeYAML(writer, p.recordSets)
+}
+
+func (p *RecordSetPrinter) limitLength(record string) string {
+	if len(record) > MAX_COMBINED_NAME_AND_RECORD_LENGTH-p.longestNameLength {
+		record = record[:MAX_COMBINED_NAME_AND_RECORD_LENGTH-p.longestNameLength-3] + "..."
+	}
+	return record
 }

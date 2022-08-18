@@ -9,10 +9,11 @@ type DnsRecordOptions struct {
 	resource.CommonOptions
 
 	All      bool
+	Filter   []string
 	ZoneName string
 }
 
-func NewOptions() (options *DnsRecordOptions, deleteFlags cmd.Flags, getFlags cmd.Flags) {
+func newOptions() (options *DnsRecordOptions, deleteFlags cmd.Flags, getFlags cmd.Flags) {
 	options = &DnsRecordOptions{
 		CommonOptions: resource.CommonOptions{
 			ClusterFlagDisabled: true,
@@ -43,13 +44,12 @@ func NewOptions() (options *DnsRecordOptions, deleteFlags cmd.Flags, getFlags cm
 	}, commonFlags...)
 
 	getFlags = append(cmd.Flags{
-		&cmd.BoolFlag{
+		&cmd.StringSliceFlag{
 			CommandFlag: cmd.CommandFlag{
-				Name:        "all",
-				Description: "show all records (including SOA and TXT records)",
-				Shorthand:   "A",
+				Name:        "filter",
+				Description: "filter by record types",
 			},
-			Option: &options.All,
+			Option: &options.Filter,
 		},
 	}, commonFlags...)
 
