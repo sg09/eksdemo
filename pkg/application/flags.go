@@ -5,6 +5,8 @@ import (
 	"eksdemo/pkg/cmd"
 	"eksdemo/pkg/kubernetes"
 	"fmt"
+
+	"github.com/spf13/cobra"
 )
 
 func (o *ApplicationOptions) NewChartVersionFlag() *cmd.StringFlag {
@@ -12,7 +14,7 @@ func (o *ApplicationOptions) NewChartVersionFlag() *cmd.StringFlag {
 		CommandFlag: cmd.CommandFlag{
 			Name:        "chart-version",
 			Description: fmt.Sprintf("chart version (default %q)", o.DefaultVersion.LatestChartVersion()),
-			Validate: func() error {
+			Validate: func(cmd *cobra.Command, args []string) error {
 				if o.UsePrevious && o.ChartVersion != "" {
 					return fmt.Errorf("%q flag cannot be used with %q flag", "use-previous", "chart-version")
 				}
@@ -41,7 +43,7 @@ func (o *ApplicationOptions) NewClusterFlag(action Action) *cmd.StringFlag {
 			Description: fmt.Sprintf("cluster to %s application", action),
 			Shorthand:   "c",
 			Required:    true,
-			Validate: func() error {
+			Validate: func(cmd *cobra.Command, args []string) error {
 				cluster, err := aws.EksDescribeCluster(o.ClusterName)
 				if err != nil {
 					return err
@@ -152,7 +154,7 @@ func (o *ApplicationOptions) NewVersionFlag() *cmd.StringFlag {
 			Name:        "version",
 			Description: fmt.Sprintf("application version (default %q)", o.DefaultVersion.LatestString()),
 			Shorthand:   "v",
-			Validate: func() error {
+			Validate: func(cmd *cobra.Command, args []string) error {
 				if o.UsePrevious && o.Version != "" {
 					return fmt.Errorf("%q flag cannot be used with %q flag", "use-previous", "version")
 				}

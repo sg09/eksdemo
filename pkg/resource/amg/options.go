@@ -5,6 +5,8 @@ import (
 	"eksdemo/pkg/resource"
 	"fmt"
 	"strings"
+
+	"github.com/spf13/cobra"
 )
 
 type AmgOptions struct {
@@ -30,7 +32,7 @@ func NewOptions() (options *AmgOptions, flags cmd.Flags) {
 				Name:        "auth",
 				Description: "Authentication methods (aws_sso, saml)",
 				Required:    true,
-				Validate: func() error {
+				Validate: func(cmd *cobra.Command, args []string) error {
 					for i, flag := range options.Auth {
 						options.Auth[i] = strings.ToUpper(flag)
 					}

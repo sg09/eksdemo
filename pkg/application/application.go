@@ -25,7 +25,7 @@ func (a *Application) NewInstallCmd() *cobra.Command {
 		Aliases: a.Aliases,
 		Hidden:  a.Hidden,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if err := a.ValidateFlags(); err != nil {
+			if err := a.ValidateFlags(cmd, args); err != nil {
 				return err
 			}
 			cmd.SilenceUsage = true
@@ -66,7 +66,7 @@ func (a *Application) NewUninstallCmd() *cobra.Command {
 		Aliases: a.Aliases,
 		Hidden:  a.Hidden,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if err := a.ValidateFlags(); err != nil {
+			if err := a.ValidateFlags(cmd, args); err != nil {
 				return err
 			}
 			cmd.SilenceUsage = true

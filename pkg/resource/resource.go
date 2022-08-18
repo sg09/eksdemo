@@ -48,7 +48,7 @@ func (r *Resource) NewCreateCmd() *cobra.Command {
 		Args:    cobra.ExactArgs(len(r.Args)),
 		Hidden:  r.Hidden,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if err := r.Flags.ValidateFlags(); err != nil {
+			if err := r.Flags.ValidateFlags(cmd, args); err != nil {
 				return err
 			}
 
@@ -109,7 +109,7 @@ func (r *Resource) NewDeleteCmd() *cobra.Command {
 		Args:    args,
 		Hidden:  r.Hidden,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if err := r.DeleteFlags.ValidateFlags(); err != nil {
+			if err := r.DeleteFlags.ValidateFlags(cmd, args); err != nil {
 				return err
 			}
 
@@ -161,7 +161,7 @@ func (r *Resource) NewGetCmd() *cobra.Command {
 		Args:    args,
 		Hidden:  r.Hidden,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if err := r.GetFlags.ValidateFlags(); err != nil {
+			if err := r.GetFlags.ValidateFlags(cmd, args); err != nil {
 				return err
 			}
 			cmd.SilenceUsage = true
@@ -199,7 +199,7 @@ func (r *Resource) NewUpdateCmd() *cobra.Command {
 		Args:    cobra.ExactArgs(len(r.Args)),
 		Hidden:  r.Hidden,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if err := r.UpdateFlags.ValidateFlags(); err != nil {
+			if err := r.UpdateFlags.ValidateFlags(cmd, args); err != nil {
 				return err
 			}
 			cmd.SilenceUsage = true

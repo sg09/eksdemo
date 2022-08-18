@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"hash/fnv"
 	"strings"
+
+	"github.com/spf13/cobra"
 )
 
 type IrsaOptions struct {
@@ -46,7 +48,7 @@ func addOptions(res *resource.Resource) *resource.Resource {
 			CommandFlag: cmd.CommandFlag{
 				Name:        "attach-arns",
 				Description: "ARNs",
-				Validate: func() error {
+				Validate: func(cmd *cobra.Command, args []string) error {
 					if len(options.PolicyARNs) == 0 {
 						return nil
 					}
@@ -67,7 +69,7 @@ func addOptions(res *resource.Resource) *resource.Resource {
 			CommandFlag: cmd.CommandFlag{
 				Name:        "well-known",
 				Description: "eksctl well known policy",
-				Validate: func() error {
+				Validate: func(cmd *cobra.Command, args []string) error {
 					if options.WellKnownPolicy == "" {
 						return nil
 					}

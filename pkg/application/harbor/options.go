@@ -4,6 +4,8 @@ import (
 	"eksdemo/pkg/application"
 	"eksdemo/pkg/cmd"
 	"fmt"
+
+	"github.com/spf13/cobra"
 )
 
 type HarborOptions struct {
@@ -50,7 +52,7 @@ func newOptions() (options *HarborOptions, flags cmd.Flags) {
 			CommandFlag: cmd.CommandFlag{
 				Name:        "notary-host",
 				Description: "hostname for notary (required when Notary is enabled)",
-				Validate: func() error {
+				Validate: func(cmd *cobra.Command, args []string) error {
 					if options.NotaryEnabled && options.NotaryHost == "" {
 						return fmt.Errorf("%q flag required when using %q flag", "notary-host", "notary")
 					}

@@ -6,6 +6,8 @@ import (
 	"eksdemo/pkg/resource"
 	"fmt"
 	"strings"
+
+	"github.com/spf13/cobra"
 )
 
 type NodegroupOptions struct {
@@ -66,7 +68,7 @@ func NewOptions() (options *NodegroupOptions, createFlags, updateFlags cmd.Flags
 			CommandFlag: cmd.CommandFlag{
 				Name:        "min",
 				Description: "min nodes",
-				Validate: func() error {
+				Validate: func(cmd *cobra.Command, args []string) error {
 					if options.MinSize >= options.MaxSize {
 						return fmt.Errorf("min nodes must be less than max nodes")
 					}
@@ -80,7 +82,7 @@ func NewOptions() (options *NodegroupOptions, createFlags, updateFlags cmd.Flags
 				Name:        "nodes",
 				Description: "desired number of nodes",
 				Shorthand:   "N",
-				Validate: func() error {
+				Validate: func(cmd *cobra.Command, args []string) error {
 					if options.DesiredCapacity > options.MaxSize {
 						options.MaxSize = options.DesiredCapacity
 					}
@@ -96,7 +98,7 @@ func NewOptions() (options *NodegroupOptions, createFlags, updateFlags cmd.Flags
 			CommandFlag: cmd.CommandFlag{
 				Name:        "os",
 				Description: "Operating System",
-				Validate: func() error {
+				Validate: func(cmd *cobra.Command, args []string) error {
 					if strings.EqualFold(options.OperatingSystem, "AmazonLinux2") {
 						options.OperatingSystem = "AmazonLinux2"
 						return nil

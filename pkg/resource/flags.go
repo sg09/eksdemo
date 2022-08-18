@@ -4,6 +4,8 @@ import (
 	"eksdemo/pkg/aws"
 	"eksdemo/pkg/cmd"
 	"fmt"
+
+	"github.com/spf13/cobra"
 )
 
 func (o *CommonOptions) NewClusterFlag(action Action, required bool) *cmd.StringFlag {
@@ -13,7 +15,7 @@ func (o *CommonOptions) NewClusterFlag(action Action, required bool) *cmd.String
 			Description: fmt.Sprintf("cluster to %s resource", action),
 			Shorthand:   "c",
 			Required:    required,
-			Validate: func() error {
+			Validate: func(cmd *cobra.Command, args []string) error {
 				if !required && o.ClusterName == "" {
 					return nil
 				}

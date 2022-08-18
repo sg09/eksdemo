@@ -7,6 +7,8 @@ import (
 	"eksdemo/pkg/template"
 	"fmt"
 	"strings"
+
+	"github.com/spf13/cobra"
 )
 
 type IngressOptions struct {
@@ -55,7 +57,7 @@ func (o *IngressOptions) NewIngressFlags() cmd.Flags {
 			CommandFlag: cmd.CommandFlag{
 				Name:        "ingress-class",
 				Description: "name of IngressClass",
-				Validate: func() error {
+				Validate: func(cmd *cobra.Command, args []string) error {
 					if o.IngressClass != "alb" && o.IngressHost == "" {
 						return fmt.Errorf("%q flag can only be used with %q flag", "ingress-class", "ingress-host")
 					}
@@ -78,7 +80,7 @@ func (o *IngressOptions) NewIngressFlags() cmd.Flags {
 				Name:        "nginx-pass",
 				Description: "basic auth password for admin user (only valid with --ingress-class=nginx)",
 				Shorthand:   "X",
-				Validate: func() error {
+				Validate: func(cmd *cobra.Command, args []string) error {
 					if o.NginxBasicAuthPass != "" && o.IngressClass != "nginx" {
 						return fmt.Errorf("%q flag can only be used with %q)", "nginx-pass", "--ingress-class=nginx")
 					}
@@ -91,7 +93,7 @@ func (o *IngressOptions) NewIngressFlags() cmd.Flags {
 			CommandFlag: cmd.CommandFlag{
 				Name:        "target-type",
 				Description: targetTypeDesc,
-				Validate: func() error {
+				Validate: func(cmd *cobra.Command, args []string) error {
 					if o.TargetType == "instance" && !o.NLB && o.IngressHost == "" {
 						return fmt.Errorf("%q flag can only be used with %q or %q flags", "target-type", "nlb", "ingress-host")
 					}
@@ -109,7 +111,7 @@ func (o *IngressOptions) NewIngressFlags() cmd.Flags {
 			CommandFlag: cmd.CommandFlag{
 				Name:        "nlb",
 				Description: "use NLB instead of CLB (when not using Ingress)",
-				Validate: func() error {
+				Validate: func(cmd *cobra.Command, args []string) error {
 					if o.NLB && o.IngressHost != "" {
 						return fmt.Errorf("%q flag cannot be used with %q flag", "nlb", "ingress-host")
 					}

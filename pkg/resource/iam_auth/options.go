@@ -6,6 +6,8 @@ import (
 	"eksdemo/pkg/resource"
 	"eksdemo/pkg/template"
 	"fmt"
+
+	"github.com/spf13/cobra"
 )
 
 type IamAuthOptions struct {
@@ -21,7 +23,7 @@ func NewOptions() (options *IamAuthOptions, flags cmd.Flags) {
 			CommandFlag: cmd.CommandFlag{
 				Name:        "arn",
 				Description: "ARN of the IAM role or user",
-				Validate: func() error {
+				Validate: func(cmd *cobra.Command, args []string) error {
 					t := template.TextTemplate{
 						Template: options.Arn,
 					}

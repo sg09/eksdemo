@@ -9,7 +9,7 @@ import (
 
 type Flag interface {
 	AddFlagToCommand(*cobra.Command)
-	ValidateFlag() error
+	ValidateFlag(cmd *cobra.Command, args []string) error
 	GetName() string
 }
 
@@ -20,7 +20,7 @@ type CommandFlag struct {
 	Description string
 	Shorthand   string
 	Required    bool
-	Validate    func() error
+	Validate    func(cmd *cobra.Command, args []string) error
 }
 
 const required = " (required)"
@@ -61,11 +61,11 @@ func (f *BoolFlag) AddFlagToCommand(cmd *cobra.Command) {
 	}
 }
 
-func (f *BoolFlag) ValidateFlag() error {
+func (f *BoolFlag) ValidateFlag(cmd *cobra.Command, args []string) error {
 	if f.Validate == nil {
 		return nil
 	}
-	return f.Validate()
+	return f.Validate(cmd, args)
 }
 
 // Int flag methods
@@ -85,11 +85,11 @@ func (f *IntFlag) AddFlagToCommand(cmd *cobra.Command) {
 	}
 }
 
-func (f *IntFlag) ValidateFlag() error {
+func (f *IntFlag) ValidateFlag(cmd *cobra.Command, args []string) error {
 	if f.Validate == nil {
 		return nil
 	}
-	return f.Validate()
+	return f.Validate(cmd, args)
 }
 
 // String flag methods
@@ -109,7 +109,7 @@ func (f *StringFlag) AddFlagToCommand(cmd *cobra.Command) {
 	}
 }
 
-func (f *StringFlag) ValidateFlag() error {
+func (f *StringFlag) ValidateFlag(cmd *cobra.Command, args []string) error {
 	if len(f.Choices) > 0 {
 		found := false
 
@@ -125,7 +125,7 @@ func (f *StringFlag) ValidateFlag() error {
 	}
 
 	if f.Validate != nil {
-		return f.Validate()
+		return f.Validate(cmd, args)
 	}
 
 	return nil
@@ -144,7 +144,7 @@ func (f *StringSliceFlag) AddFlagToCommand(cmd *cobra.Command) {
 	}
 }
 
-func (f *StringSliceFlag) ValidateFlag() error {
+func (f *StringSliceFlag) ValidateFlag(cmd *cobra.Command, args []string) error {
 	if len(f.Choices) > 0 {
 
 		for _, flag := range *f.Option {
@@ -163,16 +163,16 @@ func (f *StringSliceFlag) ValidateFlag() error {
 	}
 
 	if f.Validate != nil {
-		return f.Validate()
+		return f.Validate(cmd, args)
 	}
 
 	return nil
 }
 
 // Flags (list of flags) methods
-func (f Flags) ValidateFlags() error {
+func (f Flags) ValidateFlags(cmd *cobra.Command, args []string) error {
 	for _, flag := range f {
-		if err := flag.ValidateFlag(); err != nil {
+		if err := flag.ValidateFlag(cmd, args); err != nil {
 			return err
 		}
 	}
