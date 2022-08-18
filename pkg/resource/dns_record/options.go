@@ -3,19 +3,24 @@ package dns_record
 import (
 	"eksdemo/pkg/cmd"
 	"eksdemo/pkg/resource"
+	"fmt"
+
+	"github.com/spf13/cobra"
 )
 
 type DnsRecordOptions struct {
 	resource.CommonOptions
 
-	All      bool
-	Filter   []string
-	ZoneName string
+	AllRecords bool
+	AllTypes   bool
+	Filter     []string
+	ZoneName   string
 }
 
 func newOptions() (options *DnsRecordOptions, deleteFlags cmd.Flags, getFlags cmd.Flags) {
 	options = &DnsRecordOptions{
 		CommonOptions: resource.CommonOptions{
+			ArgumentOptional:    true,
 			ClusterFlagDisabled: true,
 		},
 	}
@@ -36,10 +41,27 @@ func newOptions() (options *DnsRecordOptions, deleteFlags cmd.Flags, getFlags cm
 		&cmd.BoolFlag{
 			CommandFlag: cmd.CommandFlag{
 				Name:        "all",
-				Description: "delete all records (including TXT) that start with NAME ",
+				Description: "delete all records types for the record name",
 				Shorthand:   "A",
 			},
-			Option: &options.All,
+			Option: &options.AllTypes,
+		},
+		&cmd.BoolFlag{
+			CommandFlag: cmd.CommandFlag{
+				Name:        "all-records",
+				Description: "delete all records in the zone (excluding root records)",
+				Validate: func(cmd *cobra.Command, args []string) error {
+					if !options.AllRecords && len(args) == 0 {
+						return fmt.Errorf("must include either %q argument or %q flag", "NAME", "--all-records")
+					}
+
+					if options.AllRecords && len(args) > 0 {
+						return fmt.Errorf("%q flag cannot be used with a record name", "--all-records")
+					}
+					return nil
+				},
+			},
+			Option: &options.AllRecords,
 		},
 	}, commonFlags...)
 
@@ -47,7 +69,7 @@ func newOptions() (options *DnsRecordOptions, deleteFlags cmd.Flags, getFlags cm
 		&cmd.StringSliceFlag{
 			CommandFlag: cmd.CommandFlag{
 				Name:        "filter",
-				Description: "filter by record types",
+				Description: "filter records by types",
 			},
 			Option: &options.Filter,
 		},

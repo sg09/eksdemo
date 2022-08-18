@@ -32,7 +32,7 @@ func (g *Getter) Get(name string, output printer.Output, options resource.Option
 		filterTypes[f] = true
 	}
 
-	recordSets, err := g.GetRecords(name, aws.StringValue(zone.Id), filterTypes)
+	recordSets, err := g.GetRecordsWithFilter(name, aws.StringValue(zone.Id), filterTypes)
 	if err != nil {
 		return err
 	}
@@ -40,17 +40,21 @@ func (g *Getter) Get(name string, output printer.Output, options resource.Option
 	return output.Print(os.Stdout, NewPrinter(recordSets))
 }
 
-func (g *Getter) GetRecords(name, zoneId string, filterTypes map[string]bool) ([]*route53.ResourceRecordSet, error) {
+func (g *Getter) GetRecords(name, zoneId string) ([]*route53.ResourceRecordSet, error) {
+	return g.GetRecordsWithFilter(name, zoneId, map[string]bool{})
+}
+
+func (g *Getter) GetRecordsWithFilter(name, zoneId string, filterTypes map[string]bool) ([]*route53.ResourceRecordSet, error) {
 	recordSets, err := aws.Route53ListResourceRecordSets(zoneId)
 	if err != nil {
 		return nil, err
 	}
 
 	if name != "" {
-		n := strings.ToLower(name)
+		n := strings.ToLower(name) + "."
 		filtered := []*route53.ResourceRecordSet{}
 		for _, rs := range recordSets {
-			if strings.HasPrefix(strings.ToLower(aws.StringValue(rs.Name)), n) {
+			if n == strings.ToLower(aws.StringValue(rs.Name)) {
 				filtered = append(filtered, rs)
 			}
 		}
