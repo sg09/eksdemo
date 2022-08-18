@@ -15,8 +15,9 @@ func NewOptions() (options *AmpOptions, flags cmd.Flags) {
 	options = &AmpOptions{
 		CommonOptions: resource.CommonOptions{
 			Name:                "amazon-managed-prometheus",
+			ArgumentOptional:    true,
 			ClusterFlagDisabled: true,
-			DeleteById:          true,
+			DeleteByIdFlag:      true,
 		},
 	}
 

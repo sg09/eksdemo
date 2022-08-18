@@ -89,13 +89,13 @@ func (r *Resource) NewDeleteCmd() *cobra.Command {
 	var args cobra.PositionalArgs
 	use := r.Command.Name
 
-	if len(r.Args) > 0 && r.Common().DeleteById {
+	if len(r.Args) > 0 && r.Common().ArgumentOptional {
 		use += " " + "[" + r.Args[0] + "]"
 	} else if len(r.Args) > 0 {
 		use += " " + strings.Join(r.Args, " ")
 	}
 
-	if r.Common().DeleteById {
+	if r.Common().ArgumentOptional {
 		args = cobra.RangeArgs(0, len(r.Args))
 	} else {
 		args = cobra.ExactArgs(len(r.Args))
@@ -113,7 +113,7 @@ func (r *Resource) NewDeleteCmd() *cobra.Command {
 				return err
 			}
 
-			if r.Common().DeleteById && r.Common().Id == "" && len(r.Args) > 0 && len(args) == 0 {
+			if r.Common().DeleteByIdFlag && r.Common().Id == "" && len(r.Args) > 0 && len(args) == 0 {
 				return fmt.Errorf("must include either %s or --id flag", r.Args[0])
 			}
 			cmd.SilenceUsage = true

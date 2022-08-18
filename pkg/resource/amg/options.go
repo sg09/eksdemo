@@ -18,8 +18,9 @@ func NewOptions() (options *AmgOptions, flags cmd.Flags) {
 	options = &AmgOptions{
 		CommonOptions: resource.CommonOptions{
 			Name:                "amazon-managed-grafana",
+			ArgumentOptional:    true,
 			ClusterFlagDisabled: true,
-			DeleteById:          true,
+			DeleteByIdFlag:      true,
 		},
 	}
 

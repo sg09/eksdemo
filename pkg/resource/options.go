@@ -22,9 +22,10 @@ type Options interface {
 
 type CommonOptions struct {
 	Name                string
+	ArgumentOptional    bool
 	ClusterFlagDisabled bool
 	ClusterFlagOptional bool
-	DeleteById          bool
+	DeleteByIdFlag      bool
 	KubeContext         string
 	NamespaceFlag       bool
 
@@ -69,7 +70,7 @@ func (o *CommonOptions) AddDeleteFlags(cobraCmd *cobra.Command, flags cmd.Flags)
 		flags = append(flags, o.NewClusterFlag(Delete, true))
 	}
 
-	if o.DeleteById {
+	if o.DeleteByIdFlag {
 		flags = append(flags, o.NewIdFlag())
 	}
 
