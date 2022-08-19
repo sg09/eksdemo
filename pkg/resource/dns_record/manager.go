@@ -21,7 +21,41 @@ type Manager struct {
 }
 
 func (m *Manager) Create(options resource.Options) error {
-	return fmt.Errorf("create dns-record not implemented")
+	dnsOptions, ok := options.(*DnsRecordOptions)
+	if !ok {
+		return fmt.Errorf("internal error, unable to cast options to DnsRecordOptions")
+	}
+
+	zone, err := m.zoneGetter.GetZoneByName(dnsOptions.ZoneName)
+	if err != nil {
+		return err
+	}
+
+	changeBatch := &route53.ChangeBatch{
+		Changes: []*route53.Change{
+			{
+				Action: awssdk.String("CREATE"),
+				ResourceRecordSet: &route53.ResourceRecordSet{
+					Name: awssdk.String(dnsOptions.Name),
+					ResourceRecords: []*route53.ResourceRecord{
+						{
+							Value: awssdk.String(dnsOptions.Value),
+						},
+					},
+					TTL:  awssdk.Int64(300),
+					Type: awssdk.String(dnsOptions.Type),
+				},
+			},
+		},
+		Comment: awssdk.String("eksdemo create dns-record"),
+	}
+
+	if err := aws.Route53ChangeResourceRecordSets(changeBatch, aws.StringValue(zone.Id)); err != nil {
+		return err
+	}
+	fmt.Println("Record created successfully")
+
+	return nil
 }
 
 func (m *Manager) Delete(options resource.Options) error {

@@ -32,14 +32,26 @@ func (p *RecordSetPrinter) PrintTable(writer io.Writer) error {
 
 	for _, rs := range p.recordSets {
 		records := ""
+		// ALIAS records
 		if rs.AliasTarget != nil {
 			records = p.limitLength(aws.StringValue(rs.AliasTarget.DNSName))
+		} else if aws.StringValue(rs.Type) == "SOA" {
+			// SOA records: split the MNAME, RNAME and rest into separate lines
+			transform := strings.Replace(aws.StringValue(rs.ResourceRecords[0].Value), " ", ",", 2)
+			for i, rec := range strings.Split(transform, ",") {
+				if i == 0 {
+					records = p.limitLength(rec)
+				} else {
+					records += "\n" + p.limitLength(rec)
+				}
+			}
 		} else {
+			// All other records
 			for i, rec := range rs.ResourceRecords {
 				if i == 0 {
 					records = p.limitLength(aws.StringValue(rec.Value))
 				} else {
-					records += "\n" + aws.StringValue(rec.Value)
+					records += "\n" + p.limitLength(aws.StringValue(rec.Value))
 				}
 			}
 		}

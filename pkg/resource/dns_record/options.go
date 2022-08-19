@@ -4,20 +4,26 @@ import (
 	"eksdemo/pkg/cmd"
 	"eksdemo/pkg/resource"
 	"fmt"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
 
 type DnsRecordOptions struct {
 	resource.CommonOptions
-
+	// Shared
+	ZoneName string
+	// Create
+	Type  string
+	Value string
+	// Delete
 	AllRecords bool
 	AllTypes   bool
-	Filter     []string
-	ZoneName   string
+	// Get
+	Filter []string
 }
 
-func newOptions() (options *DnsRecordOptions, deleteFlags cmd.Flags, getFlags cmd.Flags) {
+func newOptions() (options *DnsRecordOptions, createFlags, deleteFlags, getFlags cmd.Flags) {
 	options = &DnsRecordOptions{
 		CommonOptions: resource.CommonOptions{
 			ArgumentOptional:    true,
@@ -36,6 +42,43 @@ func newOptions() (options *DnsRecordOptions, deleteFlags cmd.Flags, getFlags cm
 			Option: &options.ZoneName,
 		},
 	}
+
+	createFlags = append(cmd.Flags{
+		&cmd.StringFlag{
+			CommandFlag: cmd.CommandFlag{
+				Name:        "type",
+				Description: "record type",
+				Shorthand:   "t",
+				Required:    true,
+				Validate: func(cmd *cobra.Command, args []string) error {
+					if strings.EqualFold(options.Type, "A") {
+						options.Type = "A"
+						return nil
+					}
+					if strings.EqualFold(options.Type, "CNAME") {
+						options.Type = "CNAME"
+						return nil
+					}
+					if strings.EqualFold(options.Type, "TXT") {
+						options.Type = "TXT"
+						return nil
+					}
+					return nil
+				},
+			},
+			Choices: []string{"A", "CNAME", "TXT"},
+			Option:  &options.Type,
+		},
+		&cmd.StringFlag{
+			CommandFlag: cmd.CommandFlag{
+				Name:        "value",
+				Description: "record value",
+				Shorthand:   "v",
+				Required:    true,
+			},
+			Option: &options.Value,
+		},
+	}, commonFlags...)
 
 	deleteFlags = append(cmd.Flags{
 		&cmd.BoolFlag{
