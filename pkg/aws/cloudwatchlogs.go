@@ -40,3 +40,31 @@ func CloudWatchLogsDescribeLogGroups(namePrefix string) ([]*cloudwatchlogs.LogGr
 	}
 	return logGroups, nil
 }
+
+func CloudWatchLogsDescribeLogStreams(namePrefix, logGroupName string) ([]*cloudwatchlogs.LogStream, error) {
+	sess := GetSession()
+	svc := cloudwatchlogs.New(sess)
+
+	logStreams := []*cloudwatchlogs.LogStream{}
+	pageNum := 0
+
+	input := &cloudwatchlogs.DescribeLogStreamsInput{
+		LogGroupName: aws.String(logGroupName),
+	}
+
+	if namePrefix != "" {
+		input.LogStreamNamePrefix = aws.String(namePrefix)
+	}
+
+	err := svc.DescribeLogStreamsPages(input,
+		func(page *cloudwatchlogs.DescribeLogStreamsOutput, lastPage bool) bool {
+			pageNum++
+			logStreams = append(logStreams, page.LogStreams...)
+			return pageNum <= maxPages
+		})
+
+	if err != nil {
+		return nil, err
+	}
+	return logStreams, nil
+}
