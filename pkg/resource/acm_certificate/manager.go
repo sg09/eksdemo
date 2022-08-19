@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	awssdk "github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/acm"
 	"github.com/aws/aws-sdk-go/service/route53"
 	"github.com/spf13/cobra"
 )
@@ -26,7 +27,7 @@ func (m *Manager) Create(options resource.Options) error {
 	}
 
 	name := certOptions.Name
-	cert, err := m.Getter.GetOneCertStartingWithName(name)
+	cert, err := m.GetOneCertStartingWithName(name)
 	if err != nil {
 		if _, ok := err.(resource.NotFoundError); !ok {
 			// Return an error if it's anything other than resource not found
@@ -46,11 +47,16 @@ func (m *Manager) Create(options resource.Options) error {
 	}
 	fmt.Printf("done\nCreated ACM Certificate Id: %s\n", m.arn[strings.LastIndex(m.arn, "/")+1:])
 
-	if certOptions.skipValidation {
-		return nil
+	cert, err = m.GetCert(m.arn)
+	if err != nil {
+		return fmt.Errorf("failed to describe the certificate: %w", err)
 	}
 
-	return m.validate()
+	if certOptions.skipValidation {
+		return m.outputValidationSteps(cert)
+	}
+
+	return m.validate(cert)
 }
 
 func (m *Manager) Delete(options resource.Options) error {
@@ -61,7 +67,7 @@ func (m *Manager) Delete(options resource.Options) error {
 		return err
 	}
 
-	err = aws.AcmDeleteCertificate(aws.StringValue(cert.CertificateArn))
+	err = aws.AcmDeleteCertificate(awssdk.StringValue(cert.CertificateArn))
 	if err != nil {
 		return err
 	}
@@ -76,12 +82,20 @@ func (m *Manager) Update(options resource.Options, cmd *cobra.Command) error {
 	return fmt.Errorf("feature not supported")
 }
 
-func (m *Manager) validate() error {
-	cert, err := m.Getter.GetCert(m.arn)
-	if err != nil {
-		return fmt.Errorf("failed during valication to describe the cert: %w", err)
+func (m *Manager) outputValidationSteps(cert *acm.CertificateDetail) error {
+	fmt.Println("To validate:")
+	for _, dvo := range cert.DomainValidationOptions {
+		fmt.Printf("In zone %q, create %q record %q with value %q\n",
+			aws.StringValue(dvo.DomainName),
+			aws.StringValue(dvo.ResourceRecord.Type),
+			aws.StringValue(dvo.ResourceRecord.Name),
+			aws.StringValue(dvo.ResourceRecord.Value),
+		)
 	}
+	return nil
+}
 
+func (m *Manager) validate(cert *acm.CertificateDetail) error {
 	zones, err := m.zoneGetter.GetAllZones()
 	if err != nil {
 		return fmt.Errorf("failed during validation to list hosted zones: %w", err)
@@ -115,6 +129,7 @@ func (m *Manager) validate() error {
 
 	fmt.Printf("Waiting for certificate to be issued...")
 	if err = aws.AcmWaitUntilCertificateValidated(m.arn); err != nil {
+		fmt.Println()
 		return err
 	}
 	fmt.Println("done")
