@@ -21,6 +21,7 @@ import (
 	"eksdemo/pkg/resource/iam_role"
 	"eksdemo/pkg/resource/irsa"
 	"eksdemo/pkg/resource/load_balancer"
+	"eksdemo/pkg/resource/log_event"
 	"eksdemo/pkg/resource/log_group"
 	"eksdemo/pkg/resource/log_stream"
 	"eksdemo/pkg/resource/nat_gateway"
@@ -96,6 +97,7 @@ func init() {
 	getCmd.AddCommand(iam_role.NewResource().NewGetCmd())
 	getCmd.AddCommand(irsa.NewResource().NewGetCmd())
 	getCmd.AddCommand(load_balancer.NewResource().NewGetCmd())
+	getCmd.AddCommand(log_event.NewResource().NewGetCmd())
 	getCmd.AddCommand(log_group.NewResource().NewGetCmd())
 	getCmd.AddCommand(log_stream.NewResource().NewGetCmd())
 	getCmd.AddCommand(nat_gateway.NewResource().NewGetCmd())

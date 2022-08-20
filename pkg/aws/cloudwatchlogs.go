@@ -68,3 +68,29 @@ func CloudWatchLogsDescribeLogStreams(namePrefix, logGroupName string) ([]*cloud
 	}
 	return logStreams, nil
 }
+
+func CloudWatchLogsGetLogEvents(logStreamName, logGroupName string) ([]*cloudwatchlogs.OutputLogEvent, error) {
+	sess := GetSession()
+	svc := cloudwatchlogs.New(sess)
+
+	logEvents := []*cloudwatchlogs.OutputLogEvent{}
+	pageNum := 0
+
+	input := &cloudwatchlogs.GetLogEventsInput{
+		LogGroupName:  aws.String(logGroupName),
+		LogStreamName: aws.String(logStreamName),
+		StartFromHead: aws.Bool(true),
+	}
+
+	err := svc.GetLogEventsPages(input,
+		func(page *cloudwatchlogs.GetLogEventsOutput, lastPage bool) bool {
+			pageNum++
+			logEvents = append(logEvents, page.Events...)
+			return pageNum <= maxPages
+		})
+
+	if err != nil {
+		return nil, err
+	}
+	return logEvents, nil
+}
