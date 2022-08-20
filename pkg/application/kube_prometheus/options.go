@@ -15,10 +15,11 @@ func newOptions() (options *KubePrometheusOptions, flags cmd.Flags) {
 		ApplicationOptions: &application.ApplicationOptions{
 			DefaultVersion: &application.LatestPrevious{
 				LatestChart:   "39.6.0",
+				Latest:        "v0.58.0",
 				PreviousChart: "34.10.0",
+				Previous:      "v0.55.0",
 			},
 			DisableServiceAccountFlag:    true,
-			DisableVersionFlag:           true,
 			ExposeIngressAndLoadBalancer: true,
 			Namespace:                    "monitoring",
 		},

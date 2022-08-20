@@ -11,7 +11,7 @@ import (
 // GitHub:  https://github.com/prometheus-operator/kube-prometheus
 // Helm:    https://github.com/prometheus-community/helm-charts/tree/main/charts/kube-prometheus-stack
 // Repo:    https://quay.io/prometheus-operator/prometheus-operator
-// Version: Latest is Chart 39.6.0 (as of 08/14/22)
+// Version: Latest is Chart 39.6.0, PromOperator v0.58.0 (as of 08/14/22)
 //          But pinning to Previous Chart to 34.10.0 due to breaking API Server graphs for k8s < 1.23
 //          https://github.com/prometheus-community/helm-charts/issues/2018
 
@@ -52,9 +52,14 @@ grafana:
     ingressClassName: {{ .IngressClass }}
     annotations:
       {{- .IngressAnnotations | nindent 6 }}
+    hosts:
+    - {{ .IngressHost }}
     tls:
     - hosts:
       - {{ .IngressHost }}
+    {{- if ne .IngressClass "alb" }}
+      secretName: grafana-amp-tls
+    {{- end}}
 {{- end }}
   service:
     annotations:
@@ -75,4 +80,7 @@ prometheus-node-exporter:
     annotations:
       # Remove with null when https://github.com/helm/helm/issues/9136 is fixed
       prometheus.io/scrape: "false"
+prometheusOperator:
+  image:
+    tag: {{ .Version }}
 `
