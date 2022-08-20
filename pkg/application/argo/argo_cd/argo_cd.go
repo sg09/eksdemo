@@ -40,34 +40,27 @@ global:
   image:
     tag: {{ .Version }}
 server:
+  service:
+    type: {{ .ServiceType }}
 {{- if .IngressHost }}
   extraArgs:
     - --insecure
-{{- end }}
-  certificate:
-    # -- Deploy a Certificate resource (requires cert-manager)
-    enabled: false
-{{- if not .IngressHost }}
-  service:
-    type: LoadBalancer
-{{- else }}
   ingress:
     enabled: true
     annotations:
-    {{- if eq .IngressClass "alb" }}
-      alb.ingress.kubernetes.io/listen-ports: '[{"HTTPS":443}]'
-      alb.ingress.kubernetes.io/scheme: internet-facing
-      alb.ingress.kubernetes.io/target-type: ip
-    {{- end }}
+      {{- .IngressAnnotations | nindent 6 }}
     ingressClassName: {{ .IngressClass }}
     hosts:
-      - {{ .IngressHost }}
+    - {{ .IngressHost }}
     tls:
-      - hosts:
-          - {{ .IngressHost }}
+    - hosts:
+      - {{ .IngressHost }}
+    {{- if ne .IngressClass "alb" }}
+      secretName: argocd-server-tls
+    {{- end}}
+  {{- if eq .IngressClass "alb" }}
   ingressGrpc:
     enabled: true
-  {{- if eq .IngressClass "alb" }}
     isAWSALB: true
     awsALB:
       serviceType: ClusterIP

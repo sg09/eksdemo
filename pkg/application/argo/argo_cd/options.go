@@ -9,8 +9,6 @@ type ArgoCdOptions struct {
 	application.ApplicationOptions
 
 	AdminPassword string
-	IngressClass  string
-	IngressHost   string
 }
 
 func newOptions() (options *ArgoCdOptions, flags cmd.Flags) {
@@ -22,10 +20,10 @@ func newOptions() (options *ArgoCdOptions, flags cmd.Flags) {
 				PreviousChart: "4.9.12",
 				Previous:      "v2.4.4",
 			},
-			DisableServiceAccountFlag: true,
-			Namespace:                 "argocd",
+			DisableServiceAccountFlag:    true,
+			ExposeIngressAndLoadBalancer: true,
+			Namespace:                    "argocd",
 		},
-		IngressClass: "alb",
 	}
 
 	flags = cmd.Flags{
@@ -37,21 +35,6 @@ func newOptions() (options *ArgoCdOptions, flags cmd.Flags) {
 				Shorthand:   "P",
 			},
 			Option: &options.AdminPassword,
-		},
-		&cmd.StringFlag{
-			CommandFlag: cmd.CommandFlag{
-				Name:        "ingress-class",
-				Description: "name of IngressClass",
-			},
-			Option: &options.IngressClass,
-		},
-		&cmd.StringFlag{
-			CommandFlag: cmd.CommandFlag{
-				Name:        "ingress-host",
-				Description: "hostname for Ingress with TLS (requires Ingress Controller and ExternalDNS)",
-				Shorthand:   "I",
-			},
-			Option: &options.IngressHost,
 		},
 	}
 
