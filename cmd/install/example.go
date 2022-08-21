@@ -14,8 +14,9 @@ var exampleApps []func() *application.Application
 
 func NewInstallExampleCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "example",
-		Short: "Example Applications",
+		Use:     "example",
+		Short:   "Example Applications",
+		Aliases: []string{"ex"},
 	}
 
 	// Don't show flag errors for `install example` without a subcommand

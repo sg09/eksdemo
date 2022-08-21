@@ -34,64 +34,43 @@ func NewUninstallCmd() *cobra.Command {
 	cmd.DisableFlagParsing = true
 
 	cmd.AddCommand(NewUninstallAckCmd())
-	for _, c := range NewUninstallAliasCmds(ack, "ack-") {
-		cmd.AddCommand(c)
-	}
+	cmd.AddCommand(NewUninstallAliasCmds(ack, "ack-")...)
 	cmd.AddCommand(adot_operator.NewApp().NewUninstallCmd())
 	cmd.AddCommand(appmesh_controller.NewApp().NewUninstallCmd())
 	cmd.AddCommand(NewUninstallArgoCmd())
-	for _, c := range NewUninstallAliasCmds(argoApps, "argo-") {
-		cmd.AddCommand(c)
-	}
+	cmd.AddCommand(NewUninstallAliasCmds(argoApps, "argo-")...)
 	cmd.AddCommand(NewUninstallAutoscalingCmd())
-	for _, c := range NewUninstallAliasCmds(autoscalingApps, "autoscaling-") {
-		cmd.AddCommand(c)
-	}
+	cmd.AddCommand(NewUninstallAliasCmds(autoscalingApps, "autoscaling-")...)
 	cmd.AddCommand(aws_fluentbit.NewApp().NewUninstallCmd())
 	cmd.AddCommand(aws_lb.NewApp().NewUninstallCmd())
 	cmd.AddCommand(cert_manager.NewApp().NewUninstallCmd())
 	cmd.AddCommand(cilium.NewApp().NewUninstallCmd())
 	cmd.AddCommand(NewUninstallContainerInsightsCmd())
-	for _, c := range NewUninstallAliasCmds(containerInsightsApps, "container-insights-") {
-		cmd.AddCommand(c)
-	}
-	for _, c := range NewUninstallAliasCmds(containerInsightsApps, "ci-") {
-		cmd.AddCommand(c)
-	}
+	cmd.AddCommand(NewUninstallAliasCmds(containerInsightsApps, "container-insights-")...)
+	cmd.AddCommand(NewUninstallAliasCmds(containerInsightsApps, "ci-")...)
 	cmd.AddCommand(crossplane.NewApp().NewUninstallCmd())
 	cmd.AddCommand(NewUninstallExampleCmd())
-	for _, c := range NewUninstallAliasCmds(exampleApps, "example-") {
-		cmd.AddCommand(c)
-	}
+	cmd.AddCommand(NewUninstallAliasCmds(exampleApps, "example-")...)
+	cmd.AddCommand(NewUninstallAliasCmds(exampleApps, "ex-")...)
 	cmd.AddCommand(external_dns.NewApp().NewUninstallCmd())
 	cmd.AddCommand(falco.NewApp().NewUninstallCmd())
 	cmd.AddCommand(NewUninstallFluxCmd())
-	for _, c := range NewUninstallAliasCmds(fluxApps, "flux-") {
-		cmd.AddCommand(c)
-	}
+	cmd.AddCommand(NewUninstallAliasCmds(fluxApps, "flux-")...)
 	cmd.AddCommand(grafana_amp.NewApp().NewUninstallCmd())
 	cmd.AddCommand(harbor.NewApp().NewUninstallCmd())
 	cmd.AddCommand(NewUninstallIngressCmd())
-	for _, c := range NewUninstallAliasCmds(ingressControllers, "ingress-") {
-		cmd.AddCommand(c)
-	}
+	cmd.AddCommand(NewUninstallAliasCmds(ingressControllers, "ingress-")...)
 	cmd.AddCommand(NewUninstallIstioCmd())
-	for _, c := range NewUninstallAliasCmds(istioApps, "istio-") {
-		cmd.AddCommand(c)
-	}
+	cmd.AddCommand(NewUninstallAliasCmds(istioApps, "istio-")...)
 	cmd.AddCommand(keycloak_amg.NewApp().NewUninstallCmd())
 	cmd.AddCommand(kube_prometheus.NewApp().NewUninstallCmd())
 	cmd.AddCommand(kubecost.NewApp().NewUninstallCmd())
 	cmd.AddCommand(metrics_server.NewApp().NewUninstallCmd())
 	cmd.AddCommand(NewUninstallPolicyCmd())
-	for _, c := range NewUninstallAliasCmds(policyApps, "policy-") {
-		cmd.AddCommand(c)
-	}
+	cmd.AddCommand(NewUninstallAliasCmds(policyApps, "policy-")...)
 	cmd.AddCommand(prometheus_amp.NewApp().NewUninstallCmd())
 	cmd.AddCommand(NewUninstallStorageCmd())
-	for _, c := range NewUninstallAliasCmds(storageApps, "storage-") {
-		cmd.AddCommand(c)
-	}
+	cmd.AddCommand(NewUninstallAliasCmds(storageApps, "storage-")...)
 	cmd.AddCommand(velero.NewApp().NewUninstallCmd())
 
 	return cmd

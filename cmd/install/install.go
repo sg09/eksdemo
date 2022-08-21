@@ -34,64 +34,43 @@ func NewInstallCmd() *cobra.Command {
 	cmd.DisableFlagParsing = true
 
 	cmd.AddCommand(NewInstallAckCmd())
-	for _, c := range NewInstallAliasCmds(ack, "ack-") {
-		cmd.AddCommand(c)
-	}
+	cmd.AddCommand(NewInstallAliasCmds(ack, "ack-")...)
 	cmd.AddCommand(adot_operator.NewApp().NewInstallCmd())
 	cmd.AddCommand(appmesh_controller.NewApp().NewInstallCmd())
 	cmd.AddCommand(NewInstallArgoCmd())
-	for _, c := range NewInstallAliasCmds(argoApps, "argo-") {
-		cmd.AddCommand(c)
-	}
+	cmd.AddCommand(NewInstallAliasCmds(argoApps, "argo-")...)
 	cmd.AddCommand(NewInstallAutoscalingCmd())
-	for _, c := range NewInstallAliasCmds(autoscalingApps, "autoscaling-") {
-		cmd.AddCommand(c)
-	}
+	cmd.AddCommand(NewInstallAliasCmds(autoscalingApps, "autoscaling-")...)
 	cmd.AddCommand(aws_fluentbit.NewApp().NewInstallCmd())
 	cmd.AddCommand(aws_lb.NewApp().NewInstallCmd())
 	cmd.AddCommand(cert_manager.NewApp().NewInstallCmd())
 	cmd.AddCommand(cilium.NewApp().NewInstallCmd())
 	cmd.AddCommand(NewInstallContainerInsightsCmd())
-	for _, c := range NewInstallAliasCmds(containerInsightsApps, "container-insights-") {
-		cmd.AddCommand(c)
-	}
-	for _, c := range NewInstallAliasCmds(containerInsightsApps, "ci-") {
-		cmd.AddCommand(c)
-	}
+	cmd.AddCommand(NewInstallAliasCmds(containerInsightsApps, "container-insights-")...)
+	cmd.AddCommand(NewInstallAliasCmds(containerInsightsApps, "ci-")...)
 	cmd.AddCommand(crossplane.NewApp().NewInstallCmd())
 	cmd.AddCommand(NewInstallExampleCmd())
-	for _, c := range NewInstallAliasCmds(exampleApps, "example-") {
-		cmd.AddCommand(c)
-	}
+	cmd.AddCommand(NewInstallAliasCmds(exampleApps, "example-")...)
+	cmd.AddCommand(NewInstallAliasCmds(exampleApps, "ex-")...)
 	cmd.AddCommand(external_dns.NewApp().NewInstallCmd())
 	cmd.AddCommand(falco.NewApp().NewInstallCmd())
 	cmd.AddCommand(NewInstallFluxCmd())
-	for _, c := range NewInstallAliasCmds(fluxApps, "flux-") {
-		cmd.AddCommand(c)
-	}
+	cmd.AddCommand(NewInstallAliasCmds(fluxApps, "flux-")...)
 	cmd.AddCommand(grafana_amp.NewApp().NewInstallCmd())
 	cmd.AddCommand(harbor.NewApp().NewInstallCmd())
 	cmd.AddCommand(NewInstallIngressCmd())
-	for _, c := range NewInstallAliasCmds(ingressControllers, "ingress-") {
-		cmd.AddCommand(c)
-	}
+	cmd.AddCommand(NewInstallAliasCmds(ingressControllers, "ingress-")...)
 	cmd.AddCommand(NewInstallIstioCmd())
-	for _, c := range NewInstallAliasCmds(istioApps, "istio-") {
-		cmd.AddCommand(c)
-	}
+	cmd.AddCommand(NewInstallAliasCmds(istioApps, "istio-")...)
 	cmd.AddCommand(keycloak_amg.NewApp().NewInstallCmd())
 	cmd.AddCommand(kube_prometheus.NewApp().NewInstallCmd())
 	cmd.AddCommand(kubecost.NewApp().NewInstallCmd())
 	cmd.AddCommand(metrics_server.NewApp().NewInstallCmd())
 	cmd.AddCommand(NewInstallPolicyCmd())
-	for _, c := range NewInstallAliasCmds(policyApps, "policy-") {
-		cmd.AddCommand(c)
-	}
+	cmd.AddCommand(NewInstallAliasCmds(policyApps, "policy-")...)
 	cmd.AddCommand(prometheus_amp.NewApp().NewInstallCmd())
 	cmd.AddCommand(NewInstallStorageCmd())
-	for _, c := range NewInstallAliasCmds(storageApps, "storage-") {
-		cmd.AddCommand(c)
-	}
+	cmd.AddCommand(NewInstallAliasCmds(storageApps, "storage-")...)
 	cmd.AddCommand(velero.NewApp().NewInstallCmd())
 
 	return cmd
