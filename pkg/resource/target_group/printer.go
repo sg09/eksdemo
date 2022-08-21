@@ -20,14 +20,18 @@ func NewPrinter(targetGroups []*elbv2.TargetGroup) *TargetGroupPrinter {
 
 func (p *TargetGroupPrinter) PrintTable(writer io.Writer) error {
 	table := printer.NewTablePrinter()
-	table.SetHeader([]string{"Name", "Port", "Proto", "Target", "Load Balancer"})
+	table.SetHeader([]string{"Name", "Type", "Proto:Port", "Load Balancer"})
 
 	for _, tg := range p.targetGroups {
+		proto := aws.StringValue(tg.Protocol)
+		if version := aws.StringValue(tg.ProtocolVersion); version != "" {
+			proto = version
+		}
+
 		table.AppendRow([]string{
 			aws.StringValue(tg.TargetGroupName),
-			strconv.FormatInt(aws.Int64Value(tg.Port), 10),
-			aws.StringValue(tg.Protocol),
 			aws.StringValue(tg.TargetType),
+			proto + ":" + strconv.FormatInt(aws.Int64Value(tg.Port), 10),
 			getLoadBalancer(tg),
 		})
 	}
