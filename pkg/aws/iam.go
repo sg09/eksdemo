@@ -68,7 +68,7 @@ func IamDetachRolePolicy(roleName, policyArn string) error {
 	return nil
 }
 
-func IamGetOpenIDConnectProviders(arn string) (*iam.GetOpenIDConnectProviderOutput, error) {
+func IamGetOpenIDConnectProvider(arn string) (*iam.GetOpenIDConnectProviderOutput, error) {
 	sess := GetSession()
 	svc := iam.New(sess)
 
@@ -97,7 +97,7 @@ func IamGetRole(name string) (*iam.Role, error) {
 }
 
 // Lists all managed policies that are attached to the specified IAM role.
-func IamListAttackedRolePolicies(roleName string) ([]*iam.AttachedPolicy, error) {
+func IamListAttachedRolePolicies(roleName string) ([]*iam.AttachedPolicy, error) {
 	sess := GetSession()
 	svc := iam.New(sess)
 

@@ -30,7 +30,7 @@ func (g *Getter) Get(name string, output printer.Output, options resource.Option
 	providerARN := ""
 
 	for _, p := range oidcProviders {
-		provider, err := aws.IamGetOpenIDConnectProviders(aws.StringValue(p.Arn))
+		provider, err := aws.IamGetOpenIDConnectProvider(aws.StringValue(p.Arn))
 		if err != nil {
 			return err
 		}

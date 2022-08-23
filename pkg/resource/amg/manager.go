@@ -160,7 +160,7 @@ func (m *Manager) deleteIamRole(roleArn string) error {
 	}
 
 	// Remove managed policies before deleting role
-	mgdPolicies, err := aws.IamListAttackedRolePolicies(roleName)
+	mgdPolicies, err := aws.IamListAttachedRolePolicies(roleName)
 	if err != nil {
 		return err
 	}
