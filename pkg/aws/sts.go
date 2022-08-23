@@ -5,29 +5,40 @@ import (
 	"log"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/arn"
 	"github.com/aws/aws-sdk-go/service/sts"
 )
 
-var awsAccount string
+var accountId, partition string
 
 func AccountId() string {
-	if awsAccount != "" {
-		return awsAccount
+	if accountId == "" {
+		getCallerIdentity()
 	}
-
-	sess := GetSession()
-	svc := sts.New(sess)
-	input := &sts.GetCallerIdentityInput{}
-
-	result, err := svc.GetCallerIdentity(input)
-	if err != nil {
-		log.Fatal(fmt.Errorf("failed to get AWS identity: %s", err))
-	}
-	awsAccount = aws.StringValue(result.Account)
-
-	return awsAccount
+	return accountId
 }
 
-func Region() string {
-	return aws.StringValue(GetSession().Config.Region)
+func Partition() string {
+	if partition == "" {
+		getCallerIdentity()
+	}
+	return partition
+}
+
+func getCallerIdentity() {
+	sess := GetSession()
+	svc := sts.New(sess)
+
+	result, err := svc.GetCallerIdentity(&sts.GetCallerIdentityInput{})
+	if err != nil {
+		log.Fatal(fmt.Errorf("failed to get AWS identity: %w", err))
+	}
+
+	arn, err := arn.Parse(aws.StringValue(result.Arn))
+	if err != nil {
+		log.Fatal(fmt.Errorf("failed to parse ARN looking up AWS identity: %w", err))
+	}
+
+	accountId = arn.AccountID
+	partition = arn.Partition
 }

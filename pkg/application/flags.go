@@ -59,6 +59,7 @@ func (o *ApplicationOptions) NewClusterFlag(action Action) *cmd.StringFlag {
 
 				o.Cluster = cluster
 				o.Account = aws.AccountId()
+				o.Partition = aws.Partition()
 				o.Region = aws.Region()
 
 				return nil

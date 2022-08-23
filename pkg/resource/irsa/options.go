@@ -103,7 +103,7 @@ func (o *IrsaOptions) ClusterOIDCProvider() (string, error) {
 }
 
 func (o *IrsaOptions) IrsaAnnotation() string {
-	return fmt.Sprintf("eks.amazonaws.com/role-arn: arn:aws:iam::%s:role/%s", o.Account, o.RoleName())
+	return fmt.Sprintf("eks.amazonaws.com/role-arn: arn:%s:iam::%s:role/%s", o.Partition, o.Account, o.RoleName())
 }
 
 func (o *IrsaOptions) IsPolicyDocument(t PolicyType) bool {

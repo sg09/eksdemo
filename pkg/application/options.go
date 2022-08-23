@@ -1,7 +1,6 @@
 package application
 
 import (
-	"eksdemo/pkg/aws"
 	"eksdemo/pkg/cmd"
 	"eksdemo/pkg/resource"
 	"eksdemo/pkg/resource/irsa"
@@ -43,6 +42,7 @@ type ApplicationOptions struct {
 	ClusterName    string
 	DryRun         bool
 	Namespace      string
+	Partition      string
 	Region         string
 	ServiceAccount string
 	Cluster        *eks.Cluster
@@ -112,12 +112,13 @@ func (o *ApplicationOptions) AssignCommonResourceOptions(res *resource.Resource)
 
 	r := res.Common()
 
-	r.Account = aws.AccountId()
+	r.Account = o.Account
 	r.Cluster = o.Cluster
 	r.ClusterName = o.ClusterName
 	r.KubeContext = o.kubeContext
 	r.Namespace = o.Namespace
-	r.Region = aws.Region()
+	r.Partition = o.Partition
+	r.Region = o.Region
 	r.ServiceAccount = o.ServiceAccount
 }
 
@@ -131,6 +132,7 @@ func (o *ApplicationOptions) IrsaAnnotation() string {
 			Account:        o.Account,
 			ClusterName:    o.ClusterName,
 			Namespace:      o.Namespace,
+			Partition:      o.Partition,
 			ServiceAccount: o.ServiceAccount,
 		},
 	}

@@ -36,6 +36,7 @@ type CommonOptions struct {
 	Id                string
 	KubernetesVersion string
 	Namespace         string
+	Partition         string
 	Region            string
 	ServiceAccount    string
 }

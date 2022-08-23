@@ -28,6 +28,7 @@ func (o *CommonOptions) NewClusterFlag(action Action, required bool) *cmd.String
 				o.KubernetesVersion = aws.StringValue(cluster.Version)
 
 				o.Account = aws.AccountId()
+				o.Partition = aws.Partition()
 				o.Region = aws.Region()
 
 				return nil
