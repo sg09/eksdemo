@@ -64,7 +64,7 @@ The application catalog includes:
     * `cloudwatch-agent` — Container Insights CloudWatch Agent Metrics
     * `fluent-bit` — Container Insights Fluent Bit Logs
     * `prometheus` — CloudWatch Container Insights monitoring for Prometheus
-* `crossplane` — Cloud Native Control Plane
+* `crossplane` — Cloud Native Control Planes
 * `example` — Example Applications
     * `eks-workshop` — EKS Workshop Example Microservices
     * `game-2048` — Example Game 2048
@@ -184,6 +184,7 @@ To validate the AWS region is set, you can run `eksdemo get cluster` which will 
 * To create a Fargate profile that selects workloads in the “fargate” namespace, use the `--fargate` boolean flag
 * Choose a supported EKS version with the `--version` flag or the shorthand `-v` like `-v 1.21`
 * Using a different OS like Bottlerocket or Ubuntu is as easy as `--os bottlerocket` or `--os ubuntu`
+* To use IPv6 networking, set the `--ipv6` boolean flag
 * If you need to further customize the config, add the `--dry-run` flag and it will output the eksctl YAML config file and you can copy/paste it into a file, make your edits and run `eksctl create cluster -f cluster.yaml` 
 
 In this section we will walk through the process of creating an Amazon EKS cluster using `eksdemo` that highlights some of the benefits from the list above. First, review the usage and options of the `eksdemo create cluster` command using the help flag `--help` or the shorthand `-h`.
@@ -202,6 +203,7 @@ Flags:
       --fargate           create a Fargate profile
   -h, --help              help for cluster
   -i, --instance string   instance type (default "t3.large")
+      --ipv6              use IPv6 networking
       --max int           max nodes (default 10)
       --min int           min nodes
       --no-roles          don't create IAM roles

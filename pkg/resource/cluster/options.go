@@ -22,6 +22,7 @@ type ClusterOptions struct {
 	*nodegroup.NodegroupOptions
 
 	Fargate bool
+	IPv6    bool
 	NoRoles bool
 
 	appsForIrsa  []*application.Application
@@ -72,6 +73,13 @@ func addOptions(res *resource.Resource) *resource.Resource {
 				Description: "create a Fargate profile",
 			},
 			Option: &options.Fargate,
+		},
+		&cmd.BoolFlag{
+			CommandFlag: cmd.CommandFlag{
+				Name:        "ipv6",
+				Description: "use IPv6 networking",
+			},
+			Option: &options.IPv6,
 		},
 		&cmd.BoolFlag{
 			CommandFlag: cmd.CommandFlag{

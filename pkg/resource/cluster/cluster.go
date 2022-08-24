@@ -33,6 +33,10 @@ func NewResource() *resource.Resource {
 const EksctlTemplate = `
 addons:
 - name: vpc-cni
+{{- if .IPv6 }}
+- name: coredns
+- name: kube-proxy
+{{- end }}
 
 cloudWatch:
   clusterLogging:
@@ -52,5 +56,10 @@ iam:
 {{- range .IrsaRoles }}
 {{- $.IrsaTemplate.Render .Options }}
 {{- end }}
-{{ end }}
+{{- end }}
+{{- if .IPv6 }}
+
+kubernetesNetworkConfig:
+  ipFamily: IPv6
+{{- end }}
 `
