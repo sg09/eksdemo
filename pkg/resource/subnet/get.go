@@ -22,5 +22,5 @@ func (g *Getter) Get(id string, output printer.Output, options resource.Options)
 		return err
 	}
 
-	return output.Print(os.Stdout, NewPrinter(subnets, options.Common().ClusterName))
+	return output.Print(os.Stdout, NewPrinter(subnets))
 }

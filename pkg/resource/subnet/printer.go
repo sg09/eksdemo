@@ -2,9 +2,7 @@ package subnet
 
 import (
 	"eksdemo/pkg/aws"
-	"eksdemo/pkg/eksctl"
 	"eksdemo/pkg/printer"
-	"fmt"
 	"io"
 	"strconv"
 	"strings"
@@ -13,41 +11,42 @@ import (
 )
 
 type SubnetPrinter struct {
-	subnets     []*ec2.Subnet
-	clusterName string
+	subnets       []*ec2.Subnet
+	multipleCidrs bool
 }
 
-func NewPrinter(subnets []*ec2.Subnet, clusterName string) *SubnetPrinter {
-	return &SubnetPrinter{subnets, clusterName}
+func NewPrinter(subnets []*ec2.Subnet) *SubnetPrinter {
+	return &SubnetPrinter{subnets: subnets}
 }
 
 func (p *SubnetPrinter) PrintTable(writer io.Writer) error {
 	table := printer.NewTablePrinter()
-	table.SetHeader([]string{"Id", "Name", "CIDR Block", "Avail IP"})
-
-	namePrefix := eksctl.TagNamePrefix(p.clusterName)
-	prefixFound := false
+	table.SetHeader([]string{"Id", "Zone", "IPv4 CIDR", "Free", "IPv6 CIDR"})
 
 	for _, subnet := range p.subnets {
-		name := p.getName(subnet)
+		v6Cidrs := make([]string, 0, len(subnet.Ipv6CidrBlockAssociationSet))
+		for _, cbas := range subnet.Ipv6CidrBlockAssociationSet {
+			v6Cidrs = append(v6Cidrs, aws.StringValue(cbas.Ipv6CidrBlock))
+		}
 
-		if strings.HasPrefix(name, namePrefix) {
-			prefixFound = true
-			name = "*" + name[len(namePrefix):]
+		if len(v6Cidrs) > 1 {
+			p.multipleCidrs = true
 		}
 
 		table.AppendRow([]string{
 			aws.StringValue(subnet.SubnetId),
-			name,
+			aws.StringValue(subnet.AvailabilityZone),
 			aws.StringValue(subnet.CidrBlock),
 			strconv.Itoa(int(aws.Int64Value(subnet.AvailableIpAddressCount))),
+			strings.Join(v6Cidrs, "\n"),
 		})
 	}
 
-	table.Print(writer)
-	if prefixFound {
-		fmt.Printf("* Name begins with %q\n", namePrefix)
+	if p.multipleCidrs {
+		table.SeparateRows()
 	}
+
+	table.Print(writer)
 
 	return nil
 }
@@ -58,15 +57,4 @@ func (p *SubnetPrinter) PrintJSON(writer io.Writer) error {
 
 func (p *SubnetPrinter) PrintYAML(writer io.Writer) error {
 	return printer.EncodeYAML(writer, p.subnets)
-}
-
-func (p *SubnetPrinter) getName(subnet *ec2.Subnet) string {
-	name := ""
-	for _, tag := range subnet.Tags {
-		if aws.StringValue(tag.Key) == "Name" {
-			name = aws.StringValue(tag.Value)
-			continue
-		}
-	}
-	return name
 }
