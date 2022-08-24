@@ -17,7 +17,7 @@ type Options interface {
 	PreCreate() error
 	PreDelete() error
 	SetName(string)
-	Validate() error
+	Validate(args []string) error
 }
 
 type CommonOptions struct {
@@ -136,6 +136,6 @@ func (o *CommonOptions) SetName(name string) {
 	o.Name = name
 }
 
-func (o *CommonOptions) Validate() error {
+func (o *CommonOptions) Validate(args []string) error {
 	return nil
 }

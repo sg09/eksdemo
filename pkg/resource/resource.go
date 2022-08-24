@@ -52,7 +52,7 @@ func (r *Resource) NewCreateCmd() *cobra.Command {
 				return err
 			}
 
-			if err := r.Options.Validate(); err != nil {
+			if err := r.Options.Validate(args); err != nil {
 				return err
 			}
 
@@ -162,6 +162,10 @@ func (r *Resource) NewGetCmd() *cobra.Command {
 		Hidden:  r.Hidden,
 		RunE: func(cmd *cobra.Command, args []string) error {
 			if err := r.GetFlags.ValidateFlags(cmd, args); err != nil {
+				return err
+			}
+
+			if err := r.Options.Validate(args); err != nil {
 				return err
 			}
 			cmd.SilenceUsage = true
