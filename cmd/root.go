@@ -3,6 +3,7 @@ package cmd
 import (
 	"eksdemo/cmd/create"
 	"eksdemo/cmd/install"
+	"eksdemo/pkg/aws"
 	"fmt"
 	"os"
 
@@ -10,7 +11,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-var cfgFile string
+var cfgFile, region, profile string
 
 var rootCmd = &cobra.Command{
 	Use:              "eksdemo",
@@ -30,6 +31,8 @@ func preRun(cmd *cobra.Command, args []string) {
 	// This will work in the future if the issue below is fixed:
 	// https://github.com/spf13/cobra/issues/1413
 	// cmd.SilenceUsage = true
+
+	aws.Init(profile, region)
 }
 
 func init() {
@@ -45,6 +48,8 @@ func init() {
 
 	// TODO: implement configuration
 	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.eksdemo.yaml)")
+	rootCmd.PersistentFlags().StringVar(&profile, "profile", "", "use the specific profile from your credential file")
+	rootCmd.PersistentFlags().StringVar(&region, "region", "", "the region to use, overrides config/env settings")
 
 	// Hide help command
 	rootCmd.SetHelpCommand(&cobra.Command{

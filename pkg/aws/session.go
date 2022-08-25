@@ -8,8 +8,14 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 )
 
+var profile string
 var region string
 var sess *session.Session
+
+func Init(awsProfile, awsRegion string) {
+	profile = awsProfile
+	region = awsRegion
+}
 
 func GetSession() *session.Session {
 	if sess != nil {
@@ -18,6 +24,11 @@ func GetSession() *session.Session {
 	var err error
 
 	sess, err = session.NewSessionWithOptions(session.Options{
+		Config: aws.Config{
+			CredentialsChainVerboseErrors: aws.Bool(true),
+			Region:                        aws.String(region),
+		},
+		Profile:           profile,
 		SharedConfigState: session.SharedConfigEnable,
 	})
 	if err != nil {
