@@ -16,6 +16,7 @@ import (
 func NewApp() *application.Application {
 	app := &application.Application{
 		Command: cmd.Command{
+			Parent:      "ingress",
 			Name:        "emissary",
 			Description: "Open Source API Gateway from Ambassador",
 		},

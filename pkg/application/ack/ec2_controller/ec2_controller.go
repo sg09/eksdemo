@@ -20,6 +20,7 @@ import (
 func NewApp() *application.Application {
 	app := &application.Application{
 		Command: cmd.Command{
+			Parent:      "ack",
 			Name:        "ec2-controller",
 			Description: "ACK EC2 Controller",
 			Aliases:     []string{"ec2"},

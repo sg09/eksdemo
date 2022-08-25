@@ -16,6 +16,7 @@ import (
 func NewApp() *application.Application {
 	app := &application.Application{
 		Command: cmd.Command{
+			Parent:      "argo",
 			Name:        "cd",
 			Description: "Declarative continuous deployment for Kubernetes",
 		},

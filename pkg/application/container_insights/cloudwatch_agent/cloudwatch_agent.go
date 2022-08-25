@@ -18,6 +18,7 @@ import (
 func NewApp() *application.Application {
 	app := &application.Application{
 		Command: cmd.Command{
+			Parent:      "container-insights",
 			Name:        "cloudwatch-agent",
 			Description: "Container Insights CloudWatch Agent Metrics",
 			Aliases:     []string{"cloudwatch", "cwa"},

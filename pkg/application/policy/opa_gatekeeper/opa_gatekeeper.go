@@ -18,6 +18,7 @@ func NewApp() *application.Application {
 
 	app := &application.Application{
 		Command: cmd.Command{
+			Parent:      "policy",
 			Name:        "opa-gatekeeper",
 			Description: "Policy Controller for Kubernetes",
 			Aliases:     []string{"opa", "gatekeeper"},

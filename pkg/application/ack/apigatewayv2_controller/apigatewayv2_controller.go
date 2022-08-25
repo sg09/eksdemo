@@ -20,6 +20,7 @@ import (
 func NewApp() *application.Application {
 	app := &application.Application{
 		Command: cmd.Command{
+			Parent:      "ack",
 			Name:        "apigatewayv2-controller",
 			Description: "ACK API Gateway v2 Controller",
 			Aliases:     []string{"apigatewayv2", "apigwv2"},

@@ -18,6 +18,7 @@ import (
 func NewApp() *application.Application {
 	app := &application.Application{
 		Command: cmd.Command{
+			Parent:      "container-insights",
 			Name:        "fluent-bit",
 			Description: "Container Insights Fluent Bit Logs",
 			Aliases:     []string{"fluentbit"},

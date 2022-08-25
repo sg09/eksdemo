@@ -18,6 +18,7 @@ func NewApp() *application.Application {
 
 	app := &application.Application{
 		Command: cmd.Command{
+			Parent:      "example",
 			Name:        "wordpress",
 			Description: "WordPress Blog",
 		},

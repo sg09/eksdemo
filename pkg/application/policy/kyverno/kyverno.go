@@ -16,6 +16,7 @@ import (
 func NewApp() *application.Application {
 	app := &application.Application{
 		Command: cmd.Command{
+			Parent:      "policy",
 			Name:        "kyverno",
 			Description: "Kubernetes Native Policy Management",
 		},

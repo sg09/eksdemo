@@ -15,6 +15,7 @@ import (
 func NewApp() *application.Application {
 	app := &application.Application{
 		Command: cmd.Command{
+			Parent:      "flux",
 			Name:        "sync",
 			Description: "Flux GitRepository to sync with",
 		},

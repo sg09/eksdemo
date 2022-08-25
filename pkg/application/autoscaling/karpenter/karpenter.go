@@ -20,6 +20,7 @@ import (
 func NewApp() *application.Application {
 	app := &application.Application{
 		Command: cmd.Command{
+			Parent:      "autoscaling",
 			Name:        "karpenter",
 			Description: "Karpenter Node Autoscaling",
 		},

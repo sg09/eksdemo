@@ -14,6 +14,7 @@ import (
 func NewApp() *application.Application {
 	app := &application.Application{
 		Command: cmd.Command{
+			Parent:      "example",
 			Name:        "game-2048",
 			Description: "Example Game 2048",
 			Aliases:     []string{"game2048", "2048"},

@@ -16,6 +16,7 @@ import (
 func NewApp() *application.Application {
 	app := &application.Application{
 		Command: cmd.Command{
+			Parent:      "ingress",
 			Name:        "contour",
 			Description: "Ingress Controller using Envoy proxy",
 		},

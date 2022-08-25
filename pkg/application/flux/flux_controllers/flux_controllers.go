@@ -16,6 +16,7 @@ import (
 func NewApp() *application.Application {
 	app := &application.Application{
 		Command: cmd.Command{
+			Parent:      "flux",
 			Name:        "controllers",
 			Description: "Flux Controllers",
 		},

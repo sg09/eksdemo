@@ -20,6 +20,7 @@ import (
 func NewApp() *application.Application {
 	app := &application.Application{
 		Command: cmd.Command{
+			Parent:      "example",
 			Name:        "eks-workshop",
 			Description: "EKS Workshop Example Microservices",
 			Aliases:     []string{"eksworkshop"},

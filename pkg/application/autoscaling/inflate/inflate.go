@@ -13,6 +13,7 @@ import (
 func NewApp() *application.Application {
 	app := &application.Application{
 		Command: cmd.Command{
+			Parent:      "autoscaling",
 			Name:        "inflate",
 			Description: "Example App to Demonstrate Autoscaling",
 		},

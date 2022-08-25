@@ -14,6 +14,7 @@ import (
 func NewApp() *application.Application {
 	app := &application.Application{
 		Command: cmd.Command{
+			Parent:      "example",
 			Name:        "kube-ops-view",
 			Description: "Kubernetes Operational View",
 			Aliases:     []string{"kubeopsview"},

@@ -18,6 +18,7 @@ import (
 func NewApp() *application.Application {
 	app := &application.Application{
 		Command: cmd.Command{
+			Parent:      "storage",
 			Name:        "fsx-csi",
 			Description: "Amazon FSx for Lustre CSI Driver",
 			Aliases:     []string{"fsxcsi", "fsx"},

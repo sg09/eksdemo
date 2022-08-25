@@ -18,6 +18,7 @@ func NewApp() *application.Application {
 
 	app := &application.Application{
 		Command: cmd.Command{
+			Parent:      "autoscaling",
 			Name:        "vpa",
 			Description: "Vertical Pod Autoscaler",
 		},

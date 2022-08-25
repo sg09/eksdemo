@@ -18,6 +18,7 @@ import (
 func NewApp() *application.Application {
 	app := &application.Application{
 		Command: cmd.Command{
+			Parent:      "storage",
 			Name:        "efs-csi",
 			Description: "Amazon EFS CSI driver",
 			Aliases:     []string{"efscsi", "efs"},

@@ -19,6 +19,7 @@ import (
 func NewApp() *application.Application {
 	app := &application.Application{
 		Command: cmd.Command{
+			Parent:      "ack",
 			Name:        "ecr-controller",
 			Description: "ACK ECR Controller",
 			Aliases:     []string{"ecr"},

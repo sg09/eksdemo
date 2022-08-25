@@ -16,6 +16,7 @@ import (
 func NewApp() *application.Application {
 	app := &application.Application{
 		Command: cmd.Command{
+			Parent:      "ingress",
 			Name:        "nginx",
 			Description: "NGINX Ingress Controller",
 		},

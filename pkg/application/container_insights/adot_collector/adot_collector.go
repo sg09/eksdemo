@@ -18,6 +18,7 @@ import (
 func NewApp() *application.Application {
 	app := &application.Application{
 		Command: cmd.Command{
+			Parent:      "container-insights",
 			Name:        "adot-collector",
 			Description: "Container Insights ADOT Collector Metrics",
 			Aliases:     []string{"adot"},

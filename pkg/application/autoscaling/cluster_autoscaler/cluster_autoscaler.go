@@ -18,6 +18,7 @@ import (
 func NewApp() *application.Application {
 	app := &application.Application{
 		Command: cmd.Command{
+			Parent:      "autoscaling",
 			Name:        "cluster-autoscaler",
 			Description: "Kubernetes Cluster Autoscaler",
 			Aliases:     []string{"ca"},

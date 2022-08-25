@@ -18,6 +18,7 @@ func NewApp() *application.Application {
 
 	app := &application.Application{
 		Command: cmd.Command{
+			Parent:      "autoscaling",
 			Name:        "keda",
 			Description: "Kubernetes-based Event Driven Autoscaling",
 		},

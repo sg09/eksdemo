@@ -16,6 +16,7 @@ import (
 func NewApp() *application.Application {
 	app := &application.Application{
 		Command: cmd.Command{
+			Parent:      "istio",
 			Name:        "istiod",
 			Description: "Istio Control Plane",
 			Aliases:     []string{"control-plane", "control", "cp"},
