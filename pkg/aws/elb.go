@@ -42,6 +42,29 @@ func ELBDeleteTargetGroup(arn string) error {
 	return err
 }
 
+func ELBDescribeListeners(loadBalancerArn string) ([]*elbv2.Listener, error) {
+	sess := GetSession()
+	svc := elbv2.New(sess)
+
+	listeners := []*elbv2.Listener{}
+	input := &elbv2.DescribeListenersInput{}
+	pageNum := 0
+
+	if loadBalancerArn != "" {
+		input.LoadBalancerArn = aws.String(loadBalancerArn)
+	}
+
+	err := svc.DescribeListenersPages(input,
+		func(page *elbv2.DescribeListenersOutput, lastPage bool) bool {
+			pageNum++
+			listeners = append(listeners, page.Listeners...)
+			return pageNum <= maxPages
+		},
+	)
+
+	return listeners, err
+}
+
 func ELBDescribeLoadBalancersv1(name string) ([]*elb.LoadBalancerDescription, error) {
 	sess := GetSession()
 	svc := elb.New(sess)
