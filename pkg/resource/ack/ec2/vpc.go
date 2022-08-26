@@ -48,7 +48,7 @@ func NewVpcResource() *resource.Resource {
 	}
 
 	res.Options = options
-	res.Flags = flags
+	res.CreateFlags = flags
 
 	return res
 }

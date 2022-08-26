@@ -90,7 +90,7 @@ func addOptions(res *resource.Resource) *resource.Resource {
 		},
 	}
 
-	res.Flags = append(ngFlags, flags...)
+	res.CreateFlags = append(ngFlags, flags...)
 
 	return res
 }

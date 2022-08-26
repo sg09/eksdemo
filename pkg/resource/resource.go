@@ -11,9 +11,9 @@ import (
 
 type Resource struct {
 	cmd.Command
-	cmd.Flags
 	Options
 
+	CreateFlags cmd.Flags
 	DeleteFlags cmd.Flags
 	GetFlags    cmd.Flags
 	UpdateFlags cmd.Flags
@@ -48,7 +48,7 @@ func (r *Resource) NewCreateCmd() *cobra.Command {
 		Args:    cobra.ExactArgs(len(r.Args)),
 		Hidden:  r.Hidden,
 		RunE: func(cmd *cobra.Command, args []string) error {
-			if err := r.Flags.ValidateFlags(cmd, args); err != nil {
+			if err := r.CreateFlags.ValidateFlags(cmd, args); err != nil {
 				return err
 			}
 
@@ -80,7 +80,7 @@ func (r *Resource) NewCreateCmd() *cobra.Command {
 			return r.PostCreate()
 		},
 	}
-	r.Flags = r.Options.AddCreateFlags(cmd, r.Flags)
+	r.CreateFlags = r.Options.AddCreateFlags(cmd, r.CreateFlags)
 
 	return cmd
 }

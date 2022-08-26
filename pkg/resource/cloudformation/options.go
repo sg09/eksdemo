@@ -1,7 +1,6 @@
 package cloudformation
 
 import (
-	"eksdemo/pkg/cmd"
 	"eksdemo/pkg/resource"
 )
 
@@ -9,7 +8,7 @@ type CloudFormationOptions struct {
 	resource.CommonOptions
 }
 
-func NewOptions() (options *CloudFormationOptions, flags cmd.Flags) {
+func newOptions() (options *CloudFormationOptions) {
 	options = &CloudFormationOptions{
 		CommonOptions: resource.CommonOptions{
 			Name:                "cloudformation",
@@ -17,8 +16,6 @@ func NewOptions() (options *CloudFormationOptions, flags cmd.Flags) {
 			ClusterFlagOptional: true,
 		},
 	}
-
-	flags = cmd.Flags{}
 
 	return
 }

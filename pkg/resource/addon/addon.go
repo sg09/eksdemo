@@ -26,7 +26,7 @@ func NewResource() *resource.Resource {
 		},
 	}
 
-	res.Options, res.Flags = NewOptions()
+	res.Options, res.CreateFlags = NewOptions()
 
 	return res
 }

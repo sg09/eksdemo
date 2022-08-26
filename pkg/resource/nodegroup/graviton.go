@@ -16,7 +16,7 @@ func NewGravitonResource() *resource.Resource {
 	}
 
 	res.Options = &resource.CommonOptions{}
-	res.Flags = cmd.Flags{}
+	res.CreateFlags = cmd.Flags{}
 
 	return res
 }

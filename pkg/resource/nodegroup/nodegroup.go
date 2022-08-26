@@ -29,7 +29,7 @@ func NewResource() *resource.Resource {
 		},
 	}
 
-	res.Options, res.Flags, res.UpdateFlags = NewOptions()
+	res.Options, res.CreateFlags, res.UpdateFlags = NewOptions()
 
 	return res
 }

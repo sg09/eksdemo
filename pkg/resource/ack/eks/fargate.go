@@ -57,7 +57,7 @@ func NewFargateProfileResource() *resource.Resource {
 	}
 
 	res.Options = options
-	res.Flags = flags
+	res.CreateFlags = flags
 
 	return res
 }

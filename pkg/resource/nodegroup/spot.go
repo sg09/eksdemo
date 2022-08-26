@@ -25,7 +25,7 @@ func NewSpotResource() *resource.Resource {
 		},
 	}
 
-	res.Options, res.Flags = NewSpotOptions()
+	res.Options, res.CreateFlags = NewSpotOptions()
 
 	return res
 }

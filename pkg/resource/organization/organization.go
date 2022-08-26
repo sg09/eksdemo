@@ -8,7 +8,7 @@ import (
 func NewResource() *resource.Resource {
 	options, flags := NewOptions()
 	res := NewResourceWithOptions(options)
-	res.Flags = flags
+	res.CreateFlags = flags
 
 	return res
 }

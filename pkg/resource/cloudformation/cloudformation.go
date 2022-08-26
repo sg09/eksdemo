@@ -6,11 +6,7 @@ import (
 )
 
 func NewResource() *resource.Resource {
-	options, flags := NewOptions()
-	res := NewResourceWithOptions(options)
-	res.Flags = flags
-
-	return res
+	return NewResourceWithOptions(newOptions())
 }
 
 func NewResourceWithOptions(options *CloudFormationOptions) *resource.Resource {

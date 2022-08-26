@@ -43,7 +43,7 @@ func addOptions(res *resource.Resource) *resource.Resource {
 
 	res.Options = options
 
-	res.Flags = cmd.Flags{
+	res.CreateFlags = cmd.Flags{
 		&cmd.StringSliceFlag{
 			CommandFlag: cmd.CommandFlag{
 				Name:        "attach-arns",
