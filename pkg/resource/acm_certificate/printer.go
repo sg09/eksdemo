@@ -4,6 +4,7 @@ import (
 	"eksdemo/pkg/aws"
 	"eksdemo/pkg/printer"
 	"io"
+	"regexp"
 	"time"
 
 	"github.com/aws/aws-sdk-go/service/acm"
@@ -20,7 +21,9 @@ func NewPrinter(certs []*acm.CertificateDetail) *CertificatePrinter {
 
 func (p *CertificatePrinter) PrintTable(writer io.Writer) error {
 	table := printer.NewTablePrinter()
-	table.SetHeader([]string{"Age", "Name", "Status", "In Use"})
+	table.SetHeader([]string{"Age", "Id", "Name", "Status", "In Use"})
+
+	resourceId := regexp.MustCompile(`[^:/]*$`)
 
 	for _, c := range p.certs {
 		age := durafmt.ParseShort(time.Since(aws.TimeValue(c.CreatedAt)))
@@ -34,6 +37,7 @@ func (p *CertificatePrinter) PrintTable(writer io.Writer) error {
 
 		table.AppendRow([]string{
 			age.String(),
+			resourceId.FindString(aws.StringValue(c.CertificateArn)),
 			aws.StringValue(c.DomainName),
 			aws.StringValue(c.Status),
 			inUse,
