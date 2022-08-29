@@ -5,6 +5,7 @@ import (
 	"eksdemo/pkg/application/example/eks_workshop"
 	"eksdemo/pkg/application/example/game_2048"
 	"eksdemo/pkg/application/example/kube_ops_view"
+	"eksdemo/pkg/application/example/podinfo"
 	"eksdemo/pkg/application/example/wordpress"
 
 	"github.com/spf13/cobra"
@@ -50,6 +51,7 @@ func init() {
 		eks_workshop.NewApp,
 		game_2048.NewApp,
 		kube_ops_view.NewApp,
+		podinfo.NewApp,
 		wordpress.NewApp,
 	}
 }
