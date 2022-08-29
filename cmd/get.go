@@ -22,6 +22,7 @@ import (
 	"eksdemo/pkg/resource/iam_role"
 	"eksdemo/pkg/resource/irsa"
 	"eksdemo/pkg/resource/listener"
+	"eksdemo/pkg/resource/listener_rule"
 	"eksdemo/pkg/resource/load_balancer"
 	"eksdemo/pkg/resource/log_event"
 	"eksdemo/pkg/resource/log_group"
@@ -100,6 +101,7 @@ func init() {
 	getCmd.AddCommand(iam_role.NewResource().NewGetCmd())
 	getCmd.AddCommand(irsa.NewResource().NewGetCmd())
 	getCmd.AddCommand(listener.NewResource().NewGetCmd())
+	getCmd.AddCommand(listener_rule.NewResource().NewGetCmd())
 	getCmd.AddCommand(load_balancer.NewResource().NewGetCmd())
 	getCmd.AddCommand(log_event.NewResource().NewGetCmd())
 	getCmd.AddCommand(log_group.NewResource().NewGetCmd())

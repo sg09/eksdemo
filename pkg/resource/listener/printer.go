@@ -21,19 +21,11 @@ func NewPrinter(listeners []*elbv2.Listener) *ListenerPrinter {
 
 func (p *ListenerPrinter) PrintTable(writer io.Writer) error {
 	table := printer.NewTablePrinter()
-	table.SetHeader([]string{"Proto:Port", "Target Group Name", "Default Certificate Id"})
+	table.SetHeader([]string{"Id", "Prot:Port", "Default Certificate Id", "Default Action"})
 
 	resourceId := regexp.MustCompile(`[^:/]*$`)
 
 	for _, l := range p.listeners {
-		tgNames := []string{}
-		for _, da := range l.DefaultActions {
-			tgNames = append(tgNames, tgName(aws.StringValue(da.TargetGroupArn)))
-		}
-		if len(tgNames) > 1 {
-			table.SeparateRows()
-		}
-
 		// DescribeListeners API documentation states that only the default certificate is included
 		// https://docs.aws.amazon.com/elasticloadbalancing/latest/APIReference/API_DescribeListeners.html
 		defaultCert := "-"
@@ -42,12 +34,14 @@ func (p *ListenerPrinter) PrintTable(writer io.Writer) error {
 		}
 
 		table.AppendRow([]string{
+			resourceId.FindString(aws.StringValue(l.ListenerArn)),
 			aws.StringValue(l.Protocol) + ":" + strconv.FormatInt(aws.Int64Value(l.Port), 10),
-			strings.Join(tgNames, "\n"),
 			defaultCert,
+			strings.Join(PrintActions(l.DefaultActions), "\n"),
 		})
 	}
 
+	table.SeparateRows()
 	table.Print(writer)
 
 	return nil
@@ -59,6 +53,34 @@ func (p *ListenerPrinter) PrintJSON(writer io.Writer) error {
 
 func (p *ListenerPrinter) PrintYAML(writer io.Writer) error {
 	return printer.EncodeYAML(writer, p.listeners)
+}
+
+func PrintActions(elbActions []*elbv2.Action) (actions []string) {
+	for _, a := range elbActions {
+		switch {
+		case a.AuthenticateCognitoConfig != nil || a.AuthenticateOidcConfig != nil:
+			actions = append(actions, "TODO: authenticate action")
+
+		case a.FixedResponseConfig != nil:
+			actions = append(actions, "return fixed response "+aws.StringValue(a.FixedResponseConfig.StatusCode))
+
+		case a.ForwardConfig != nil:
+			tgNames := []string{}
+			for _, tg := range a.ForwardConfig.TargetGroups {
+				tgNames = append(tgNames, tgName(aws.StringValue(tg.TargetGroupArn)))
+			}
+			actions = append(actions, "forward to "+strings.Join(tgNames, "\n"))
+
+		case a.RedirectConfig != nil:
+			prot := aws.StringValue(a.RedirectConfig.Protocol)
+			host := aws.StringValue(a.RedirectConfig.Host)
+			port := aws.StringValue(a.RedirectConfig.Port)
+			path := aws.StringValue(a.RedirectConfig.Path)
+			query := aws.StringValue(a.RedirectConfig.Query)
+			actions = append(actions, "redirect to "+prot+"://"+host+":"+port+path+"?"+query)
+		}
+	}
+	return
 }
 
 func tgName(tgArn string) string {

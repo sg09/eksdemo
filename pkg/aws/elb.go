@@ -111,6 +111,23 @@ func ELBDescribeLoadBalancersv2(name string) ([]*elbv2.LoadBalancer, error) {
 	return elbs, err
 }
 
+func ELBDescribeRules(listenerArn string, ruleArns []string) ([]*elbv2.Rule, error) {
+	sess := GetSession()
+	svc := elbv2.New(sess)
+
+	input := &elbv2.DescribeRulesInput{}
+
+	if listenerArn != "" {
+		input.ListenerArn = aws.String(listenerArn)
+	} else {
+		input.RuleArns = aws.StringSlice(ruleArns)
+	}
+
+	result, err := svc.DescribeRules(input)
+
+	return result.Rules, err
+}
+
 func ELBDescribeTargetGroups(name, loadBalancerArn string) ([]*elbv2.TargetGroup, error) {
 	sess := GetSession()
 	svc := elbv2.New(sess)
