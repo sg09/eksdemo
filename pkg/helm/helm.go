@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/url"
 	"os"
+	"strings"
 	"time"
 
 	"helm.sh/helm/v3/pkg/action"
@@ -130,6 +131,12 @@ func (h *Helm) Install(chart *chart.Chart, kubeContext string) error {
 
 	fmt.Printf("Using chart version %q, installed %q version %q in namespace %q\n",
 		rel.Chart.Metadata.Version, rel.Name, rel.Chart.Metadata.AppVersion, rel.Namespace)
+
+	// Print the Chart NOTES
+	if len(rel.Info.Notes) > 0 {
+		fmt.Printf("NOTES:\n%s\n", strings.TrimSpace(rel.Info.Notes))
+	}
+
 	return nil
 }
 
