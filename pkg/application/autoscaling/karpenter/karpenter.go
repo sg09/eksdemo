@@ -15,7 +15,7 @@ import (
 // GitHub:  https://github.com/awslabs/karpenter
 // Helm:    https://github.com/awslabs/karpenter/tree/main/charts/karpenter
 // Repo:    https://gallery.ecr.aws/karpenter/controller
-// Version: Latest is v0.14.0 (as of 08/14/22)
+// Version: Latest is v0.16.0 (as of 08/29/22)
 
 func NewApp() *application.Application {
 	app := &application.Application{
@@ -95,7 +95,7 @@ Statement:
 - Effect: Allow
   Action:
   - iam:PassRole
-  Resource: arn:aws:iam::{{ .Account }}:role/KarpenterNodeRole-{{ .ClusterName }}
+  Resource: arn:{{ .Partition }}:iam::{{ .Account }}:role/KarpenterNodeRole-{{ .ClusterName }}
 `
 
 const valuesTemplate = `---

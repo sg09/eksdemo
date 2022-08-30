@@ -34,10 +34,17 @@ spec:
   limits:
     resources:
       cpu: 1000
-  provider:
-    subnetSelector:
-      Name: eksctl-{{ .ClusterName }}-cluster/SubnetPrivate*
-    securityGroupSelector:
-      aws:eks:cluster-name: {{ .ClusterName }}
+  providerRef:
+    name: default
   ttlSecondsAfterEmpty: 30
+---
+apiVersion: karpenter.k8s.aws/v1alpha1
+kind: AWSNodeTemplate
+metadata:
+  name: default
+spec:
+  subnetSelector:
+    Name: eksctl-{{ .ClusterName }}-cluster/SubnetPrivate*
+  securityGroupSelector:
+    aws:eks:cluster-name: {{ .ClusterName }}
 `
