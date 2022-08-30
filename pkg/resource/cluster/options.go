@@ -97,6 +97,8 @@ func addOptions(res *resource.Resource) *resource.Resource {
 
 func (o *ClusterOptions) PreCreate() error {
 	o.Account = aws.AccountId()
+	o.Partition = aws.Partition()
+	o.Region = aws.Region()
 	o.NodegroupOptions.KubernetesVersion = o.KubernetesVersion
 
 	// For apps we want to pre-create IRSA for, find the IRSA dependency
@@ -105,8 +107,11 @@ func (o *ClusterOptions) PreCreate() error {
 			if res.Name != "irsa" {
 				continue
 			}
-			// Populate the IRSA Resource with data (Cluster, Namespace, ServiceAccount)
+			// Populate the IRSA Resource with Account, Cluster, Namespace, Partition, Region, ServiceAccount
+			app.Common().Account = o.Account
 			app.Common().ClusterName = o.ClusterName
+			app.Common().Region = o.ClusterName
+			app.Common().Partition = o.Partition
 			app.AssignCommonResourceOptions(res)
 			res.SetName(app.Common().ServiceAccount)
 
@@ -118,6 +123,8 @@ func (o *ClusterOptions) PreCreate() error {
 }
 
 func (o *ClusterOptions) PreDelete() error {
+	o.Region = aws.Region()
+
 	getter := cloudformation.Getter{}
 	stacks, err := getter.GetStacksByCluster(o.ClusterName, "")
 	if err != nil {
@@ -140,5 +147,4 @@ func (o *ClusterOptions) PreDelete() error {
 
 func (o *ClusterOptions) SetName(name string) {
 	o.ClusterName = name
-	o.Region = aws.Region()
 }
