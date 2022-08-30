@@ -29,7 +29,9 @@ func (p *SubnetPrinter) PrintTable(writer io.Writer) error {
 			v6Cidrs = append(v6Cidrs, aws.StringValue(cbas.Ipv6CidrBlock))
 		}
 
-		if len(v6Cidrs) > 1 {
+		if len(v6Cidrs) == 0 {
+			v6Cidrs = []string{"-"}
+		} else {
 			p.multipleCidrs = true
 		}
 

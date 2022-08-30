@@ -44,7 +44,9 @@ func (p *VpcPrinter) PrintTable(writer io.Writer) error {
 			v6Cidrs = append(v6Cidrs, aws.StringValue(cba.Ipv6CidrBlock))
 		}
 
-		if len(v4Cidrs) > 1 || len(v6Cidrs) > 1 {
+		if len(v6Cidrs) == 0 {
+			v6Cidrs = []string{"-"}
+		} else if len(v4Cidrs) > 1 || len(v6Cidrs) > 1 {
 			p.multipleCidrs = true
 		}
 
