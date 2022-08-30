@@ -60,8 +60,7 @@ func NewResource() *resource.Resource {
 	return res
 }
 
-const yamlTemplate = `
----
+const yamlTemplate = `---
 apiVersion: ecr.services.k8s.aws/v1alpha1
 kind: Repository
 metadata:
@@ -74,5 +73,4 @@ spec:
 {{- if .ImmutableTags }}
   imageTagMutability: IMMUTABLE
 {{- end }}
-...
 `

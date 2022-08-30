@@ -32,8 +32,7 @@ func NewResource() *resource.Resource {
 	return res
 }
 
-const yamlTemplate = `
----
+const yamlTemplate = `---
 apiVersion: s3.services.k8s.aws/v1alpha1
 kind: Bucket
 metadata:
@@ -41,5 +40,4 @@ metadata:
   namespace: {{ .Namespace }}
 spec:
   name: {{ .Name }}
-...
 `

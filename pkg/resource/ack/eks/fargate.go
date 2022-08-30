@@ -76,8 +76,7 @@ func (o *FargateProfileOptions) PreCreate() error {
 	return nil
 }
 
-const subnetYamlTemplate = `
----
+const subnetYamlTemplate = `---
 apiVersion: eks.services.k8s.aws/v1alpha1
 kind: FargateProfile
 metadata:
@@ -93,5 +92,4 @@ spec:
 {{- range .Subnets }}
   - {{ . }}
 {{- end }}
-...
 `

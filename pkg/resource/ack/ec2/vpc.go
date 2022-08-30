@@ -53,8 +53,7 @@ func NewVpcResource() *resource.Resource {
 	return res
 }
 
-const vpcYamlTemplate = `
----
+const vpcYamlTemplate = `---
 apiVersion: ec2.services.k8s.aws/v1alpha1
 kind: VPC
 metadata:
@@ -67,5 +66,4 @@ spec:
     tags:
     - key: Name
       value: {{ .Name }}
-...
 `

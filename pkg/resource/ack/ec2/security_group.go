@@ -53,8 +53,7 @@ func NewSecurityGroupResource() *resource.Resource {
 	return res
 }
 
-const securityGroupYamlTemplate = `
----
+const securityGroupYamlTemplate = `---
 apiVersion: ec2.services.k8s.aws/v1alpha1
 kind: SecurityGroup
 metadata:
@@ -69,5 +68,4 @@ spec:
     - key: Name
       value: {{ .Name }}
   vpcID: {{ .Cluster.ResourcesVpcConfig.VpcId }}
-...
 `

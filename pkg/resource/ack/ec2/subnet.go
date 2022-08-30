@@ -69,8 +69,7 @@ func (o *SubnetOptions) PreCreate() error {
 	return nil
 }
 
-const subnetYamlTemplate = `
----
+const subnetYamlTemplate = `---
 apiVersion: ec2.services.k8s.aws/v1alpha1
 kind: Subnet
 metadata:
@@ -84,5 +83,4 @@ spec:
     - key: Name
       value: {{ .Name }}
   vpcID: {{ .VpcId }}
-...
 `
