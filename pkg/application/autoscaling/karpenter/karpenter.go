@@ -18,6 +18,8 @@ import (
 // Version: Latest is v0.16.0 (as of 08/29/22)
 
 func NewApp() *application.Application {
+	options, flags := newOptions()
+
 	app := &application.Application{
 		Command: cmd.Command{
 			Parent:      "autoscaling",
@@ -59,10 +61,11 @@ func NewApp() *application.Application {
 		},
 
 		PostInstallResources: []*resource.Resource{
-			karpenterDefaultProvisioner(),
+			karpenterDefaultProvisioner(options),
 		},
 	}
-	app.Options, app.Flags = NewOptions()
+	app.Options = options
+	app.Flags = flags
 
 	return app
 }

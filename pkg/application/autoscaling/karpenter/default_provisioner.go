@@ -6,10 +6,18 @@ import (
 	"eksdemo/pkg/template"
 )
 
-func karpenterDefaultProvisioner() *resource.Resource {
+type ProvisionerOptions struct {
+	resource.CommonOptions
+	*KarpenterOptions
+}
+
+func karpenterDefaultProvisioner(o *KarpenterOptions) *resource.Resource {
 	res := &resource.Resource{
-		Options: &resource.CommonOptions{
-			Name: "karpenter-default-provisioner",
+		Options: &ProvisionerOptions{
+			CommonOptions: resource.CommonOptions{
+				Name: "karpenter-default-provisioner",
+			},
+			KarpenterOptions: o,
 		},
 
 		Manager: &kubernetes.ResourceManager{
@@ -30,19 +38,25 @@ spec:
   requirements:
     - key: karpenter.sh/capacity-type
       operator: In
-      values: ["spot"]
+      values: ["on-demand", "spot"]
   limits:
     resources:
       cpu: 1000
   providerRef:
     name: default
-  ttlSecondsAfterEmpty: 30
+{{- if .TTLSecondsAfterEmpty }}
+  ttlSecondsAfterEmpty: {{ .TTLSecondsAfterEmpty }}
+{{- else }}
+  consolidation:
+    enabled: true
+{{- end }}
 ---
 apiVersion: karpenter.k8s.aws/v1alpha1
 kind: AWSNodeTemplate
 metadata:
   name: default
 spec:
+  amiFamily: {{ .AMIFamily }}
   subnetSelector:
     Name: eksctl-{{ .ClusterName }}-cluster/SubnetPrivate*
   securityGroupSelector:
