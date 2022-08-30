@@ -3,6 +3,7 @@ package ec2_instance
 import (
 	"eksdemo/pkg/aws"
 	"eksdemo/pkg/printer"
+	"fmt"
 	"io"
 	"time"
 
@@ -22,23 +23,34 @@ func NewPrinter(reservations []*ec2.Reservation) *EC2Printer {
 
 func (p *EC2Printer) PrintTable(writer io.Writer) error {
 	table := printer.NewTablePrinter()
-	table.SetHeader([]string{"Age", "State", "Id", "Name", "Type"})
+	table.SetHeader([]string{"Age", "State", "Id", "Name", "Type", "Zone"})
+	spot := 0
 
 	for _, res := range p.reservations {
 		for _, i := range res.Instances {
 			age := durafmt.ParseShort(time.Since(aws.TimeValue(i.LaunchTime)))
+
+			instanceType := aws.StringValue(i.InstanceType)
+			if aws.StringValue(i.InstanceLifecycle) == "spot" {
+				instanceType = "*" + instanceType
+				spot++
+			}
 
 			table.AppendRow([]string{
 				age.String(),
 				aws.StringValue(i.State.Name),
 				aws.StringValue(i.InstanceId),
 				p.getInstanceName(i),
-				aws.StringValue(i.InstanceType),
+				instanceType,
+				aws.StringValue(i.Placement.AvailabilityZone),
 			})
 		}
 	}
 
 	table.Print(writer)
+	if spot > 0 {
+		fmt.Println("* Indicates Spot Instance")
+	}
 
 	return nil
 }
