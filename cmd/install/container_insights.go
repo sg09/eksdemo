@@ -31,8 +31,9 @@ func NewInstallContainerInsightsCmd() *cobra.Command {
 
 func NewUninstallContainerInsightsCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "container-insights",
-		Short: "CloudWatch Container Insights",
+		Use:     "container-insights",
+		Short:   "CloudWatch Container Insights",
+		Aliases: []string{"ci"},
 	}
 
 	// Don't show flag errors for `uninstall container-insights` without a subcommand

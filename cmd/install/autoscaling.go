@@ -16,8 +16,9 @@ var autoscalingApps []func() *application.Application
 
 func NewInstallAutoscalingCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "autoscaling",
-		Short: "Kubernetes Autoscaling Applications",
+		Use:     "autoscaling",
+		Short:   "Kubernetes Autoscaling Applications",
+		Aliases: []string{"as"},
 	}
 
 	// Don't show flag errors for `install autoscaling` without a subcommand
@@ -32,8 +33,9 @@ func NewInstallAutoscalingCmd() *cobra.Command {
 
 func NewUninstallAutoscalingCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "autoscaling",
-		Short: "Kubernetes Autoscaling Applications",
+		Use:     "autoscaling",
+		Short:   "Kubernetes Autoscaling Applications",
+		Aliases: []string{"as"},
 	}
 
 	// Don't show flag errors for `uninstall autoscaling` without a subcommand

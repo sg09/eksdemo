@@ -32,8 +32,9 @@ func NewInstallExampleCmd() *cobra.Command {
 
 func NewUninstallExampleCmd() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "example",
-		Short: "Example Applications",
+		Use:     "example",
+		Short:   "Example Applications",
+		Aliases: []string{"ex"},
 	}
 
 	// Don't show flag errors for `uninstall example` without a subcommand

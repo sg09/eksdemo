@@ -41,6 +41,7 @@ func NewUninstallCmd() *cobra.Command {
 	cmd.AddCommand(NewUninstallAliasCmds(argoApps, "argo-")...)
 	cmd.AddCommand(NewUninstallAutoscalingCmd())
 	cmd.AddCommand(NewUninstallAliasCmds(autoscalingApps, "autoscaling-")...)
+	cmd.AddCommand(NewUninstallAliasCmds(autoscalingApps, "as-")...)
 	cmd.AddCommand(aws_fluentbit.NewApp().NewUninstallCmd())
 	cmd.AddCommand(aws_lb.NewApp().NewUninstallCmd())
 	cmd.AddCommand(cert_manager.NewApp().NewUninstallCmd())
