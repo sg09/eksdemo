@@ -26,9 +26,7 @@ func NewCreateCmd() *cobra.Command {
 	cmd.DisableFlagParsing = true
 
 	cmd.AddCommand(NewAckCmd())
-	for _, c := range NewCreateAliasCmds(ack, "ack-") {
-		cmd.AddCommand(c)
-	}
+	cmd.AddCommand(NewCreateAliasCmds(ack, "ack-")...)
 	cmd.AddCommand(acm_certificate.NewResource().NewCreateCmd())
 	cmd.AddCommand(addon.NewResource().NewCreateCmd())
 	cmd.AddCommand(amg.NewResource().NewCreateCmd())
@@ -37,6 +35,8 @@ func NewCreateCmd() *cobra.Command {
 	cmd.AddCommand(dns_record.NewResource().NewCreateCmd())
 	cmd.AddCommand(fargate_profile.NewResource().NewCreateCmd())
 	cmd.AddCommand(irsa.NewResource().NewCreateCmd())
+	cmd.AddCommand(NewKyvernoCmd())
+	cmd.AddCommand(NewCreateAliasCmds(kyvernoPolicies, "kyverno-")...)
 	cmd.AddCommand(nodegroup.NewResource().NewCreateCmd())
 	cmd.AddCommand(nodegroup.NewSpotResource().NewCreateCmd())
 	cmd.AddCommand(nodegroup.NewGravitonResource().NewCreateCmd())
