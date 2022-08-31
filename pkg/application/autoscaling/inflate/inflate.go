@@ -54,4 +54,17 @@ spec:
           resources:
             requests:
               cpu: 1
+{{- if .OnDemand }}
+      nodeSelector:
+        karpenter.sh/capacity-type: on-demand
+{{- end }}
+{{- if .Spread }}
+      topologySpreadConstraints:
+      - maxSkew: 1
+        topologyKey: topology.kubernetes.io/zone
+        whenUnsatisfiable: ScheduleAnyway
+        labelSelector:
+          matchLabels:
+            app: inflate
+{{- end }}
 `
