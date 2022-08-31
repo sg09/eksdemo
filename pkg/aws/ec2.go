@@ -42,6 +42,34 @@ func EC2DeleteVolume(id string) error {
 	return err
 }
 
+func EC2DescribeAvailabilityZones(name string, all bool) ([]*ec2.AvailabilityZone, error) {
+	sess := GetSession()
+	svc := ec2.New(sess)
+
+	filters := []*ec2.Filter{}
+	input := &ec2.DescribeAvailabilityZonesInput{
+		AllAvailabilityZones: aws.Bool(all),
+	}
+
+	if name != "" {
+		filters = append(filters, &ec2.Filter{
+			Name:   aws.String("zone-name"),
+			Values: aws.StringSlice([]string{name}),
+		})
+	}
+
+	if len(filters) > 0 {
+		input.Filters = filters
+	}
+
+	result, err := svc.DescribeAvailabilityZones(input)
+	if err != nil {
+		return nil, err
+	}
+
+	return result.AvailabilityZones, nil
+}
+
 func EC2DescribeInstances(id, vpcId string) ([]*ec2.Reservation, error) {
 	sess := GetSession()
 	svc := ec2.New(sess)
