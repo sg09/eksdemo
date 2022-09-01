@@ -6,6 +6,22 @@ import (
 	"github.com/aws/aws-sdk-go/service/elbv2"
 )
 
+func ELBCreateTargetGroup(name, protocol, targetType, vpcId string, port int64) error {
+	sess := GetSession()
+	svc := elbv2.New(sess)
+
+	input := &elbv2.CreateTargetGroupInput{
+		Name:       aws.String(name),
+		Port:       aws.Int64(port),
+		Protocol:   aws.String(protocol),
+		TargetType: aws.String(targetType),
+		VpcId:      aws.String(vpcId),
+	}
+	_, err := svc.CreateTargetGroup(input)
+
+	return err
+}
+
 func ELBDeleteLoadBalancerV1(name string) error {
 	sess := GetSession()
 	svc := elb.New(sess)
