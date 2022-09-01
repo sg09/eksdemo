@@ -37,6 +37,7 @@ import (
 	"eksdemo/pkg/resource/security_group"
 	"eksdemo/pkg/resource/security_group_rule"
 	"eksdemo/pkg/resource/ssm_node"
+	"eksdemo/pkg/resource/ssm_session"
 	"eksdemo/pkg/resource/subnet"
 	"eksdemo/pkg/resource/target_group"
 	"eksdemo/pkg/resource/target_health"
@@ -118,6 +119,7 @@ func init() {
 	getCmd.AddCommand(security_group.NewResource().NewGetCmd())
 	getCmd.AddCommand(security_group_rule.NewResource().NewGetCmd())
 	getCmd.AddCommand(ssm_node.NewResource().NewGetCmd())
+	getCmd.AddCommand(ssm_session.NewResource().NewGetCmd())
 	getCmd.AddCommand(subnet.NewResource().NewGetCmd())
 	getCmd.AddCommand(target_group.NewResource().NewGetCmd())
 	getCmd.AddCommand(target_health.NewResource().NewGetCmd())
