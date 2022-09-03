@@ -5,6 +5,10 @@ go 1.17
 require (
 	github.com/Masterminds/sprig/v3 v3.2.2
 	github.com/aws/aws-sdk-go v1.42.2
+	github.com/aws/aws-sdk-go-v2 v1.16.14
+	github.com/aws/aws-sdk-go-v2/config v1.17.4
+	github.com/aws/aws-sdk-go-v2/service/ssm v1.27.13
+	github.com/aws/aws-sdk-go-v2/service/sts v1.16.16
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/hako/durafmt v0.0.0-20210608085754-5c1018a4e16b
 	github.com/hashicorp/go-version v1.3.0
@@ -37,6 +41,15 @@ require (
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
 	github.com/asaskevich/govalidator v0.0.0-20200428143746-21a406dcc535 // indirect
+	github.com/aws/aws-sdk-go-v2/credentials v1.12.17 // indirect
+	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.12.14 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/configsources v1.1.21 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.4.15 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/ini v1.3.21 // indirect
+	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.9.14 // indirect
+	github.com/aws/aws-sdk-go-v2/service/sso v1.11.20 // indirect
+	github.com/aws/aws-sdk-go-v2/service/ssooidc v1.13.2 // indirect
+	github.com/aws/smithy-go v1.13.2 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.1.1 // indirect
 	github.com/containerd/containerd v1.5.7 // indirect
@@ -63,7 +76,7 @@ require (
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/btree v1.0.1 // indirect
-	github.com/google/go-cmp v0.5.6 // indirect
+	github.com/google/go-cmp v0.5.8 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
 	github.com/google/uuid v1.2.0 // indirect

@@ -21,7 +21,7 @@ func (g *Getter) Get(id string, output printer.Output, options resource.Options)
 		state = "History"
 	}
 
-	sessions, err := aws.SSMDescribeSessions(id, state)
+	sessions, err := aws.NewSSMClient().DescribeSessions(id, state)
 	if err != nil {
 		return err
 	}

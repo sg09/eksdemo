@@ -6,15 +6,16 @@ import (
 	"io"
 	"time"
 
-	"github.com/aws/aws-sdk-go/service/ssm"
+	awssdk "github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/ssm/types"
 	"github.com/hako/durafmt"
 )
 
 type SessionPrinter struct {
-	sessions []*ssm.Session
+	sessions []types.Session
 }
 
-func NewPrinter(sessions []*ssm.Session) *SessionPrinter {
+func NewPrinter(sessions []types.Session) *SessionPrinter {
 	return &SessionPrinter{sessions}
 }
 
@@ -27,9 +28,9 @@ func (p *SessionPrinter) PrintTable(writer io.Writer) error {
 
 		table.AppendRow([]string{
 			age.String(),
-			aws.StringValue(s.Status),
-			aws.StringValue(s.SessionId),
-			aws.StringValue(s.Target),
+			string(s.Status),
+			awssdk.ToString(s.SessionId),
+			awssdk.ToString(s.Target),
 		})
 	}
 

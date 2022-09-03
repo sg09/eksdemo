@@ -10,10 +10,10 @@ import (
 type Getter struct{}
 
 func (g *Getter) Get(instanceId string, output printer.Output, options resource.Options) error {
-	vpcs, err := aws.SSMDescribeInstanceInformation(instanceId)
+	nodes, err := aws.NewSSMClient().DescribeInstanceInformation(instanceId)
 	if err != nil {
 		return err
 	}
 
-	return output.Print(os.Stdout, NewPrinter(vpcs))
+	return output.Print(os.Stdout, NewPrinter(nodes))
 }

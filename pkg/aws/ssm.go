@@ -1,22 +1,30 @@
 package aws
 
 import (
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/ssm"
+	"context"
+
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/ssm"
+	"github.com/aws/aws-sdk-go-v2/service/ssm/types"
 )
 
-func SSMDescribeInstanceInformation(instanceId string) ([]*ssm.InstanceInformation, error) {
-	sess := GetSession()
-	svc := ssm.New(sess)
+type SSMClient struct {
+	*ssm.Client
+}
 
-	filters := []*ssm.InstanceInformationStringFilter{}
-	instances := []*ssm.InstanceInformation{}
+func NewSSMClient() *SSMClient {
+	return &SSMClient{ssm.NewFromConfig(GetConfig())}
+}
+
+func (c *SSMClient) DescribeInstanceInformation(instanceId string) ([]types.InstanceInformation, error) {
+	filters := []types.InstanceInformationStringFilter{}
+	instances := []types.InstanceInformation{}
 	pageNum := 0
 
 	if instanceId != "" {
-		filters = append(filters, &ssm.InstanceInformationStringFilter{
+		filters = append(filters, types.InstanceInformationStringFilter{
 			Key:    aws.String("InstanceIds"),
-			Values: aws.StringSlice([]string{instanceId}),
+			Values: []string{instanceId},
 		})
 	}
 
@@ -25,36 +33,32 @@ func SSMDescribeInstanceInformation(instanceId string) ([]*ssm.InstanceInformati
 		input.Filters = filters
 	}
 
-	err := svc.DescribeInstanceInformationPages(input,
-		func(page *ssm.DescribeInstanceInformationOutput, lastPage bool) bool {
-			pageNum++
-			instances = append(instances, page.InstanceInformationList...)
-			return pageNum <= maxPages
-		},
-	)
+	paginator := ssm.NewDescribeInstanceInformationPaginator(c.Client, input)
 
-	if err != nil {
-		return nil, err
+	for paginator.HasMorePages() && pageNum < maxPages {
+		out, err := paginator.NextPage(context.Background())
+		if err != nil {
+			return nil, err
+		}
+		instances = append(instances, out.InstanceInformationList...)
+		pageNum++
 	}
 
 	return instances, nil
 }
 
-func SSMDescribeSessions(id, state string) ([]*ssm.Session, error) {
-	sess := GetSession()
-	svc := ssm.New(sess)
-
-	filters := []*ssm.SessionFilter{}
-	sessions := []*ssm.Session{}
+func (c *SSMClient) DescribeSessions(id, state string) ([]types.Session, error) {
+	filters := []types.SessionFilter{}
+	sessions := []types.Session{}
 	pageNum := 0
 
 	input := &ssm.DescribeSessionsInput{
-		State: aws.String(state),
+		State: types.SessionState(state),
 	}
 
 	if id != "" {
-		filters = append(filters, &ssm.SessionFilter{
-			Key:   aws.String("SessionId"),
+		filters = append(filters, types.SessionFilter{
+			Key:   types.SessionFilterKeySessionId,
 			Value: aws.String(id),
 		})
 	}
@@ -63,17 +67,27 @@ func SSMDescribeSessions(id, state string) ([]*ssm.Session, error) {
 		input.Filters = filters
 	}
 
-	err := svc.DescribeSessionsPages(input,
-		func(page *ssm.DescribeSessionsOutput, lastPage bool) bool {
-			pageNum++
-			sessions = append(sessions, page.Sessions...)
-			return pageNum <= maxPages
-		},
-	)
+	paginator := ssm.NewDescribeSessionsPaginator(c.Client, input)
 
-	if err != nil {
-		return nil, err
+	for paginator.HasMorePages() && pageNum < maxPages {
+		out, err := paginator.NextPage(context.Background())
+		if err != nil {
+			return nil, err
+		}
+		sessions = append(sessions, out.Sessions...)
+		pageNum++
 	}
 
 	return sessions, nil
+}
+
+func (c *SSMClient) Endpoint() (aws.Endpoint, error) {
+	return ssm.NewDefaultEndpointResolver().ResolveEndpoint(region, ssm.EndpointResolverOptions{})
+}
+
+func (c *SSMClient) StartSession(instanceId string) (*ssm.StartSessionOutput, error) {
+	return c.Client.StartSession(context.Background(), &ssm.StartSessionInput{
+		DocumentName: aws.String("AWS-StartSSHSession"),
+		Target:       aws.String(instanceId),
+	})
 }

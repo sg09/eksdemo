@@ -6,15 +6,15 @@ import (
 	"io"
 	"time"
 
-	"github.com/aws/aws-sdk-go/service/ssm"
+	"github.com/aws/aws-sdk-go-v2/service/ssm/types"
 	"github.com/hako/durafmt"
 )
 
 type NodePrinter struct {
-	nodes []*ssm.InstanceInformation
+	nodes []types.InstanceInformation
 }
 
-func NewPrinter(nodes []*ssm.InstanceInformation) *NodePrinter {
+func NewPrinter(nodes []types.InstanceInformation) *NodePrinter {
 	return &NodePrinter{nodes}
 }
 
@@ -27,7 +27,7 @@ func (p *NodePrinter) PrintTable(writer io.Writer) error {
 
 		table.AppendRow([]string{
 			ping.String(),
-			aws.StringValue(n.PingStatus),
+			string(n.PingStatus),
 			aws.StringValue(n.InstanceId),
 			aws.StringValue(n.IPAddress),
 			aws.StringValue(n.AgentVersion),
