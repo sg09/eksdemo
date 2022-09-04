@@ -87,7 +87,6 @@ func (c *SSMClient) Endpoint() (aws.Endpoint, error) {
 
 func (c *SSMClient) StartSession(instanceId string) (*ssm.StartSessionOutput, error) {
 	return c.Client.StartSession(context.Background(), &ssm.StartSessionInput{
-		DocumentName: aws.String("AWS-StartSSHSession"),
-		Target:       aws.String(instanceId),
+		Target: aws.String(instanceId),
 	})
 }

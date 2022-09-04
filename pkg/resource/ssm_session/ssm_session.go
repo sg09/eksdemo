@@ -15,6 +15,8 @@ func NewResource() *resource.Resource {
 		},
 
 		Getter: &Getter{},
+
+		Manager: &Manager{},
 	}
 	res.Options, res.GetFlags = newOptions()
 

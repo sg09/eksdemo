@@ -12,6 +12,7 @@ import (
 	"eksdemo/pkg/resource/irsa"
 	"eksdemo/pkg/resource/nodegroup"
 	"eksdemo/pkg/resource/organization"
+	"eksdemo/pkg/resource/ssm_session"
 	"eksdemo/pkg/resource/target_group"
 
 	"github.com/spf13/cobra"
@@ -42,6 +43,7 @@ func NewCreateCmd() *cobra.Command {
 	cmd.AddCommand(nodegroup.NewSpotResource().NewCreateCmd())
 	cmd.AddCommand(nodegroup.NewGravitonResource().NewCreateCmd())
 	cmd.AddCommand(organization.NewResource().NewCreateCmd())
+	cmd.AddCommand(ssm_session.NewResource().NewCreateCmd())
 	cmd.AddCommand(target_group.NewResource().NewCreateCmd())
 
 	return cmd
