@@ -5,8 +5,11 @@ import (
 	"fmt"
 	"io"
 
-	"gopkg.in/yaml.v2"
+	"sigs.k8s.io/yaml"
 )
+
+// Switched to sigs.k8s.io/yaml to fix panic when outputting YAML using AWS SDK v2
+// Issue: https://github.com/go-yaml/yaml/issues/463
 
 type Output string
 
