@@ -1,22 +1,23 @@
 package acm_certificate
 
 import (
+	"context"
 	"eksdemo/pkg/aws"
 	"eksdemo/pkg/resource"
 	"eksdemo/pkg/resource/hosted_zone"
 	"fmt"
 	"strings"
+	"time"
 
-	awssdk "github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/acm"
+	awssdk "github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/acm"
+	"github.com/aws/aws-sdk-go-v2/service/acm/types"
 	"github.com/aws/aws-sdk-go/service/route53"
 	"github.com/spf13/cobra"
 )
 
 type Manager struct {
-	Getter
-
-	arn        string
+	acm        *aws.ACMClient
 	zoneGetter hosted_zone.Getter
 }
 
@@ -26,8 +27,9 @@ func (m *Manager) Create(options resource.Options) error {
 		return fmt.Errorf("internal error, unable to cast options to CertificateOptions")
 	}
 
+	acmGetter := NewGetter(m.acmClient())
 	name := certOptions.Name
-	cert, err := m.GetOneCertStartingWithName(name)
+	cert, err := acmGetter.GetOneCertStartingWithName(name)
 	if err != nil {
 		if _, ok := err.(resource.NotFoundError); !ok {
 			// Return an error if it's anything other than resource not found
@@ -41,13 +43,13 @@ func (m *Manager) Create(options resource.Options) error {
 	}
 
 	fmt.Printf("Creating ACM Certificate request for: %s...", name)
-	m.arn, err = aws.AcmRequestCertificate(name, certOptions.sans)
+	arn, err := m.acmClient().RequestCertificate(name, certOptions.sans)
 	if err != nil {
 		return err
 	}
-	fmt.Printf("done\nCreated ACM Certificate Id: %s\n", m.arn[strings.LastIndex(m.arn, "/")+1:])
+	fmt.Printf("done\nCreated ACM Certificate Id: %s\n", arn[strings.LastIndex(arn, "/")+1:])
 
-	cert, err = m.GetCert(m.arn)
+	cert, err = acmGetter.GetCert(arn)
 	if err != nil {
 		return fmt.Errorf("failed to describe the certificate: %w", err)
 	}
@@ -62,12 +64,13 @@ func (m *Manager) Create(options resource.Options) error {
 func (m *Manager) Delete(options resource.Options) error {
 	name := options.Common().Name
 
-	cert, err := m.Getter.GetOneCertStartingWithName(name)
+	acmGetter := NewGetter(m.acmClient())
+	cert, err := acmGetter.GetOneCertStartingWithName(name)
 	if err != nil {
 		return err
 	}
 
-	err = aws.AcmDeleteCertificate(awssdk.StringValue(cert.CertificateArn))
+	err = m.acmClient().DeleteCertificate(awssdk.ToString(cert.CertificateArn))
 	if err != nil {
 		return err
 	}
@@ -82,20 +85,27 @@ func (m *Manager) Update(options resource.Options, cmd *cobra.Command) error {
 	return fmt.Errorf("feature not supported")
 }
 
-func (m *Manager) outputValidationSteps(cert *acm.CertificateDetail) error {
+func (m *Manager) acmClient() *aws.ACMClient {
+	if m.acm == nil {
+		m.acm = aws.NewACMClient()
+	}
+	return m.acm
+}
+
+func (m *Manager) outputValidationSteps(cert *types.CertificateDetail) error {
 	fmt.Println("To validate:")
 	for _, dvo := range cert.DomainValidationOptions {
 		fmt.Printf("In zone %q, create %q record %q with value %q\n",
-			aws.StringValue(dvo.DomainName),
-			aws.StringValue(dvo.ResourceRecord.Type),
-			aws.StringValue(dvo.ResourceRecord.Name),
-			aws.StringValue(dvo.ResourceRecord.Value),
+			awssdk.ToString(dvo.DomainName),
+			string(dvo.ResourceRecord.Type),
+			awssdk.ToString(dvo.ResourceRecord.Name),
+			awssdk.ToString(dvo.ResourceRecord.Value),
 		)
 	}
 	return nil
 }
 
-func (m *Manager) validate(cert *acm.CertificateDetail) error {
+func (m *Manager) validate(cert *types.CertificateDetail) error {
 	zones, err := m.zoneGetter.GetAllZones()
 	if err != nil {
 		return fmt.Errorf("failed during validation to list hosted zones: %w", err)
@@ -103,13 +113,13 @@ func (m *Manager) validate(cert *acm.CertificateDetail) error {
 
 	for _, z := range zones {
 		changes := []*route53.Change{}
-		zoneName := strings.TrimSuffix(aws.StringValue(z.Name), ".")
+		zoneName := strings.TrimSuffix(awssdk.ToString(z.Name), ".")
 
 		for _, dv := range cert.DomainValidationOptions {
-			if strings.HasSuffix(aws.StringValue(dv.DomainName), zoneName) {
-				fmt.Printf("Validating domain %q using hosted zone %q\n", aws.StringValue(dv.DomainName), zoneName)
+			if strings.HasSuffix(awssdk.ToString(dv.DomainName), zoneName) {
+				fmt.Printf("Validating domain %q using hosted zone %q\n", awssdk.ToString(dv.DomainName), zoneName)
 				rr := dv.ResourceRecord
-				changes = append(changes, createChange(rr.Name, rr.Value, rr.Type, z.Id))
+				changes = append(changes, createChange(rr.Name, rr.Value, z.Id, rr.Type))
 			}
 		}
 
@@ -128,7 +138,17 @@ func (m *Manager) validate(cert *acm.CertificateDetail) error {
 	}
 
 	fmt.Printf("Waiting for certificate to be issued...")
-	if err = aws.AcmWaitUntilCertificateValidated(m.arn); err != nil {
+	waiter := acm.NewCertificateValidatedWaiter(m.acm.Client, func(o *acm.CertificateValidatedWaiterOptions) {
+		o.MinDelay = 2 * time.Second
+		o.MaxDelay = 10 * time.Second
+		o.APIOptions = append(o.APIOptions, aws.WaiterLogger{}.AddLogger)
+	})
+
+	err = waiter.Wait(context.Background(),
+		&acm.DescribeCertificateInput{CertificateArn: cert.CertificateArn},
+		3*time.Minute,
+	)
+	if err != nil {
 		fmt.Println()
 		return err
 	}
@@ -137,7 +157,7 @@ func (m *Manager) validate(cert *acm.CertificateDetail) error {
 	return nil
 }
 
-func createChange(name, value, recType, zoneId *string) *route53.Change {
+func createChange(name, value, zoneId *string, recType types.RecordType) *route53.Change {
 	return &route53.Change{
 		Action: awssdk.String("UPSERT"),
 		ResourceRecordSet: &route53.ResourceRecordSet{
@@ -148,7 +168,7 @@ func createChange(name, value, recType, zoneId *string) *route53.Change {
 				},
 			},
 			TTL:  awssdk.Int64(300),
-			Type: recType,
+			Type: awssdk.String(string(recType)),
 		},
 	}
 }

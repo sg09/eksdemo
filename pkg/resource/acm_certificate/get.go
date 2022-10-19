@@ -8,13 +8,20 @@ import (
 	"os"
 	"strings"
 
-	"github.com/aws/aws-sdk-go/service/acm"
+	awssdk "github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/acm/types"
 )
 
-type Getter struct{}
+type Getter struct {
+	acm *aws.ACMClient
+}
+
+func NewGetter(acmClient *aws.ACMClient) *Getter {
+	return &Getter{acmClient}
+}
 
 func (g *Getter) Get(name string, output printer.Output, options resource.Options) error {
-	var certs []*acm.CertificateDetail
+	var certs []*types.CertificateDetail
 	var err error
 
 	if name != "" {
@@ -30,16 +37,15 @@ func (g *Getter) Get(name string, output printer.Output, options resource.Option
 	return output.Print(os.Stdout, NewPrinter(certs))
 }
 
-func (g *Getter) GetAllCerts() ([]*acm.CertificateDetail, error) {
-	certSummaries, err := aws.AcmListCertificates()
-	certs := make([]*acm.CertificateDetail, 0, len(certSummaries))
-
+func (g *Getter) GetAllCerts() ([]*types.CertificateDetail, error) {
+	certSummaries, err := g.acmClient().ListCertificates()
 	if err != nil {
 		return nil, err
 	}
+	certs := make([]*types.CertificateDetail, 0, len(certSummaries))
 
 	for _, summary := range certSummaries {
-		cert, err := aws.AcmDescribeCertificate(aws.StringValue(summary.CertificateArn))
+		cert, err := g.acmClient().DescribeCertificate(awssdk.ToString(summary.CertificateArn))
 		if err != nil {
 			return nil, err
 		}
@@ -49,11 +55,11 @@ func (g *Getter) GetAllCerts() ([]*acm.CertificateDetail, error) {
 	return certs, nil
 }
 
-func (g *Getter) GetCert(arn string) (*acm.CertificateDetail, error) {
-	return aws.AcmDescribeCertificate(arn)
+func (g *Getter) GetCert(arn string) (*types.CertificateDetail, error) {
+	return g.acmClient().DescribeCertificate(arn)
 }
 
-func (g *Getter) GetOneCertStartingWithName(name string) (*acm.CertificateDetail, error) {
+func (g *Getter) GetOneCertStartingWithName(name string) (*types.CertificateDetail, error) {
 	certs, err := g.GetAllCertsStartingWithName(name)
 	if err != nil {
 		return nil, err
@@ -70,18 +76,18 @@ func (g *Getter) GetOneCertStartingWithName(name string) (*acm.CertificateDetail
 	return certs[0], nil
 }
 
-func (g *Getter) GetAllCertsStartingWithName(name string) ([]*acm.CertificateDetail, error) {
-	certSummaries, err := aws.AcmListCertificates()
+func (g *Getter) GetAllCertsStartingWithName(name string) ([]*types.CertificateDetail, error) {
+	certSummaries, err := g.acmClient().ListCertificates()
 	if err != nil {
 		return nil, err
 	}
 
+	certs := []*types.CertificateDetail{}
 	n := strings.ToLower(name)
-	certs := []*acm.CertificateDetail{}
 
 	for _, summary := range certSummaries {
-		if strings.HasPrefix(strings.ToLower(aws.StringValue(summary.DomainName)), n) {
-			cert, err := aws.AcmDescribeCertificate(aws.StringValue(summary.CertificateArn))
+		if strings.HasPrefix(strings.ToLower(awssdk.ToString(summary.DomainName)), n) {
+			cert, err := g.acmClient().DescribeCertificate(awssdk.ToString(summary.CertificateArn))
 			if err != nil {
 				return nil, err
 			}
@@ -90,4 +96,11 @@ func (g *Getter) GetAllCertsStartingWithName(name string) ([]*acm.CertificateDet
 	}
 
 	return certs, nil
+}
+
+func (g *Getter) acmClient() *aws.ACMClient {
+	if g.acm == nil {
+		g.acm = aws.NewACMClient()
+	}
+	return g.acm
 }

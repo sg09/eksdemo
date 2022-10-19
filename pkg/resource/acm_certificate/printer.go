@@ -1,21 +1,21 @@
 package acm_certificate
 
 import (
-	"eksdemo/pkg/aws"
 	"eksdemo/pkg/printer"
 	"io"
 	"regexp"
 	"time"
 
-	"github.com/aws/aws-sdk-go/service/acm"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/acm/types"
 	"github.com/hako/durafmt"
 )
 
 type CertificatePrinter struct {
-	certs []*acm.CertificateDetail
+	certs []*types.CertificateDetail
 }
 
-func NewPrinter(certs []*acm.CertificateDetail) *CertificatePrinter {
+func NewPrinter(certs []*types.CertificateDetail) *CertificatePrinter {
 	return &CertificatePrinter{certs}
 }
 
@@ -26,7 +26,7 @@ func (p *CertificatePrinter) PrintTable(writer io.Writer) error {
 	resourceId := regexp.MustCompile(`[^:/]*$`)
 
 	for _, c := range p.certs {
-		age := durafmt.ParseShort(time.Since(aws.TimeValue(c.CreatedAt)))
+		age := durafmt.ParseShort(time.Since(aws.ToTime(c.CreatedAt)))
 
 		var inUse string
 		if len(c.InUseBy) > 0 {
@@ -37,9 +37,9 @@ func (p *CertificatePrinter) PrintTable(writer io.Writer) error {
 
 		table.AppendRow([]string{
 			age.String(),
-			resourceId.FindString(aws.StringValue(c.CertificateArn)),
-			aws.StringValue(c.DomainName),
-			aws.StringValue(c.Status),
+			resourceId.FindString(aws.ToString(c.CertificateArn)),
+			aws.ToString(c.DomainName),
+			string(c.Status),
 			inUse,
 		})
 	}
