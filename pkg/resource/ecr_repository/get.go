@@ -7,7 +7,9 @@ import (
 	"os"
 )
 
-type Getter struct{}
+type Getter struct {
+	resource.EmptyInit
+}
 
 func (g *Getter) Get(name string, output printer.Output, options resource.Options) error {
 	repos, err := aws.ECRDescribeRepositories(name)

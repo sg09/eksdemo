@@ -8,7 +8,9 @@ import (
 	"os"
 )
 
-type Getter struct{}
+type Getter struct {
+	resource.EmptyInit
+}
 
 func (g *Getter) Get(id string, output printer.Output, options resource.Options) error {
 	sessOptions, ok := options.(*SessionOptions)

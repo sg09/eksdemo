@@ -10,7 +10,9 @@ import (
 	"github.com/aws/aws-sdk-go/service/managedgrafana"
 )
 
-type Getter struct{}
+type Getter struct {
+	resource.EmptyInit
+}
 
 func (g *Getter) Get(name string, output printer.Output, options resource.Options) error {
 	var workspaces []*managedgrafana.WorkspaceDescription

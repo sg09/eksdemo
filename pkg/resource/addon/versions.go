@@ -27,7 +27,9 @@ func NewVersionsResource() *resource.Resource {
 	return res
 }
 
-type VersionGetter struct{}
+type VersionGetter struct {
+	resource.EmptyInit
+}
 
 func (g *VersionGetter) Get(name string, output printer.Output, options resource.Options) error {
 	var addonVersions []*eks.AddonInfo

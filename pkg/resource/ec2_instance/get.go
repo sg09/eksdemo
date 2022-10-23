@@ -10,7 +10,9 @@ import (
 	"github.com/aws/aws-sdk-go/service/ec2"
 )
 
-type Getter struct{}
+type Getter struct {
+	resource.EmptyInit
+}
 
 func (g *Getter) Get(id string, output printer.Output, options resource.Options) error {
 	var vpcId string

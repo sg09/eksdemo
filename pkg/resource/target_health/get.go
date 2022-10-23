@@ -10,6 +10,7 @@ import (
 )
 
 type Getter struct {
+	resource.EmptyInit
 	tgGetter target_group.Getter
 }
 

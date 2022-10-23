@@ -12,7 +12,9 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-type Getter struct{}
+type Getter struct {
+	resource.EmptyInit
+}
 
 func (g *Getter) Get(name string, output printer.Output, options resource.Options) error {
 	var nodes []v1.Node

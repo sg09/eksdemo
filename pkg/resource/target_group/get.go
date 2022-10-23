@@ -13,6 +13,7 @@ import (
 )
 
 type Getter struct {
+	resource.EmptyInit
 	elbGetter load_balancer.Getter
 }
 

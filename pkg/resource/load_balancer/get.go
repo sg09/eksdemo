@@ -18,6 +18,7 @@ type LoadBalancers struct {
 }
 
 type Getter struct {
+	resource.EmptyInit
 	elbs *LoadBalancers
 }
 

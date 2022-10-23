@@ -13,6 +13,7 @@ import (
 )
 
 type Getter struct {
+	resource.EmptyInit
 	eniGetter network_interface.Getter
 	elbGetter load_balancer.Getter
 }

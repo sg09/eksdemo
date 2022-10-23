@@ -10,6 +10,7 @@ import (
 )
 
 type Getter struct {
+	resource.EmptyInit
 	logGroupGetter log_group.Getter
 }
 

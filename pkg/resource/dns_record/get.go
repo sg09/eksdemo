@@ -13,6 +13,7 @@ import (
 )
 
 type Getter struct {
+	resource.EmptyInit
 	zoneGetter hosted_zone.Getter
 }
 

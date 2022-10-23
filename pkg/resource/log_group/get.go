@@ -11,7 +11,9 @@ import (
 	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
 )
 
-type Getter struct{}
+type Getter struct {
+	resource.EmptyInit
+}
 
 func (g *Getter) Get(name string, output printer.Output, options resource.Options) error {
 	logGroups, err := aws.CloudWatchLogsDescribeLogGroups(name)

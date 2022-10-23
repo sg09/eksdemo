@@ -7,7 +7,9 @@ import (
 	"os"
 )
 
-type Getter struct{}
+type Getter struct {
+	resource.EmptyInit
+}
 
 func (g *Getter) Get(id string, output printer.Output, options resource.Options) error {
 	volumes, err := aws.EC2DescribeVolumes(id)
