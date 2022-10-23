@@ -17,7 +17,8 @@ type ResourceManager struct {
 	Capabilities []aws.Capability
 	DryRun       bool
 	Parameters   map[string]string
-	Template     template.Template
+	resource.EmptyInit
+	Template template.Template
 }
 
 // eksdemo-<clusterName>-<resourceName>

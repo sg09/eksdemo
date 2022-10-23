@@ -11,6 +11,7 @@ import (
 
 type Manager struct {
 	DryRun bool
+	resource.EmptyInit
 }
 
 func (m *Manager) Delete(options resource.Options) error {

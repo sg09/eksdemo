@@ -29,6 +29,7 @@ type ResourceManager struct {
 	ApproveDelete bool
 	DryRun        bool
 	*IamAuth
+	resource.EmptyInit
 }
 
 type IamAuth struct {

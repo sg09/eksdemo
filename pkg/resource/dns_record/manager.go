@@ -18,6 +18,7 @@ type Manager struct {
 
 	dnsRecordGetter Getter
 	zoneGetter      hosted_zone.Getter
+	resource.EmptyInit
 }
 
 func (m *Manager) Create(options resource.Options) error {

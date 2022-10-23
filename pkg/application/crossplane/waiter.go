@@ -58,6 +58,7 @@ type WaitManager struct {
 	Resource    string
 	Version     string
 	WaitSeconds int
+	resource.EmptyInit
 }
 
 func (m *WaitManager) Create(options resource.Options) error {

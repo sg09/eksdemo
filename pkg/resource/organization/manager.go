@@ -8,7 +8,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
-type Manager struct{}
+type Manager struct {
+	resource.EmptyInit
+}
 
 func (m *Manager) Create(options resource.Options) error {
 	result, err := aws.OrgsCreateOrganization()

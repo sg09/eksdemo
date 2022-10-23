@@ -10,6 +10,7 @@ import (
 
 type Manager struct {
 	DryRun bool
+	resource.EmptyInit
 }
 
 func (m *Manager) Create(options resource.Options) error {

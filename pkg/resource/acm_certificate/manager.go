@@ -17,8 +17,16 @@ import (
 )
 
 type Manager struct {
-	acm        *aws.ACMClient
+	acmClient  *aws.ACMClient
+	acmGetter  *Getter
 	zoneGetter hosted_zone.Getter
+}
+
+func (m *Manager) Init() {
+	if m.acmClient == nil {
+		m.acmClient = aws.NewACMClient()
+	}
+	m.acmGetter = NewGetter(m.acmClient)
 }
 
 func (m *Manager) Create(options resource.Options) error {
@@ -27,9 +35,8 @@ func (m *Manager) Create(options resource.Options) error {
 		return fmt.Errorf("internal error, unable to cast options to CertificateOptions")
 	}
 
-	acmGetter := NewGetter(m.acmClient())
 	name := certOptions.Name
-	cert, err := acmGetter.GetOneCertStartingWithName(name)
+	cert, err := m.acmGetter.GetOneCertStartingWithName(name)
 	if err != nil {
 		if _, ok := err.(resource.NotFoundError); !ok {
 			// Return an error if it's anything other than resource not found
@@ -43,13 +50,13 @@ func (m *Manager) Create(options resource.Options) error {
 	}
 
 	fmt.Printf("Creating ACM Certificate request for: %s...", name)
-	arn, err := m.acmClient().RequestCertificate(name, certOptions.sans)
+	arn, err := m.acmClient.RequestCertificate(name, certOptions.sans)
 	if err != nil {
 		return err
 	}
 	fmt.Printf("done\nCreated ACM Certificate Id: %s\n", arn[strings.LastIndex(arn, "/")+1:])
 
-	cert, err = acmGetter.GetCert(arn)
+	cert, err = m.acmGetter.GetCert(arn)
 	if err != nil {
 		return fmt.Errorf("failed to describe the certificate: %w", err)
 	}
@@ -64,13 +71,12 @@ func (m *Manager) Create(options resource.Options) error {
 func (m *Manager) Delete(options resource.Options) error {
 	name := options.Common().Name
 
-	acmGetter := NewGetter(m.acmClient())
-	cert, err := acmGetter.GetOneCertStartingWithName(name)
+	cert, err := m.acmGetter.GetOneCertStartingWithName(name)
 	if err != nil {
 		return err
 	}
 
-	err = m.acmClient().DeleteCertificate(awssdk.ToString(cert.CertificateArn))
+	err = m.acmClient.DeleteCertificate(awssdk.ToString(cert.CertificateArn))
 	if err != nil {
 		return err
 	}
@@ -83,13 +89,6 @@ func (m *Manager) SetDryRun() {}
 
 func (m *Manager) Update(options resource.Options, cmd *cobra.Command) error {
 	return fmt.Errorf("feature not supported")
-}
-
-func (m *Manager) acmClient() *aws.ACMClient {
-	if m.acm == nil {
-		m.acm = aws.NewACMClient()
-	}
-	return m.acm
 }
 
 func (m *Manager) outputValidationSteps(cert *types.CertificateDetail) error {
@@ -138,7 +137,7 @@ func (m *Manager) validate(cert *types.CertificateDetail) error {
 	}
 
 	fmt.Printf("Waiting for certificate to be issued...")
-	waiter := acm.NewCertificateValidatedWaiter(m.acm.Client, func(o *acm.CertificateValidatedWaiterOptions) {
+	waiter := acm.NewCertificateValidatedWaiter(m.acmClient.Client, func(o *acm.CertificateValidatedWaiterOptions) {
 		o.MinDelay = 2 * time.Second
 		o.MaxDelay = 10 * time.Second
 		o.APIOptions = append(o.APIOptions, aws.WaiterLogger{}.AddLogger)

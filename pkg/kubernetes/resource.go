@@ -11,6 +11,7 @@ import (
 type ResourceManager struct {
 	template.Template
 	DryRun bool
+	resource.EmptyInit
 }
 
 func (m *ResourceManager) Create(options resource.Options) error {

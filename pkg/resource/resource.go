@@ -23,14 +23,17 @@ type Resource struct {
 }
 
 func (r *Resource) Create() error {
+	r.Manager.Init()
 	return r.Manager.Create(r.Options)
 }
 
 func (r *Resource) Delete() error {
+	r.Manager.Init()
 	return r.Manager.Delete(r.Options)
 }
 
 func (r *Resource) Update(cmd *cobra.Command) error {
+	r.Manager.Init()
 	return r.Manager.Update(r.Options, cmd)
 }
 

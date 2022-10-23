@@ -16,6 +16,7 @@ import (
 type Manager struct {
 	AssumeRolePolicyTemplate template.TextTemplate
 	DryRun                   bool
+	resource.EmptyInit
 }
 
 func (m *Manager) Create(options resource.Options) error {

@@ -12,6 +12,7 @@ import (
 type Manager struct {
 	Eksctl resource.Manager
 	Getter
+	resource.EmptyInit
 }
 
 func (m *Manager) Create(options resource.Options) error {
