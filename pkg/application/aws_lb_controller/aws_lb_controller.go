@@ -1,4 +1,4 @@
-package aws_lb
+package aws_lb_controller
 
 import (
 	"eksdemo/pkg/application"
@@ -13,7 +13,7 @@ import (
 // GitHub:  https://github.com/kubernetes-sigs/aws-load-balancer-controller
 // Helm:    https://github.com/aws/eks-charts/tree/master/stable/aws-load-balancer-controller
 // Repo:    602401143452.dkr.ecr.us-west-2.amazonaws.com/amazon/aws-load-balancer-controller
-// Version: Latest is v2.4.3 (as of 08/14/22)
+// Version: Latest is v2.4.4 (as of 10/23/22)
 
 func NewApp() *application.Application {
 	app := &application.Application{
@@ -33,17 +33,6 @@ func NewApp() *application.Application {
 			}),
 		},
 
-		Options: &application.ApplicationOptions{
-			Namespace:      "awslb",
-			ServiceAccount: "aws-load-balancer-controller",
-			DefaultVersion: &application.LatestPrevious{
-				LatestChart:   "1.4.4",
-				Latest:        "v2.4.3",
-				PreviousChart: "1.4.2",
-				Previous:      "v2.4.2",
-			},
-		},
-
 		Installer: &installer.HelmInstaller{
 			ChartName:     "aws-load-balancer-controller",
 			ReleaseName:   "aws-lb-controller",
@@ -53,6 +42,8 @@ func NewApp() *application.Application {
 			},
 		},
 	}
+	app.Options, app.Flags = newOptions()
+
 	return app
 }
 
@@ -68,4 +59,8 @@ serviceAccount:
   name: {{ .ServiceAccount }}
 region: {{ .Region }}
 vpcId: {{ .Cluster.ResourcesVpcConfig.VpcId }}
+{{- if .Default }}
+ingressClassConfig:
+  default: true
+{{- end }}
 `

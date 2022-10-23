@@ -4,7 +4,7 @@ import (
 	"eksdemo/pkg/application"
 	"eksdemo/pkg/application/autoscaling/cluster_autoscaler"
 	"eksdemo/pkg/application/autoscaling/karpenter"
-	"eksdemo/pkg/application/aws_lb"
+	"eksdemo/pkg/application/aws_lb_controller"
 	"eksdemo/pkg/application/external_dns"
 	"eksdemo/pkg/aws"
 	"eksdemo/pkg/cmd"
@@ -45,7 +45,7 @@ func addOptions(res *resource.Resource) *resource.Resource {
 		NoRoles:          false,
 
 		appsForIrsa: []*application.Application{
-			aws_lb.NewApp(),
+			aws_lb_controller.NewApp(),
 			cluster_autoscaler.NewApp(),
 			external_dns.NewApp(),
 			karpenter.NewApp(),

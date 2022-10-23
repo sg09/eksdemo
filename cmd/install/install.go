@@ -5,7 +5,7 @@ import (
 	"eksdemo/pkg/application/adot_operator"
 	"eksdemo/pkg/application/appmesh_controller"
 	"eksdemo/pkg/application/aws_fluentbit"
-	"eksdemo/pkg/application/aws_lb"
+	"eksdemo/pkg/application/aws_lb_controller"
 	"eksdemo/pkg/application/cert_manager"
 	"eksdemo/pkg/application/cilium"
 	"eksdemo/pkg/application/crossplane"
@@ -43,7 +43,7 @@ func NewInstallCmd() *cobra.Command {
 	cmd.AddCommand(NewInstallAliasCmds(autoscalingApps, "autoscaling-")...)
 	cmd.AddCommand(NewInstallAliasCmds(autoscalingApps, "as-")...)
 	cmd.AddCommand(aws_fluentbit.NewApp().NewInstallCmd())
-	cmd.AddCommand(aws_lb.NewApp().NewInstallCmd())
+	cmd.AddCommand(aws_lb_controller.NewApp().NewInstallCmd())
 	cmd.AddCommand(cert_manager.NewApp().NewInstallCmd())
 	cmd.AddCommand(cilium.NewApp().NewInstallCmd())
 	cmd.AddCommand(NewInstallContainerInsightsCmd())

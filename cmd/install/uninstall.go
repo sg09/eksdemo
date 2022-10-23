@@ -5,7 +5,7 @@ import (
 	"eksdemo/pkg/application/adot_operator"
 	"eksdemo/pkg/application/appmesh_controller"
 	"eksdemo/pkg/application/aws_fluentbit"
-	"eksdemo/pkg/application/aws_lb"
+	"eksdemo/pkg/application/aws_lb_controller"
 	"eksdemo/pkg/application/cert_manager"
 	"eksdemo/pkg/application/cilium"
 	"eksdemo/pkg/application/crossplane"
@@ -43,7 +43,7 @@ func NewUninstallCmd() *cobra.Command {
 	cmd.AddCommand(NewUninstallAliasCmds(autoscalingApps, "autoscaling-")...)
 	cmd.AddCommand(NewUninstallAliasCmds(autoscalingApps, "as-")...)
 	cmd.AddCommand(aws_fluentbit.NewApp().NewUninstallCmd())
-	cmd.AddCommand(aws_lb.NewApp().NewUninstallCmd())
+	cmd.AddCommand(aws_lb_controller.NewApp().NewUninstallCmd())
 	cmd.AddCommand(cert_manager.NewApp().NewUninstallCmd())
 	cmd.AddCommand(cilium.NewApp().NewUninstallCmd())
 	cmd.AddCommand(NewUninstallContainerInsightsCmd())
