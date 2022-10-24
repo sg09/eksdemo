@@ -15,7 +15,7 @@ import (
 // Helm:    https://github.com/aws-controllers-k8s/eks-controller/tree/main/helm
 // Chart:   https://gallery.ecr.aws/aws-controllers-k8s/eks-chart
 // Repo:    https://gallery.ecr.aws/aws-controllers-k8s/eks-controller
-// Version: Latest is v0.1.2 (as of 06/21/22)
+// Version: Latest is v0.1.7 (as of 10/24/22)
 
 func NewApp() *application.Application {
 	app := &application.Application{
@@ -44,10 +44,10 @@ func NewApp() *application.Application {
 			Namespace:      "ack-system",
 			ServiceAccount: "ack-eks-controller",
 			DefaultVersion: &application.LatestPrevious{
-				LatestChart:   "v0.1.2",
-				Latest:        "v0.1.2",
-				PreviousChart: "v0.1.1",
-				Previous:      "v0.1.1",
+				LatestChart:   "v0.1.7",
+				Latest:        "v0.1.7",
+				PreviousChart: "v0.1.2",
+				Previous:      "v0.1.2",
 			},
 		},
 
