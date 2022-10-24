@@ -14,7 +14,7 @@ import (
 // GitHub:  https://github.com/aws-controllers-k8s/ecr-controller
 // Helm:    https://github.com/aws-controllers-k8s/ecr-controller/tree/main/helm
 // Repo:    https://gallery.ecr.aws/aws-controllers-k8s/ecr-controller
-// Version: Latest is v0.1.3 (as of 06/21/22)
+// Version: Latest is v0.1.7 (as of 10/24/22)
 
 func NewApp() *application.Application {
 	app := &application.Application{
@@ -40,10 +40,10 @@ func NewApp() *application.Application {
 			Namespace:      "ack-system",
 			ServiceAccount: "ack-ecr-controller",
 			DefaultVersion: &application.LatestPrevious{
-				LatestChart:   "v0.1.3",
-				Latest:        "v0.1.3",
-				PreviousChart: "v0.1.2",
-				Previous:      "v0.1.2",
+				LatestChart:   "v0.1.7",
+				Latest:        "v0.1.7",
+				PreviousChart: "v0.1.3",
+				Previous:      "v0.1.3",
 			},
 		},
 
