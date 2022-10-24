@@ -20,8 +20,8 @@ func newOptions() (options *GrafanaAmpOptions, flags cmd.Flags) {
 	options = &GrafanaAmpOptions{
 		ApplicationOptions: application.ApplicationOptions{
 			DefaultVersion: &application.LatestPrevious{
-				LatestChart:   "39.6.0",
-				Latest:        "9.0.5",
+				LatestChart:   "41.5.1",
+				Latest:        "9.1.7",
 				PreviousChart: "34.10.0",
 				Previous:      "8.5.0",
 			},
