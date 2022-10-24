@@ -6,15 +6,16 @@ import (
 	"io"
 	"time"
 
-	"github.com/aws/aws-sdk-go/service/prometheusservice"
+	awssdk "github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/amp/types"
 	"github.com/hako/durafmt"
 )
 
 type AmpPrinter struct {
-	Workspaces []*prometheusservice.WorkspaceDescription
+	Workspaces []*types.WorkspaceDescription
 }
 
-func NewPrinter(Workspaces []*prometheusservice.WorkspaceDescription) *AmpPrinter {
+func NewPrinter(Workspaces []*types.WorkspaceDescription) *AmpPrinter {
 	return &AmpPrinter{Workspaces}
 }
 
@@ -28,9 +29,9 @@ func (p *AmpPrinter) PrintTable(writer io.Writer) error {
 
 		table.AppendRow([]string{
 			age.String(),
-			aws.StringValue(w.Status.StatusCode),
-			aws.StringValue(w.Alias),
-			aws.StringValue(w.WorkspaceId),
+			string(w.Status.StatusCode),
+			awssdk.ToString(w.Alias),
+			awssdk.ToString(w.WorkspaceId),
 		})
 	}
 

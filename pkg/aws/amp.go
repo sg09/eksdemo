@@ -1,48 +1,60 @@
 package aws
 
 import (
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/prometheusservice"
+	"context"
+	"errors"
+	"time"
+
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/amp"
+	"github.com/aws/aws-sdk-go-v2/service/amp/types"
+	"github.com/aws/smithy-go"
 )
 
-func AmpCreateWorkspace(alias string) (*prometheusservice.CreateWorkspaceOutput, error) {
-	sess := GetSession()
-	svc := prometheusservice.New(sess)
+type AMPClient struct {
+	*amp.Client
+}
 
-	input := prometheusservice.CreateWorkspaceInput{}
+func NewAMPClient() *AMPClient {
+	return &AMPClient{amp.NewFromConfig(GetConfig())}
+}
+
+func (c *AMPClient) CreateWorkspace(alias string) (*amp.CreateWorkspaceOutput, error) {
+	input := amp.CreateWorkspaceInput{}
 
 	if alias != "" {
 		input.Alias = aws.String(alias)
 	}
 
-	result, err := svc.CreateWorkspace(&input)
+	result, err := c.Client.CreateWorkspace(context.Background(), &input)
 	if err != nil {
 		return nil, err
 	}
 
-	err = svc.WaitUntilWorkspaceActive(&prometheusservice.DescribeWorkspaceInput{
-		WorkspaceId: result.WorkspaceId,
-	})
+	err = amp.NewWorkspaceActiveWaiter(c.Client).Wait(context.Background(),
+		&amp.DescribeWorkspaceInput{WorkspaceId: result.WorkspaceId},
+		1*time.Minute,
+	)
 
 	return result, err
 }
 
-func AmpDeleteWorkspace(id string) error {
-	sess := GetSession()
-	svc := prometheusservice.New(sess)
-
-	_, err := svc.DeleteWorkspace(&prometheusservice.DeleteWorkspaceInput{
+func (c *AMPClient) DeleteWorkspace(id string) error {
+	_, err := c.Client.DeleteWorkspace(context.Background(), &amp.DeleteWorkspaceInput{
 		WorkspaceId: aws.String(id),
 	})
 
-	return FormatError(err)
+	// Return cleaner error message for service API errors
+	var ae smithy.APIError
+	if err != nil && errors.As(err, &ae) {
+		return ae
+	}
+
+	return err
 }
 
-func AmpDescribeWorkspace(workspaceId string) (*prometheusservice.WorkspaceDescription, error) {
-	sess := GetSession()
-	svc := prometheusservice.New(sess)
-
-	result, err := svc.DescribeWorkspace(&prometheusservice.DescribeWorkspaceInput{
+func (c *AMPClient) DescribeWorkspace(workspaceId string) (*types.WorkspaceDescription, error) {
+	out, err := c.Client.DescribeWorkspace(context.Background(), &amp.DescribeWorkspaceInput{
 		WorkspaceId: aws.String(workspaceId),
 	})
 
@@ -50,31 +62,27 @@ func AmpDescribeWorkspace(workspaceId string) (*prometheusservice.WorkspaceDescr
 		return nil, err
 	}
 
-	return result.Workspace, nil
+	return out.Workspace, nil
 }
 
-func AmpListWorkspaces(alias string) ([]*prometheusservice.WorkspaceSummary, error) {
-	sess := GetSession()
-	svc := prometheusservice.New(sess)
-
-	workspaces := []*prometheusservice.WorkspaceSummary{}
+func (c *AMPClient) ListWorkspaces(alias string) ([]types.WorkspaceSummary, error) {
+	workspaces := []types.WorkspaceSummary{}
 	pageNum := 0
 
-	input := prometheusservice.ListWorkspacesInput{}
+	input := amp.ListWorkspacesInput{}
 	if alias != "" {
 		input.Alias = aws.String(alias)
 	}
 
-	err := svc.ListWorkspacesPages(&input,
-		func(page *prometheusservice.ListWorkspacesOutput, lastPage bool) bool {
-			pageNum++
-			workspaces = append(workspaces, page.Workspaces...)
-			return pageNum <= maxPages
-		},
-	)
+	paginator := amp.NewListWorkspacesPaginator(c.Client, &input)
 
-	if err != nil {
-		return nil, err
+	for paginator.HasMorePages() && pageNum < maxPages {
+		out, err := paginator.NextPage(context.Background())
+		if err != nil {
+			return nil, err
+		}
+		workspaces = append(workspaces, out.Workspaces...)
+		pageNum++
 	}
 
 	return workspaces, nil

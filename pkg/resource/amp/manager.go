@@ -9,8 +9,16 @@ import (
 )
 
 type Manager struct {
-	DryRun bool
-	resource.EmptyInit
+	DryRun           bool
+	ampClient        *aws.AMPClient
+	prometheusGetter *Getter
+}
+
+func (m *Manager) Init() {
+	if m.ampClient == nil {
+		m.ampClient = aws.NewAMPClient()
+	}
+	m.prometheusGetter = NewGetter(m.ampClient)
 }
 
 func (m *Manager) Create(options resource.Options) error {
@@ -19,8 +27,7 @@ func (m *Manager) Create(options resource.Options) error {
 		return fmt.Errorf("internal error, unable to cast options to AmpOptions")
 	}
 
-	ampGetter := Getter{}
-	workspace, err := ampGetter.GetAmpByAlias(ampOptions.Alias)
+	workspace, err := m.prometheusGetter.GetAmpByAlias(ampOptions.Alias)
 	if err != nil {
 		if _, ok := err.(resource.NotFoundError); !ok {
 			// Return an error if it's anything other than resource not found
@@ -38,7 +45,7 @@ func (m *Manager) Create(options resource.Options) error {
 	}
 
 	fmt.Printf("Creating AMP Workspace Alias: %s...", ampOptions.Alias)
-	result, err := aws.AmpCreateWorkspace(ampOptions.Alias)
+	result, err := m.ampClient.CreateWorkspace(ampOptions.Alias)
 	if err != nil {
 		return err
 	}
@@ -56,8 +63,7 @@ func (m *Manager) Delete(options resource.Options) error {
 	id := options.Common().Id
 
 	if id == "" {
-		ampGetter := Getter{}
-		amp, err := ampGetter.GetAmpByAlias(ampOptions.Alias)
+		amp, err := m.prometheusGetter.GetAmpByAlias(ampOptions.Alias)
 		if err != nil {
 			if _, ok := err.(resource.NotFoundError); ok {
 				fmt.Printf("AMP Workspace Alias %q does not exist\n", ampOptions.Alias)
@@ -68,7 +74,7 @@ func (m *Manager) Delete(options resource.Options) error {
 		id = aws.StringValue(amp.WorkspaceId)
 	}
 
-	err := aws.AmpDeleteWorkspace(id)
+	err := m.ampClient.DeleteWorkspace(id)
 	if err != nil {
 		return err
 	}

@@ -9,6 +9,7 @@ require (
 	github.com/aws/aws-sdk-go-v2 v1.17.0
 	github.com/aws/aws-sdk-go-v2/config v1.17.4
 	github.com/aws/aws-sdk-go-v2/service/acm v1.15.0
+	github.com/aws/aws-sdk-go-v2/service/amp v1.15.6
 	github.com/aws/aws-sdk-go-v2/service/grafana v1.9.14
 	github.com/aws/aws-sdk-go-v2/service/ssm v1.27.13
 	github.com/aws/aws-sdk-go-v2/service/sts v1.16.16

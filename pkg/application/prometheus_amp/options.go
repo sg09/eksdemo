@@ -2,6 +2,7 @@ package prometheus_amp
 
 import (
 	"eksdemo/pkg/application"
+	"eksdemo/pkg/aws"
 	"eksdemo/pkg/cmd"
 	"eksdemo/pkg/resource/amp"
 	"fmt"
@@ -43,7 +44,7 @@ func (o *PrometheusAmpOptions) PreInstall() error {
 		o.AmpEndpoint = "<amp-endpoint-goes-here>"
 		return nil
 	}
-	ampGetter := amp.Getter{}
+	ampGetter := amp.NewGetter(aws.NewAMPClient())
 
 	workspace, err := ampGetter.GetAmpByAlias(fmt.Sprintf("%s-%s", o.ClusterName, AmpAliasSuffix))
 	if err != nil {
