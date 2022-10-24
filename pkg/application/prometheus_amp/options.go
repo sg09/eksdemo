@@ -22,8 +22,8 @@ func NewOptions() (options *PrometheusAmpOptions, flags cmd.Flags) {
 	options = &PrometheusAmpOptions{
 		ApplicationOptions: application.ApplicationOptions{
 			DefaultVersion: &application.LatestPrevious{
-				LatestChart:   "39.6.0",
-				Latest:        "v0.58.0",
+				LatestChart:   "41.5.1",
+				Latest:        "v0.60.1",
 				PreviousChart: "34.10.0",
 				Previous:      "v0.55.0",
 			},
