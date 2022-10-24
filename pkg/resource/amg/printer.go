@@ -7,15 +7,16 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aws/aws-sdk-go/service/managedgrafana"
+	awssdk "github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/grafana/types"
 	"github.com/hako/durafmt"
 )
 
 type AmgPrinter struct {
-	Workspaces []*managedgrafana.WorkspaceDescription
+	Workspaces []*types.WorkspaceDescription
 }
 
-func NewPrinter(Workspaces []*managedgrafana.WorkspaceDescription) *AmgPrinter {
+func NewPrinter(Workspaces []*types.WorkspaceDescription) *AmgPrinter {
 	return &AmgPrinter{Workspaces}
 }
 
@@ -29,10 +30,10 @@ func (p *AmgPrinter) PrintTable(writer io.Writer) error {
 
 		table.AppendRow([]string{
 			age.String(),
-			aws.StringValue(w.Status),
-			aws.StringValue(w.Name),
-			aws.StringValue(w.Id),
-			strings.Join(aws.StringValueSlice(w.Authentication.Providers), ","),
+			string(w.Status),
+			awssdk.ToString(w.Name),
+			awssdk.ToString(w.Id),
+			strings.Join(toStringSlice(w.Authentication.Providers), ","),
 		})
 	}
 
@@ -47,4 +48,12 @@ func (p *AmgPrinter) PrintJSON(writer io.Writer) error {
 
 func (p *AmgPrinter) PrintYAML(writer io.Writer) error {
 	return printer.EncodeYAML(writer, p.Workspaces)
+}
+
+func toStringSlice(apt []types.AuthenticationProviderTypes) []string {
+	ss := make([]string, len(apt))
+	for i, v := range apt {
+		ss[i] = string(v)
+	}
+	return ss
 }

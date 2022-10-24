@@ -110,7 +110,7 @@ func newCertificateValidationMetadataWaiter(client acm.DescribeCertificateAPICli
 	}
 }
 
-// Wait calls the waiter function for CertificateValidated waiter. The maxWaitDur
+// Wait calls the waiter function for CertificateValidationMetadata waiter. The maxWaitDur
 // is the maximum wait duration the waiter will wait. The maxWaitDur is required
 // and must be greater than zero.
 func (w *CertificateValidationMetadataWaiter) Wait(ctx context.Context, params *acm.DescribeCertificateInput, maxWaitDur time.Duration, optFns ...func(*CertificateValidationMetadataWaiterOptions)) error {
@@ -118,7 +118,7 @@ func (w *CertificateValidationMetadataWaiter) Wait(ctx context.Context, params *
 	return err
 }
 
-// WaitForOutput calls the waiter function for CertificateValidated waiter and
+// WaitForOutput calls the waiter function for CertificateValidationMetadata waiter and
 // returns the output of the successful operation. The maxWaitDur is the maximum
 // wait duration the waiter will wait. The maxWaitDur is required and must be
 // greater than zero.

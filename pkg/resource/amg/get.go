@@ -7,15 +7,26 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/aws/aws-sdk-go/service/managedgrafana"
+	awssdk "github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/grafana/types"
 )
 
 type Getter struct {
-	resource.EmptyInit
+	grafanaClient *aws.GrafanaClient
+}
+
+func NewGetter(grafanaClient *aws.GrafanaClient) *Getter {
+	return &Getter{grafanaClient}
+}
+
+func (g *Getter) Init() {
+	if g.grafanaClient == nil {
+		g.grafanaClient = aws.NewGrafanaClient()
+	}
 }
 
 func (g *Getter) Get(name string, output printer.Output, options resource.Options) error {
-	var workspaces []*managedgrafana.WorkspaceDescription
+	var workspaces []*types.WorkspaceDescription
 	var err error
 
 	if name == "" {
@@ -31,16 +42,16 @@ func (g *Getter) Get(name string, output printer.Output, options resource.Option
 	return output.Print(os.Stdout, NewPrinter(workspaces))
 }
 
-func (g *Getter) GetAll() ([]*managedgrafana.WorkspaceDescription, error) {
-	amgSummaries, err := aws.AmgListWorkspaces()
-	workspaces := make([]*managedgrafana.WorkspaceDescription, 0, len(amgSummaries))
+func (g *Getter) GetAll() ([]*types.WorkspaceDescription, error) {
+	amgSummaries, err := g.grafanaClient.ListWorkspaces()
+	workspaces := make([]*types.WorkspaceDescription, 0, len(amgSummaries))
 
 	if err != nil {
 		return nil, err
 	}
 
 	for _, summary := range amgSummaries {
-		result, err := aws.AmgDescribeWorkspace(aws.StringValue(summary.Id))
+		result, err := g.grafanaClient.DescribeWorkspace(awssdk.ToString(summary.Id))
 		if err != nil {
 			return nil, err
 		}
@@ -50,20 +61,20 @@ func (g *Getter) GetAll() ([]*managedgrafana.WorkspaceDescription, error) {
 	return workspaces, nil
 }
 
-func (g *Getter) GetAllAmgByName(name string) ([]*managedgrafana.WorkspaceDescription, error) {
-	summaries, err := aws.AmgListWorkspaces()
+func (g *Getter) GetAllAmgByName(name string) ([]*types.WorkspaceDescription, error) {
+	summaries, err := g.grafanaClient.ListWorkspaces()
 	if err != nil {
 		return nil, err
 	}
 
-	workspaces := make([]*managedgrafana.WorkspaceDescription, 0, len(summaries))
+	workspaces := make([]*types.WorkspaceDescription, 0, len(summaries))
 
 	for _, s := range summaries {
 		if aws.StringValue(s.Name) != name {
 			continue
 		}
 
-		result, err := aws.AmgDescribeWorkspace(aws.StringValue(s.Id))
+		result, err := g.grafanaClient.DescribeWorkspace(awssdk.ToString(s.Id))
 		if err != nil {
 			return nil, err
 		}
@@ -77,16 +88,16 @@ func (g *Getter) GetAllAmgByName(name string) ([]*managedgrafana.WorkspaceDescri
 	return workspaces, nil
 }
 
-func (g *Getter) GetAmgByName(name string) (*managedgrafana.WorkspaceDescription, error) {
+func (g *Getter) GetAmgByName(name string) (*types.WorkspaceDescription, error) {
 	workspaces, err := g.GetAllAmgByName(name)
 	if err != nil {
 		return nil, err
 	}
 
-	found := []*managedgrafana.WorkspaceDescription{}
+	found := []*types.WorkspaceDescription{}
 
 	for _, w := range workspaces {
-		if aws.StringValue(w.Status) != "DELETING" {
+		if w.Status != types.WorkspaceStatusDeleting {
 			found = append(found, w)
 		}
 	}

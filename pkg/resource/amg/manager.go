@@ -7,16 +7,25 @@ import (
 	"fmt"
 	"strings"
 
+	awssdk "github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/grafana/types"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/iam"
-	"github.com/aws/aws-sdk-go/service/managedgrafana"
 	"github.com/spf13/cobra"
 )
 
 type Manager struct {
 	AssumeRolePolicyTemplate template.TextTemplate
 	DryRun                   bool
-	resource.EmptyInit
+	grafanaClient            *aws.GrafanaClient
+	grafanaGetter            *Getter
+}
+
+func (m *Manager) Init() {
+	if m.grafanaClient == nil {
+		m.grafanaClient = aws.NewGrafanaClient()
+	}
+	m.grafanaGetter = NewGetter(m.grafanaClient)
 }
 
 func (m *Manager) Create(options resource.Options) error {
@@ -25,8 +34,7 @@ func (m *Manager) Create(options resource.Options) error {
 		return fmt.Errorf("internal error, unable to cast options to AmpOptions")
 	}
 
-	amgGetter := Getter{}
-	workspace, err := amgGetter.GetAmgByName(amgOptions.WorkspaceName)
+	workspace, err := m.grafanaGetter.GetAmgByName(amgOptions.WorkspaceName)
 	if err != nil {
 		if _, ok := err.(resource.NotFoundError); !ok {
 			// Return an error if it's anything other than resource not found
@@ -48,19 +56,19 @@ func (m *Manager) Create(options resource.Options) error {
 		return err
 	}
 
-	err = aws.IamPutRolePolicy(aws.StringValue(role.RoleName), rolePolicName, rolePolicyDoc)
+	err = aws.IamPutRolePolicy(awssdk.ToString(role.RoleName), rolePolicName, rolePolicyDoc)
 	if err != nil {
 		return err
 	}
 
 	fmt.Printf("Creating AMG Workspace Name: %s...", amgOptions.WorkspaceName)
-	result, err := aws.AmgCreateWorkspace(amgOptions.WorkspaceName, amgOptions.Auth, aws.StringValue(role.Arn))
+	result, err := m.grafanaClient.CreateWorkspace(amgOptions.WorkspaceName, amgOptions.Auth, awssdk.ToString(role.Arn))
 	if err != nil {
 		fmt.Println()
 		return err
 	}
 
-	fmt.Printf("done\nCreated AMG Workspace Id: %s\n", aws.StringValue(result.Id))
+	fmt.Printf("done\nCreated AMG Workspace Id: %s\n", awssdk.ToString(result.Id))
 
 	return nil
 }
@@ -71,12 +79,11 @@ func (m *Manager) Delete(options resource.Options) error {
 		return fmt.Errorf("internal error, unable to cast options to AmgOptions")
 	}
 
-	var amg *managedgrafana.WorkspaceDescription
+	var amg *types.WorkspaceDescription
 	var err error
 
 	if options.Common().Id == "" {
-		amgGetter := Getter{}
-		amg, err = amgGetter.GetAmgByName(amgOptions.WorkspaceName)
+		amg, err = m.grafanaGetter.GetAmgByName(amgOptions.WorkspaceName)
 		if err != nil {
 			if _, ok := err.(resource.NotFoundError); ok {
 				fmt.Printf("AMG Workspace Name %q does not exist\n", amgOptions.WorkspaceName)
@@ -85,20 +92,20 @@ func (m *Manager) Delete(options resource.Options) error {
 			return err
 		}
 	} else {
-		amg, err = aws.AmgDescribeWorkspace(options.Common().Id)
+		amg, err = m.grafanaClient.DescribeWorkspace(options.Common().Id)
 		if err != nil {
 			return err
 		}
 	}
 
-	err = m.deleteIamRole(aws.StringValue(amg.WorkspaceRoleArn))
+	err = m.deleteIamRole(awssdk.ToString(amg.WorkspaceRoleArn))
 	if err != nil {
 		return err
 	}
 
-	id := aws.StringValue(amg.Id)
+	id := awssdk.ToString(amg.Id)
 
-	err = aws.AmgDeleteWorkspace(id)
+	err = m.grafanaClient.DeleteWorkspace(id)
 	if err != nil {
 		return err
 	}
@@ -134,7 +141,7 @@ func (m *Manager) createIamRole(options *AmgOptions) (*iam.Role, error) {
 		return nil, err
 	}
 
-	fmt.Printf("Created IAM Role: %s\n", aws.StringValue(role.RoleName))
+	fmt.Printf("Created IAM Role: %s\n", awssdk.ToString(role.RoleName))
 
 	return role, nil
 }
@@ -167,7 +174,7 @@ func (m *Manager) deleteIamRole(roleArn string) error {
 	}
 
 	for _, policy := range mgdPolicies {
-		err := aws.IamDetachRolePolicy(roleName, aws.StringValue(policy.PolicyArn))
+		err := aws.IamDetachRolePolicy(roleName, awssdk.ToString(policy.PolicyArn))
 		if err != nil {
 			return err
 		}
@@ -180,11 +187,11 @@ func (m *Manager) dryRun(options *AmgOptions) error {
 	fmt.Println("\nAMG Resource Manager Dry Run:")
 
 	fmt.Printf("Amazon Managed Grafana API Call %q with request parameters:\n", "CreateWorkspace")
-	fmt.Printf("AccountAccessType: %q\n", managedgrafana.AccountAccessTypeCurrentAccount)
+	fmt.Printf("AccountAccessType: %q\n", types.AccountAccessTypeCurrentAccount)
 	fmt.Printf("AuthenticationProviders: %q\n", options.Auth)
 
-	fmt.Printf("PermissionType: %q\n", managedgrafana.PermissionTypeServiceManaged)
-	fmt.Printf("WorkspaceDataSources: %q\n", []string{managedgrafana.DataSourceTypePrometheus})
+	fmt.Printf("PermissionType: %q\n", types.PermissionTypeServiceManaged)
+	fmt.Printf("WorkspaceDataSources: %q\n", []types.DataSourceType{types.DataSourceTypePrometheus})
 	fmt.Printf("WorkspaceName: %q\n", options.WorkspaceName)
 	fmt.Printf("WorkspaceRoleArn: %q\n", "<role-to-be-created>")
 

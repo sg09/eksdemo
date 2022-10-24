@@ -6,7 +6,6 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/eks"
-	"github.com/aws/aws-sdk-go/service/managedgrafana"
 )
 
 const maxPages = 3
@@ -16,8 +15,6 @@ func FormatError(err error) error {
 		if awsErr, ok := err.(awserr.Error); ok {
 			switch awsErr.Code() {
 			case eks.ErrCodeResourceNotFoundException:
-				return fmt.Errorf(awsErr.Message())
-			case managedgrafana.ErrCodeValidationException:
 				return fmt.Errorf(awsErr.Message())
 			default:
 				return err

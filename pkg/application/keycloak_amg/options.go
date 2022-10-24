@@ -13,6 +13,7 @@ import (
 	"net/http"
 	"time"
 
+	awssdk "github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/go-resty/resty/v2"
 	"github.com/sirupsen/logrus"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -65,9 +66,9 @@ func (o *KeycloakOptions) PreDependencies(application.Action) error {
 }
 
 func (o *KeycloakOptions) PreInstall() error {
-	amgGetter := amg.Getter{}
+	grafanaGetter := amg.NewGetter(aws.NewGrafanaClient())
 
-	workspace, err := amgGetter.GetAmgByName(o.AmgOptions.WorkspaceName)
+	workspace, err := grafanaGetter.GetAmgByName(o.AmgOptions.WorkspaceName)
 	if err != nil {
 		if o.DryRun {
 			o.amgWorkspaceId = "<AMG Workspace ID>"
@@ -76,8 +77,8 @@ func (o *KeycloakOptions) PreInstall() error {
 		return fmt.Errorf("failed to lookup AMG URL to use in Helm chart: %w", err)
 	}
 
-	o.amgWorkspaceId = aws.StringValue(workspace.Id)
-	o.AmgWorkspaceUrl = aws.StringValue(workspace.Endpoint)
+	o.amgWorkspaceId = awssdk.ToString(workspace.Id)
+	o.AmgWorkspaceUrl = awssdk.ToString(workspace.Endpoint)
 
 	return nil
 }
@@ -138,7 +139,7 @@ func (o *KeycloakOptions) PostInstall(_ string, _ []*resource.Resource) error {
 	fmt.Println("done")
 	fmt.Printf("Updating AMG with Keyclock SAML Metadata URL to complete SAML configuration\n")
 
-	err = aws.AmgUpdateWorkspaceAuthentication(o.amgWorkspaceId, metadataUrl)
+	err = aws.NewGrafanaClient().UpdateWorkspaceAuthentication(o.amgWorkspaceId, metadataUrl)
 	if err != nil {
 		fmt.Println("Metadata URL is: " + metadataUrl)
 		return err
