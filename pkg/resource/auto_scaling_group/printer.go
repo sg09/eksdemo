@@ -7,15 +7,16 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/aws/aws-sdk-go/service/autoscaling"
+	awssdk "github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/autoscaling/types"
 	"github.com/hako/durafmt"
 )
 
 type AutoScalingGroupPrinter struct {
-	autoScalingGroups []*autoscaling.Group
+	autoScalingGroups []types.AutoScalingGroup
 }
 
-func NewPrinter(zones []*autoscaling.Group) *AutoScalingGroupPrinter {
+func NewPrinter(zones []types.AutoScalingGroup) *AutoScalingGroupPrinter {
 	return &AutoScalingGroupPrinter{zones}
 }
 
@@ -28,11 +29,11 @@ func (p *AutoScalingGroupPrinter) PrintTable(writer io.Writer) error {
 
 		table.AppendRow([]string{
 			age.String(),
-			aws.StringValue(asg.AutoScalingGroupName),
+			awssdk.ToString(asg.AutoScalingGroupName),
 			strconv.Itoa(len(asg.Instances)),
-			strconv.FormatInt(aws.Int64Value(asg.DesiredCapacity), 10),
-			strconv.FormatInt(aws.Int64Value(asg.MinSize), 10),
-			strconv.FormatInt(aws.Int64Value(asg.MaxSize), 10),
+			strconv.Itoa(int(awssdk.ToInt32(asg.DesiredCapacity))),
+			strconv.Itoa(int(awssdk.ToInt32(asg.MinSize))),
+			strconv.Itoa(int(awssdk.ToInt32(asg.MaxSize))),
 		})
 	}
 

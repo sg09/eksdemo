@@ -8,11 +8,21 @@ import (
 )
 
 type Getter struct {
-	resource.EmptyInit
+	autoscalingClient *aws.AutoscalingClient
+}
+
+func NewGetter(autoscalingClient *aws.AutoscalingClient) *Getter {
+	return &Getter{autoscalingClient}
+}
+
+func (g *Getter) Init() {
+	if g.autoscalingClient == nil {
+		g.autoscalingClient = aws.NewAutoscalingClient()
+	}
 }
 
 func (g *Getter) Get(name string, output printer.Output, options resource.Options) error {
-	autoScalingGroups, err := aws.ASGDescribeAutoScalingGroups(name)
+	autoScalingGroups, err := g.autoscalingClient.DescribeAutoScalingGroups(name)
 	if err != nil {
 		return err
 	}

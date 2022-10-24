@@ -151,6 +151,8 @@ github.com/aws/aws-sdk-go-v2/service/acm v1.15.0 h1:4sSa3cL8uzjlDolTToD9Euiyc6Ql
 github.com/aws/aws-sdk-go-v2/service/acm v1.15.0/go.mod h1:Z1R5+Iqa4L36pWaHVfj22p5pbyU4AK3LouizmYc/fuQ=
 github.com/aws/aws-sdk-go-v2/service/amp v1.15.6 h1:Z/HT5RA9zujpaRn4ZS8CmMfhDOijHvo98QdxUgf3Sz0=
 github.com/aws/aws-sdk-go-v2/service/amp v1.15.6/go.mod h1:wvtJ0AfXwmF+0uk/qSm3Yf+4/vd+aDwQ8LXYKBV/D58=
+github.com/aws/aws-sdk-go-v2/service/autoscaling v1.23.17 h1:UNYxwAlZ34+La7z1/0mekwVDHxiV6yhHzS8qk7ZxQdY=
+github.com/aws/aws-sdk-go-v2/service/autoscaling v1.23.17/go.mod h1:2cPuJPpkHv50Q9B02dSlx1ETPabMNNiPEwzu2eDAwks=
 github.com/aws/aws-sdk-go-v2/service/grafana v1.9.14 h1:+AXhs9xjLgxzJCR0UTuB64W2Vx7zi1vHrQcPJlOBWyY=
 github.com/aws/aws-sdk-go-v2/service/grafana v1.9.14/go.mod h1:Ci8OZ0LbDsQayDMlklwbaNO/QaG/iVYRkkJnEgsEIgg=
 github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.9.14 h1:c5hJNN2DkK1gAytcKp7LkiKNDJeevFSboPezEHAM4Ro=
