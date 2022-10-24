@@ -14,7 +14,7 @@ const K8stag = `kubernetes.io/cluster/%s`
 func GetPrivateSubnets(clusterName string) ([]string, error) {
 	stackName := "eksctl-" + clusterName + "-cluster"
 
-	stacks, err := aws.CloudFormationDescribeStacks(stackName)
+	stacks, err := aws.NewCloudformationClient().DescribeStacks(stackName)
 	if err != nil {
 		if awsErr, ok := err.(awserr.Error); ok {
 			switch awsErr.Code() {

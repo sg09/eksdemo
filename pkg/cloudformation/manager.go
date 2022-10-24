@@ -3,26 +3,35 @@ package cloudformation
 import (
 	"eksdemo/pkg/aws"
 	"eksdemo/pkg/resource"
+	"eksdemo/pkg/resource/cloudformation"
 	"eksdemo/pkg/template"
 	"fmt"
 
-	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/service/cloudformation"
+	"github.com/aws/aws-sdk-go-v2/service/cloudformation/types"
 	"github.com/spf13/cobra"
 )
+
+// eksdemo-<clusterName>-<resourceName>
+const stackNameTemplate = "eksdemo-%s-%s"
 
 type ResourceManager struct {
 	Resource string
 
-	Capabilities []aws.Capability
+	Capabilities []types.Capability
 	DryRun       bool
 	Parameters   map[string]string
-	resource.EmptyInit
-	Template template.Template
+	Template     template.Template
+
+	cloudformationClient *aws.CloudformationClient
+	cloudformationGetter *cloudformation.Getter
 }
 
-// eksdemo-<clusterName>-<resourceName>
-const stackNameTemplate = "eksdemo-%s-%s"
+func (m *ResourceManager) Init() {
+	if m.cloudformationClient == nil {
+		m.cloudformationClient = aws.NewCloudformationClient()
+	}
+	m.cloudformationGetter = cloudformation.NewGetter(m.cloudformationClient)
+}
 
 func (m *ResourceManager) Create(options resource.Options) error {
 	cfTemplate, err := m.Template.Render(options)
@@ -32,6 +41,19 @@ func (m *ResourceManager) Create(options resource.Options) error {
 
 	stackName := fmt.Sprintf(stackNameTemplate, options.Common().ClusterName, options.Common().Name)
 
+	stack, err := m.cloudformationGetter.GetStacks(stackName)
+	if err != nil {
+		if _, ok := err.(resource.NotFoundError); !ok {
+			// Return an error if it's anything other than resource not found
+			return err
+		}
+	}
+
+	if len(stack) > 0 {
+		fmt.Printf("CloudFormation stack %q already exists\n", stackName)
+		return nil
+	}
+
 	if m.DryRun {
 		fmt.Println("\nCloudFormation Resource Manager Dry Run:")
 		fmt.Printf("Stack name %q template:\n", stackName)
@@ -39,22 +61,14 @@ func (m *ResourceManager) Create(options resource.Options) error {
 		return nil
 	}
 
-	fmt.Printf("Creating Cloudformation stack %q (can take 30+ seconds)...", stackName)
-	err = aws.CloudFormationCreateStack(stackName, cfTemplate, m.Parameters, m.Capabilities)
-	fmt.Println()
+	fmt.Printf("Creating CloudFormation stack %q (can take 1+ min)...", stackName)
+	err = m.cloudformationClient.CreateStack(stackName, cfTemplate, m.Parameters, m.Capabilities)
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			switch awsErr.Code() {
-			case cloudformation.ErrCodeAlreadyExistsException:
-				fmt.Printf("Cloudformation stack %q already exists\n", stackName)
-				return nil
-			default:
-				return err
-			}
-		}
+		fmt.Println()
+		return err
 	}
-	fmt.Printf("Cloudformation stack %q created\n", stackName)
+	fmt.Println("done")
 
 	return nil
 }
@@ -62,23 +76,18 @@ func (m *ResourceManager) Create(options resource.Options) error {
 func (m *ResourceManager) Delete(options resource.Options) error {
 	stackName := fmt.Sprintf(stackNameTemplate, options.Common().ClusterName, options.Common().Name)
 
-	_, err := aws.CloudFormationDescribeStacks(stackName)
+	_, err := m.cloudformationGetter.GetStacks(stackName)
 	if err != nil {
-		if err != nil {
-			if awsErr, ok := err.(awserr.Error); ok {
-				switch awsErr.Code() {
-				case "ValidationError":
-					fmt.Printf("Cloudformation stack %q doesn't exist, skipping...\n", stackName)
-					return nil
-				}
-				return err
-			}
+		if _, ok := err.(resource.NotFoundError); ok {
+			fmt.Printf("CloudFormation Stack %q does not exist\n", stackName)
+			return nil
 		}
+		return err
 	}
 
-	fmt.Printf("Deleting Cloudformation stack %q\n", stackName)
+	fmt.Printf("Deleting CloudFormation Stack %q\n", stackName)
 
-	return aws.CloudFormationDeleteStack(stackName)
+	return m.cloudformationClient.DeleteStack(stackName)
 }
 
 func (m *ResourceManager) SetDryRun() {

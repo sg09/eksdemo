@@ -5,32 +5,33 @@ import (
 	"eksdemo/pkg/resource"
 	"fmt"
 
-	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/spf13/cobra"
 )
 
 type Manager struct {
-	DryRun bool
-	resource.EmptyInit
+	DryRun               bool
+	cloudformationClient *aws.CloudformationClient
+	cloudformationGetter *Getter
+}
+
+func (m *Manager) Init() {
+	if m.cloudformationClient == nil {
+		m.cloudformationClient = aws.NewCloudformationClient()
+	}
+	m.cloudformationGetter = NewGetter(m.cloudformationClient)
 }
 
 func (m *Manager) Delete(options resource.Options) error {
 	stackName := options.Common().Name
 
-	_, err := aws.CloudFormationDescribeStacks(stackName)
+	_, err := m.cloudformationGetter.GetStacks(stackName)
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			switch awsErr.Code() {
-			case "ValidationError":
-				return fmt.Errorf(awsErr.Message())
-			}
-			return err
-		}
+		return err
 	}
 
 	fmt.Printf("Deleting Cloudformation stack %q\n", stackName)
 
-	return aws.CloudFormationDeleteStack(stackName)
+	return m.cloudformationClient.DeleteStack(stackName)
 }
 
 func (m *Manager) Create(options resource.Options) error {

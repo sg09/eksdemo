@@ -1,10 +1,11 @@
 package karpenter
 
 import (
-	"eksdemo/pkg/aws"
 	"eksdemo/pkg/cloudformation"
 	"eksdemo/pkg/resource"
 	"eksdemo/pkg/template"
+
+	"github.com/aws/aws-sdk-go-v2/service/cloudformation/types"
 )
 
 func karpenterNodeRole() *resource.Resource {
@@ -14,7 +15,7 @@ func karpenterNodeRole() *resource.Resource {
 		},
 
 		Manager: &cloudformation.ResourceManager{
-			Capabilities: []aws.Capability{aws.CapabilityCapabilityNamedIam},
+			Capabilities: []types.Capability{types.CapabilityCapabilityNamedIam},
 			Template: &template.TextTemplate{
 				Template: cloudFormationTemplate,
 			},

@@ -1,21 +1,21 @@
 package cloudformation
 
 import (
-	"eksdemo/pkg/aws"
 	"eksdemo/pkg/printer"
 	"io"
 	"time"
 
-	"github.com/aws/aws-sdk-go/service/cloudformation"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/cloudformation/types"
 	"github.com/hako/durafmt"
 )
 
 type CloudFormationPrinter struct {
-	Stacks []*cloudformation.Stack
+	Stacks []types.Stack
 }
 
-func NewPrinter(Workspaces []*cloudformation.Stack) *CloudFormationPrinter {
-	return &CloudFormationPrinter{Workspaces}
+func NewPrinter(stacks []types.Stack) *CloudFormationPrinter {
+	return &CloudFormationPrinter{stacks}
 }
 
 func (p *CloudFormationPrinter) PrintTable(writer io.Writer) error {
@@ -24,12 +24,12 @@ func (p *CloudFormationPrinter) PrintTable(writer io.Writer) error {
 
 	for _, s := range p.Stacks {
 
-		age := durafmt.ParseShort(time.Since(aws.TimeValue(s.CreationTime)))
+		age := durafmt.ParseShort(time.Since(aws.ToTime(s.CreationTime)))
 
 		table.AppendRow([]string{
 			age.String(),
-			aws.StringValue(s.StackStatus),
-			aws.StringValue(s.StackName),
+			string(s.StackStatus),
+			aws.ToString(s.StackName),
 		})
 	}
 

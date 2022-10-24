@@ -125,8 +125,8 @@ func (o *ClusterOptions) PreCreate() error {
 func (o *ClusterOptions) PreDelete() error {
 	o.Region = aws.Region()
 
-	getter := cloudformation.Getter{}
-	stacks, err := getter.GetStacksByCluster(o.ClusterName, "")
+	cloudformationClient := aws.NewCloudformationClient()
+	stacks, err := cloudformation.NewGetter(cloudformationClient).GetStacksByCluster(o.ClusterName, "")
 	if err != nil {
 		return err
 	}
@@ -135,7 +135,7 @@ func (o *ClusterOptions) PreDelete() error {
 		stackName := aws.StringValue(stack.StackName)
 		if strings.HasPrefix(stackName, "eksdemo-") {
 			fmt.Printf("Deleting Cloudformation stack %q\n", stackName)
-			err := aws.CloudFormationDeleteStack(stackName)
+			err := cloudformationClient.DeleteStack(stackName)
 			if err != nil {
 				return err
 			}

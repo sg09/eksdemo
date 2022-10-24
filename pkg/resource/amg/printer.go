@@ -16,8 +16,8 @@ type AmgPrinter struct {
 	Workspaces []*types.WorkspaceDescription
 }
 
-func NewPrinter(Workspaces []*types.WorkspaceDescription) *AmgPrinter {
-	return &AmgPrinter{Workspaces}
+func NewPrinter(workspaces []*types.WorkspaceDescription) *AmgPrinter {
+	return &AmgPrinter{workspaces}
 }
 
 func (p *AmgPrinter) PrintTable(writer io.Writer) error {

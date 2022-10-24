@@ -11,6 +11,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/acm v1.15.0
 	github.com/aws/aws-sdk-go-v2/service/amp v1.15.6
 	github.com/aws/aws-sdk-go-v2/service/autoscaling v1.23.17
+	github.com/aws/aws-sdk-go-v2/service/cloudformation v1.22.11
 	github.com/aws/aws-sdk-go-v2/service/grafana v1.9.14
 	github.com/aws/aws-sdk-go-v2/service/ssm v1.27.13
 	github.com/aws/aws-sdk-go-v2/service/sts v1.16.16

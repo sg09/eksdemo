@@ -2,12 +2,13 @@ package crossplane
 
 import (
 	"eksdemo/pkg/application"
-	"eksdemo/pkg/aws"
 	"eksdemo/pkg/cloudformation"
 	"eksdemo/pkg/resource"
 	"eksdemo/pkg/resource/irsa"
 	"eksdemo/pkg/template"
 	"fmt"
+
+	"github.com/aws/aws-sdk-go-v2/service/cloudformation/types"
 )
 
 func crossplaneIrsa(options application.Options) *resource.Resource {
@@ -24,7 +25,7 @@ func crossplaneIrsa(options application.Options) *resource.Resource {
 		},
 
 		Manager: &cloudformation.ResourceManager{
-			Capabilities: []aws.Capability{aws.CapabilityCapabilityNamedIam},
+			Capabilities: []types.Capability{types.CapabilityCapabilityNamedIam},
 			Template: &template.TextTemplate{
 				Template: cloudFormationTemplate,
 			},

@@ -1,25 +1,27 @@
 package aws
 
 import (
+	"context"
+	"time"
+
+	cloudformationv2 "github.com/aws/aws-sdk-go-v2/service/cloudformation"
+	"github.com/aws/aws-sdk-go-v2/service/cloudformation/types"
+
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/cloudformation"
 )
 
-type Capability string
+type CloudformationClient struct {
+	*cloudformationv2.Client
+}
 
-const (
-	CapabilityCapabilityIam        Capability = "CAPABILITY_IAM"
-	CapabilityCapabilityNamedIam   Capability = "CAPABILITY_NAMED_IAM"
-	CapabilityCapabilityAutoExpand Capability = "CAPABILITY_AUTO_EXPAND"
-)
+func NewCloudformationClient() *CloudformationClient {
+	return &CloudformationClient{cloudformationv2.NewFromConfig(GetConfig())}
+}
 
-func CloudFormationCreateStack(stackName, templateBody string, parameters map[string]string, capabilities []Capability) error {
-	sess := GetSession()
-	svc := cloudformation.New(sess)
-
-	_, err := svc.CreateStack(&cloudformation.CreateStackInput{
-		Capabilities: createCloudFormationCapabilities(capabilities),
-		Parameters:   createCloudFormationParameters(parameters),
+func (c *CloudformationClient) CreateStack(stackName, templateBody string, params map[string]string, caps []types.Capability) error {
+	_, err := c.Client.CreateStack(context.Background(), &cloudformationv2.CreateStackInput{
+		Capabilities: caps,
+		Parameters:   toCloudformationParameters(params),
 		StackName:    aws.String(stackName),
 		TemplateBody: aws.String(templateBody),
 	})
@@ -27,62 +29,46 @@ func CloudFormationCreateStack(stackName, templateBody string, parameters map[st
 		return err
 	}
 
-	err = svc.WaitUntilStackCreateComplete(&cloudformation.DescribeStacksInput{
-		StackName: aws.String(stackName),
+	waiter := cloudformationv2.NewStackCreateCompleteWaiter(c.Client, func(o *cloudformationv2.StackCreateCompleteWaiterOptions) {
+		o.APIOptions = append(o.APIOptions, WaiterLogger{}.AddLogger)
+		o.MinDelay = 2 * time.Second
+		o.MaxDelay = 5 * time.Second
 	})
-	if err != nil {
-		return err
-	}
 
-	return nil
+	return waiter.Wait(context.Background(),
+		&cloudformationv2.DescribeStacksInput{StackName: aws.String(stackName)},
+		2*time.Minute,
+	)
 }
 
-func CloudFormationDeleteStack(stackName string) error {
-	sess := GetSession()
-	svc := cloudformation.New(sess)
-
-	_, err := svc.DeleteStack(&cloudformation.DeleteStackInput{
+func (c *CloudformationClient) DeleteStack(stackName string) error {
+	_, err := c.Client.DeleteStack(context.Background(), &cloudformationv2.DeleteStackInput{
 		StackName: aws.String(stackName),
 	})
-	if err != nil {
-		return err
-	}
 
-	return nil
+	return err
 }
 
-func CloudFormationDescribeStacks(stackName string) ([]*cloudformation.Stack, error) {
-	sess := GetSession()
-	svc := cloudformation.New(sess)
-
-	input := &cloudformation.DescribeStacksInput{}
+func (c *CloudformationClient) DescribeStacks(stackName string) ([]types.Stack, error) {
+	input := cloudformationv2.DescribeStacksInput{}
 	if stackName != "" {
 		input.StackName = aws.String(stackName)
 	}
 
-	result, err := svc.DescribeStacks(input)
-
+	result, err := c.Client.DescribeStacks(context.Background(), &input)
 	if err != nil {
-		return nil, FormatError(err)
+		return nil, err
 	}
 
 	return result.Stacks, nil
 }
 
-func createCloudFormationParameters(tags map[string]string) (cfParams []*cloudformation.Parameter) {
+func toCloudformationParameters(tags map[string]string) (params []types.Parameter) {
 	for k, v := range tags {
-		cfParams = append(cfParams, &cloudformation.Parameter{
+		params = append(params, types.Parameter{
 			ParameterKey:   aws.String(k),
 			ParameterValue: aws.String(v),
 		})
 	}
 	return
-}
-
-func createCloudFormationCapabilities(c []Capability) []*string {
-	s := make([]*string, len(c))
-	for i, v := range c {
-		s[i] = aws.String(string(v))
-	}
-	return s
 }
