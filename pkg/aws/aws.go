@@ -1,16 +1,18 @@
 package aws
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/eks"
+	"github.com/aws/smithy-go"
 )
 
 const maxPages = 3
 
-func FormatError(err error) error {
+func FormatErrorSDKv1(err error) error {
 	if err != nil {
 		if awsErr, ok := err.(awserr.Error); ok {
 			switch awsErr.Code() {
@@ -20,6 +22,15 @@ func FormatError(err error) error {
 				return err
 			}
 		}
+	}
+	return err
+}
+
+// Return cleaner error message for service API errors
+func FormatError(err error) error {
+	var ae smithy.APIError
+	if err != nil && errors.As(err, &ae) {
+		return ae
 	}
 	return err
 }

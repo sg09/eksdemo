@@ -63,7 +63,7 @@ func EksDescribeCluster(clusterName string) (*eks.Cluster, error) {
 	})
 
 	if err != nil {
-		return nil, FormatError(err)
+		return nil, FormatErrorSDKv1(err)
 	}
 
 	return result.Cluster, nil
@@ -79,7 +79,7 @@ func EksDescribeFargateProfile(clusterName, profileName string) (*eks.FargatePro
 	})
 
 	if err != nil {
-		return nil, FormatError(err)
+		return nil, FormatErrorSDKv1(err)
 	}
 
 	return result.FargateProfile, nil
@@ -95,7 +95,7 @@ func EksDescribeNodegroup(clusterName, nodegroupName string) (*eks.Nodegroup, er
 	})
 
 	if err != nil {
-		return nil, FormatError(err)
+		return nil, FormatErrorSDKv1(err)
 	}
 
 	return result.Nodegroup, nil
@@ -141,7 +141,7 @@ func EksListClusters() ([]*string, error) {
 	)
 
 	if err != nil {
-		return nil, FormatError(err)
+		return nil, FormatErrorSDKv1(err)
 	}
 
 	return clusters, nil
@@ -180,7 +180,7 @@ func EksListNodegroups(clusterName string) ([]*string, error) {
 	})
 
 	if err != nil {
-		return nil, FormatError(err)
+		return nil, FormatErrorSDKv1(err)
 	}
 
 	return nodegroups.Nodegroups, nil

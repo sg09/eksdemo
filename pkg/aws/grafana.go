@@ -2,14 +2,12 @@ package aws
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/grafana"
 	"github.com/aws/aws-sdk-go-v2/service/grafana/types"
-	"github.com/aws/smithy-go"
 	"github.com/aws/smithy-go/middleware"
 	smithytime "github.com/aws/smithy-go/time"
 	smithywaiter "github.com/aws/smithy-go/waiter"
@@ -60,11 +58,6 @@ func (c *GrafanaClient) DescribeWorkspace(id string) (*types.WorkspaceDescriptio
 	})
 
 	if err != nil {
-		// Return cleaner error message for service API errors
-		var ae smithy.APIError
-		if errors.As(err, &ae) {
-			return nil, ae
-		}
 		return nil, err
 	}
 

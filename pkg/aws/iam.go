@@ -76,7 +76,7 @@ func IamGetOpenIDConnectProvider(arn string) (*iam.GetOpenIDConnectProviderOutpu
 		OpenIDConnectProviderArn: aws.String(arn),
 	})
 	if err != nil {
-		return nil, FormatError(err)
+		return nil, FormatErrorSDKv1(err)
 	}
 
 	return result, nil
@@ -90,7 +90,7 @@ func IamGetRole(name string) (*iam.Role, error) {
 		RoleName: aws.String(name),
 	})
 	if err != nil {
-		return nil, FormatError(err)
+		return nil, FormatErrorSDKv1(err)
 	}
 
 	return result.Role, nil
@@ -126,7 +126,7 @@ func IamListOpenIDConnectProviders() ([]*iam.OpenIDConnectProviderListEntry, err
 
 	result, err := svc.ListOpenIDConnectProviders(&iam.ListOpenIDConnectProvidersInput{})
 	if err != nil {
-		return nil, FormatError(err)
+		return nil, FormatErrorSDKv1(err)
 	}
 
 	return result.OpenIDConnectProviderList, nil
@@ -172,7 +172,7 @@ func IamListRoles() ([]*iam.Role, error) {
 	)
 
 	if err != nil {
-		return nil, FormatError(err)
+		return nil, FormatErrorSDKv1(err)
 	}
 
 	return roles, nil

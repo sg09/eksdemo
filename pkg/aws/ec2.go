@@ -15,7 +15,7 @@ func EC2CreateTags(resources []string, tags map[string]string) error {
 	})
 
 	if err != nil {
-		return FormatError(err)
+		return FormatErrorSDKv1(err)
 	}
 	return nil
 }

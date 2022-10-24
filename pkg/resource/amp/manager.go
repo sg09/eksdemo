@@ -76,7 +76,7 @@ func (m *Manager) Delete(options resource.Options) error {
 
 	err := m.ampClient.DeleteWorkspace(id)
 	if err != nil {
-		return err
+		return aws.FormatError(err)
 	}
 	fmt.Printf("AMP Workspace Id %q deleting...\n", id)
 

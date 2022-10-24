@@ -2,13 +2,11 @@ package aws
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/amp"
 	"github.com/aws/aws-sdk-go-v2/service/amp/types"
-	"github.com/aws/smithy-go"
 )
 
 type AMPClient struct {
@@ -43,12 +41,6 @@ func (c *AMPClient) DeleteWorkspace(id string) error {
 	_, err := c.Client.DeleteWorkspace(context.Background(), &amp.DeleteWorkspaceInput{
 		WorkspaceId: aws.String(id),
 	})
-
-	// Return cleaner error message for service API errors
-	var ae smithy.APIError
-	if err != nil && errors.As(err, &ae) {
-		return ae
-	}
 
 	return err
 }

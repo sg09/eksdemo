@@ -65,7 +65,7 @@ func (m *Manager) Create(options resource.Options) error {
 	result, err := m.grafanaClient.CreateWorkspace(amgOptions.WorkspaceName, amgOptions.Auth, awssdk.ToString(role.Arn))
 	if err != nil {
 		fmt.Println()
-		return err
+		return aws.FormatError(err)
 	}
 
 	fmt.Printf("done\nCreated AMG Workspace Id: %s\n", awssdk.ToString(result.Id))
@@ -94,7 +94,7 @@ func (m *Manager) Delete(options resource.Options) error {
 	} else {
 		amg, err = m.grafanaClient.DescribeWorkspace(options.Common().Id)
 		if err != nil {
-			return err
+			return aws.FormatError(err)
 		}
 	}
 
