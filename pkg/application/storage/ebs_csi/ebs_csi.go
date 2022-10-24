@@ -13,7 +13,7 @@ import (
 // GitHub:  https://github.com/kubernetes-sigs/aws-ebs-csi-driver
 // Helm:    https://github.com/kubernetes-sigs/aws-ebs-csi-driver/tree/master/charts/aws-ebs-csi-driver
 // Repo:    public.ecr.aws/ebs-csi-driver/aws-ebs-csi-driver
-// Version: Latest is Chart 2.9.0, App v1.10.0 (as of 07/31/22)
+// Version: Latest is v1.12.0, Chart 2.12.1 (as of 10/23/22)
 
 func NewApp() *application.Application {
 	app := &application.Application{
