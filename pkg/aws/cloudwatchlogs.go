@@ -1,54 +1,57 @@
 package aws
 
 import (
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
+	"context"
+
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs"
+	"github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs/types"
 )
 
-func CloudWatchLogsDeleteLogGroup(name string) error {
-	sess := GetSession()
-	svc := cloudwatchlogs.New(sess)
+type CloudWatchLogsClient struct {
+	*cloudwatchlogs.Client
+}
 
-	_, err := svc.DeleteLogGroup(&cloudwatchlogs.DeleteLogGroupInput{
+func NewCloudWatchLogsClient() *CloudWatchLogsClient {
+	return &CloudWatchLogsClient{cloudwatchlogs.NewFromConfig(GetConfig())}
+}
+
+func (c *CloudWatchLogsClient) DeleteLogGroup(name string) error {
+	_, err := c.Client.DeleteLogGroup(context.Background(), &cloudwatchlogs.DeleteLogGroupInput{
 		LogGroupName: aws.String(name),
 	})
 
 	return err
 }
 
-func CloudWatchLogsDescribeLogGroups(namePrefix string) ([]*cloudwatchlogs.LogGroup, error) {
-	sess := GetSession()
-	svc := cloudwatchlogs.New(sess)
-
-	logGroups := []*cloudwatchlogs.LogGroup{}
+func (c *CloudWatchLogsClient) DescribeLogGroups(namePrefix string) ([]types.LogGroup, error) {
+	logGroups := []types.LogGroup{}
 	pageNum := 0
 
-	input := &cloudwatchlogs.DescribeLogGroupsInput{}
+	input := cloudwatchlogs.DescribeLogGroupsInput{}
 	if namePrefix != "" {
 		input.LogGroupNamePrefix = aws.String(namePrefix)
 	}
 
-	err := svc.DescribeLogGroupsPages(input,
-		func(page *cloudwatchlogs.DescribeLogGroupsOutput, lastPage bool) bool {
-			pageNum++
-			logGroups = append(logGroups, page.LogGroups...)
-			return pageNum <= maxPages
-		})
+	paginator := cloudwatchlogs.NewDescribeLogGroupsPaginator(c.Client, &input)
 
-	if err != nil {
-		return nil, err
+	for paginator.HasMorePages() && pageNum < maxPages {
+		out, err := paginator.NextPage(context.Background())
+		if err != nil {
+			return nil, err
+		}
+		logGroups = append(logGroups, out.LogGroups...)
+		pageNum++
 	}
+
 	return logGroups, nil
 }
 
-func CloudWatchLogsDescribeLogStreams(namePrefix, logGroupName string) ([]*cloudwatchlogs.LogStream, error) {
-	sess := GetSession()
-	svc := cloudwatchlogs.New(sess)
-
-	logStreams := []*cloudwatchlogs.LogStream{}
+func (c *CloudWatchLogsClient) DescribeLogStreams(namePrefix, logGroupName string) ([]types.LogStream, error) {
+	logStreams := []types.LogStream{}
 	pageNum := 0
 
-	input := &cloudwatchlogs.DescribeLogStreamsInput{
+	input := cloudwatchlogs.DescribeLogStreamsInput{
 		LogGroupName: aws.String(logGroupName),
 	}
 
@@ -56,41 +59,40 @@ func CloudWatchLogsDescribeLogStreams(namePrefix, logGroupName string) ([]*cloud
 		input.LogStreamNamePrefix = aws.String(namePrefix)
 	}
 
-	err := svc.DescribeLogStreamsPages(input,
-		func(page *cloudwatchlogs.DescribeLogStreamsOutput, lastPage bool) bool {
-			pageNum++
-			logStreams = append(logStreams, page.LogStreams...)
-			return pageNum <= maxPages
-		})
+	paginator := cloudwatchlogs.NewDescribeLogStreamsPaginator(c.Client, &input)
 
-	if err != nil {
-		return nil, err
+	for paginator.HasMorePages() && pageNum < maxPages {
+		out, err := paginator.NextPage(context.Background())
+		if err != nil {
+			return nil, err
+		}
+		logStreams = append(logStreams, out.LogStreams...)
+		pageNum++
 	}
+
 	return logStreams, nil
 }
 
-func CloudWatchLogsGetLogEvents(logStreamName, logGroupName string) ([]*cloudwatchlogs.OutputLogEvent, error) {
-	sess := GetSession()
-	svc := cloudwatchlogs.New(sess)
-
-	logEvents := []*cloudwatchlogs.OutputLogEvent{}
+func (c *CloudWatchLogsClient) GetLogEvents(logStreamName, logGroupName string) ([]types.OutputLogEvent, error) {
+	logEvents := []types.OutputLogEvent{}
 	pageNum := 0
 
-	input := &cloudwatchlogs.GetLogEventsInput{
+	input := cloudwatchlogs.GetLogEventsInput{
 		LogGroupName:  aws.String(logGroupName),
 		LogStreamName: aws.String(logStreamName),
 		StartFromHead: aws.Bool(true),
 	}
 
-	err := svc.GetLogEventsPages(input,
-		func(page *cloudwatchlogs.GetLogEventsOutput, lastPage bool) bool {
-			pageNum++
-			logEvents = append(logEvents, page.Events...)
-			return pageNum <= maxPages
-		})
+	paginator := cloudwatchlogs.NewGetLogEventsPaginator(c.Client, &input)
 
-	if err != nil {
-		return nil, err
+	for paginator.HasMorePages() && pageNum < maxPages {
+		out, err := paginator.NextPage(context.Background())
+		if err != nil {
+			return nil, err
+		}
+		logEvents = append(logEvents, out.Events...)
+		pageNum++
 	}
+
 	return logEvents, nil
 }

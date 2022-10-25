@@ -1,34 +1,34 @@
 package log_event
 
 import (
-	"eksdemo/pkg/aws"
 	"eksdemo/pkg/printer"
 	"fmt"
 	"io"
 	"strings"
 	"time"
 
-	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs/types"
 	"github.com/hako/durafmt"
 )
 
 type LogEventPrinter struct {
-	logEvents []*cloudwatchlogs.OutputLogEvent
+	logEvents []types.OutputLogEvent
 	timestamp bool
 }
 
-func NewPrinter(logEvents []*cloudwatchlogs.OutputLogEvent, timestamp bool) *LogEventPrinter {
+func NewPrinter(logEvents []types.OutputLogEvent, timestamp bool) *LogEventPrinter {
 	return &LogEventPrinter{logEvents, timestamp}
 }
 
 func (p *LogEventPrinter) PrintTable(writer io.Writer) error {
 	for _, le := range p.logEvents {
 		if p.timestamp {
-			age := durafmt.ParseShort(time.Since(time.Unix(aws.Int64Value(le.Timestamp)/1000, 0)))
+			age := durafmt.ParseShort(time.Since(time.Unix(aws.ToInt64(le.Timestamp)/1000, 0)))
 			fmt.Printf(strings.ReplaceAll(age.InternationalString(), " ", "") + ": ")
 		}
 		// strings.Join and strings.Fields combination removes extra spaces
-		fmt.Println(strings.Join(strings.Fields(aws.StringValue(le.Message)), " "))
+		fmt.Println(strings.Join(strings.Fields(aws.ToString(le.Message)), " "))
 	}
 
 	return nil

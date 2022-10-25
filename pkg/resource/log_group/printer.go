@@ -1,21 +1,21 @@
 package log_group
 
 import (
-	"eksdemo/pkg/aws"
 	"eksdemo/pkg/printer"
 	"io"
 	"strconv"
 	"time"
 
-	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs/types"
 	"github.com/hako/durafmt"
 )
 
 type LogGroupPrinter struct {
-	logGroups []*cloudwatchlogs.LogGroup
+	logGroups []types.LogGroup
 }
 
-func NewPrinter(logGroups []*cloudwatchlogs.LogGroup) *LogGroupPrinter {
+func NewPrinter(logGroups []types.LogGroup) *LogGroupPrinter {
 	return &LogGroupPrinter{logGroups}
 }
 
@@ -24,8 +24,8 @@ func (p *LogGroupPrinter) PrintTable(writer io.Writer) error {
 	table.SetHeader([]string{"Age", "Name", "Retention"})
 
 	for _, lg := range p.logGroups {
-		age := durafmt.ParseShort(time.Since(time.Unix(aws.Int64Value(lg.CreationTime)/1000, 0)))
-		retention := strconv.FormatInt(aws.Int64Value(lg.RetentionInDays), 10)
+		age := durafmt.ParseShort(time.Since(time.Unix(aws.ToInt64(lg.CreationTime)/1000, 0)))
+		retention := strconv.Itoa(int(aws.ToInt32(lg.RetentionInDays)))
 
 		switch retention {
 		case "0":
@@ -76,7 +76,7 @@ func (p *LogGroupPrinter) PrintTable(writer io.Writer) error {
 
 		table.AppendRow([]string{
 			age.String(),
-			aws.StringValue(lg.LogGroupName),
+			aws.ToString(lg.LogGroupName),
 			retention,
 		})
 	}

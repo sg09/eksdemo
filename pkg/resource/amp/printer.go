@@ -1,12 +1,11 @@
 package amp
 
 import (
-	"eksdemo/pkg/aws"
 	"eksdemo/pkg/printer"
 	"io"
 	"time"
 
-	awssdk "github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/amp/types"
 	"github.com/hako/durafmt"
 )
@@ -25,13 +24,13 @@ func (p *AmpPrinter) PrintTable(writer io.Writer) error {
 
 	for _, w := range p.Workspaces {
 
-		age := durafmt.ParseShort(time.Since(aws.TimeValue(w.CreatedAt)))
+		age := durafmt.ParseShort(time.Since(aws.ToTime(w.CreatedAt)))
 
 		table.AppendRow([]string{
 			age.String(),
 			string(w.Status.StatusCode),
-			awssdk.ToString(w.Alias),
-			awssdk.ToString(w.WorkspaceId),
+			aws.ToString(w.Alias),
+			aws.ToString(w.WorkspaceId),
 		})
 	}
 

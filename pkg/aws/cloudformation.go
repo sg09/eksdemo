@@ -4,22 +4,22 @@ import (
 	"context"
 	"time"
 
-	cloudformationv2 "github.com/aws/aws-sdk-go-v2/service/cloudformation"
+	"github.com/aws/aws-sdk-go-v2/service/cloudformation"
 	"github.com/aws/aws-sdk-go-v2/service/cloudformation/types"
 
 	"github.com/aws/aws-sdk-go/aws"
 )
 
 type CloudformationClient struct {
-	*cloudformationv2.Client
+	*cloudformation.Client
 }
 
 func NewCloudformationClient() *CloudformationClient {
-	return &CloudformationClient{cloudformationv2.NewFromConfig(GetConfig())}
+	return &CloudformationClient{cloudformation.NewFromConfig(GetConfig())}
 }
 
 func (c *CloudformationClient) CreateStack(stackName, templateBody string, params map[string]string, caps []types.Capability) error {
-	_, err := c.Client.CreateStack(context.Background(), &cloudformationv2.CreateStackInput{
+	_, err := c.Client.CreateStack(context.Background(), &cloudformation.CreateStackInput{
 		Capabilities: caps,
 		Parameters:   toCloudformationParameters(params),
 		StackName:    aws.String(stackName),
@@ -29,20 +29,20 @@ func (c *CloudformationClient) CreateStack(stackName, templateBody string, param
 		return err
 	}
 
-	waiter := cloudformationv2.NewStackCreateCompleteWaiter(c.Client, func(o *cloudformationv2.StackCreateCompleteWaiterOptions) {
+	waiter := cloudformation.NewStackCreateCompleteWaiter(c.Client, func(o *cloudformation.StackCreateCompleteWaiterOptions) {
 		o.APIOptions = append(o.APIOptions, WaiterLogger{}.AddLogger)
 		o.MinDelay = 2 * time.Second
 		o.MaxDelay = 5 * time.Second
 	})
 
 	return waiter.Wait(context.Background(),
-		&cloudformationv2.DescribeStacksInput{StackName: aws.String(stackName)},
+		&cloudformation.DescribeStacksInput{StackName: aws.String(stackName)},
 		2*time.Minute,
 	)
 }
 
 func (c *CloudformationClient) DeleteStack(stackName string) error {
-	_, err := c.Client.DeleteStack(context.Background(), &cloudformationv2.DeleteStackInput{
+	_, err := c.Client.DeleteStack(context.Background(), &cloudformation.DeleteStackInput{
 		StackName: aws.String(stackName),
 	})
 
@@ -50,17 +50,26 @@ func (c *CloudformationClient) DeleteStack(stackName string) error {
 }
 
 func (c *CloudformationClient) DescribeStacks(stackName string) ([]types.Stack, error) {
-	input := cloudformationv2.DescribeStacksInput{}
+	stacks := []types.Stack{}
+	pageNum := 0
+
+	input := cloudformation.DescribeStacksInput{}
 	if stackName != "" {
 		input.StackName = aws.String(stackName)
 	}
 
-	result, err := c.Client.DescribeStacks(context.Background(), &input)
-	if err != nil {
-		return nil, err
+	paginator := cloudformation.NewDescribeStacksPaginator(c.Client, &input)
+
+	for paginator.HasMorePages() && pageNum < maxPages {
+		out, err := paginator.NextPage(context.Background())
+		if err != nil {
+			return nil, err
+		}
+		stacks = append(stacks, out.Stacks...)
+		pageNum++
 	}
 
-	return result.Stacks, nil
+	return stacks, nil
 }
 
 func toCloudformationParameters(tags map[string]string) (params []types.Parameter) {

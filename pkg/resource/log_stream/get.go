@@ -7,11 +7,24 @@ import (
 	"eksdemo/pkg/resource/log_group"
 	"fmt"
 	"os"
+
+	awssdk "github.com/aws/aws-sdk-go-v2/aws"
 )
 
 type Getter struct {
-	resource.EmptyInit
-	logGroupGetter log_group.Getter
+	cloudwatchlogsClient *aws.CloudWatchLogsClient
+	logGroupGetter       *log_group.Getter
+}
+
+func NewGetter(cloudwatchlogsClient *aws.CloudWatchLogsClient) *Getter {
+	return &Getter{cloudwatchlogsClient, log_group.NewGetter(cloudwatchlogsClient)}
+}
+
+func (g *Getter) Init() {
+	if g.cloudwatchlogsClient == nil {
+		g.cloudwatchlogsClient = aws.NewCloudWatchLogsClient()
+	}
+	g.logGroupGetter = log_group.NewGetter(g.cloudwatchlogsClient)
 }
 
 func (g *Getter) Get(name string, output printer.Output, options resource.Options) error {
@@ -25,7 +38,7 @@ func (g *Getter) Get(name string, output printer.Output, options resource.Option
 		return err
 	}
 
-	logStreams, err := aws.CloudWatchLogsDescribeLogStreams(name, aws.StringValue(logGroup.LogGroupName))
+	logStreams, err := g.cloudwatchlogsClient.DescribeLogStreams(name, awssdk.ToString(logGroup.LogGroupName))
 	if err != nil {
 		return err
 	}

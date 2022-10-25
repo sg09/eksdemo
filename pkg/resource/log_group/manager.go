@@ -9,8 +9,14 @@ import (
 )
 
 type Manager struct {
-	DryRun bool
-	resource.EmptyInit
+	DryRun               bool
+	cloudwatchlogsClient *aws.CloudWatchLogsClient
+}
+
+func (m *Manager) Init() {
+	if m.cloudwatchlogsClient == nil {
+		m.cloudwatchlogsClient = aws.NewCloudWatchLogsClient()
+	}
 }
 
 func (m *Manager) Create(options resource.Options) error {
@@ -18,8 +24,8 @@ func (m *Manager) Create(options resource.Options) error {
 }
 
 func (m *Manager) Delete(options resource.Options) error {
-	if err := aws.CloudWatchLogsDeleteLogGroup(options.Common().Name); err != nil {
-		return err
+	if err := m.cloudwatchlogsClient.DeleteLogGroup(options.Common().Name); err != nil {
+		return aws.FormatError(err)
 	}
 	fmt.Println("Log group deleted successfully")
 

@@ -10,7 +10,7 @@ func NewResource() *resource.Resource {
 		Command: cmd.Command{
 			Name:        "log-event",
 			Description: "CloudWatch Log Events",
-			Aliases:     []string{"log-events", "logevents", "logs"},
+			Aliases:     []string{"log-events", "logevents", "logs", "log"},
 			Args:        []string{"LOG_STREAM_NAME"},
 		},
 

@@ -7,16 +7,25 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
+	"github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs/types"
 )
 
 type Getter struct {
-	resource.EmptyInit
+	cloudwatchlogsClient *aws.CloudWatchLogsClient
+}
+
+func NewGetter(cloudwatchlogsClient *aws.CloudWatchLogsClient) *Getter {
+	return &Getter{cloudwatchlogsClient}
+}
+
+func (g *Getter) Init() {
+	if g.cloudwatchlogsClient == nil {
+		g.cloudwatchlogsClient = aws.NewCloudWatchLogsClient()
+	}
 }
 
 func (g *Getter) Get(name string, output printer.Output, options resource.Options) error {
-	logGroups, err := aws.CloudWatchLogsDescribeLogGroups(name)
+	logGroups, err := g.cloudwatchlogsClient.DescribeLogGroups(name)
 	if err != nil {
 		return err
 	}
@@ -24,28 +33,18 @@ func (g *Getter) Get(name string, output printer.Output, options resource.Option
 	return output.Print(os.Stdout, NewPrinter(logGroups))
 }
 
-func (g *Getter) GetLogGroupByName(name string) (*cloudwatchlogs.LogGroup, error) {
-	logGroups, err := aws.CloudWatchLogsDescribeLogGroups(name)
+func (g *Getter) GetLogGroupByName(name string) (types.LogGroup, error) {
+	logGroups, err := g.cloudwatchlogsClient.DescribeLogGroups(name)
 	if err != nil {
-		// Return all errors except NotFound
-		if awsErr, ok := err.(awserr.Error); ok {
-			switch awsErr.Code() {
-			case cloudwatchlogs.ErrCodeResourceNotFoundException:
-				break
-			default:
-				return nil, err
-			}
-		} else {
-			return nil, err
-		}
+		return types.LogGroup{}, err
 	}
 
 	if len(logGroups) > 1 {
-		return nil, fmt.Errorf("multiple log groups found with name %q", name)
+		return types.LogGroup{}, fmt.Errorf("multiple log groups found with name %q", name)
 	}
 
 	if len(logGroups) == 0 {
-		return nil, fmt.Errorf("log group %q not found", name)
+		return types.LogGroup{}, fmt.Errorf("log group %q not found", name)
 	}
 
 	return logGroups[0], nil
