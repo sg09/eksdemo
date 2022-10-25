@@ -1,7 +1,7 @@
 # `eksdemo` - kubectl-like CLI for Amazon EKS
 The easy button for testing, learning and demoing Amazon EKS:
 * Install complex applications and dependencies with a single command
-* Extensive application catalog (52 CNCF, open source and related projects)
+* Extensive application catalog (53 CNCF, open source and related projects)
 * Easily customize application installs with simple command line flags
 * Query and search AWS resources with kubectl-like get commands
 
@@ -42,6 +42,7 @@ The application catalog includes:
     * `ec2-controller` — ACK EC2 Controller
     * `ecr-controller` — ACK ECR Controller
     * `eks-controller` — ACK EKS Controller
+    * `prometheusservice-controller` -- ACK Amazon Managed Prometheus Controller
     * `s3-controller` — ACK S3 Controller
 * `adot-operator` — AWS Distro for OpenTelemetry Operator
 * `appmesh-controller` — AWS App Mesh Controller
