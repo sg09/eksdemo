@@ -14,7 +14,7 @@ import (
 // GitHub:  https://github.com/aws-controllers-k8s/s3-controller
 // Helm:    https://github.com/aws-controllers-k8s/s3-controller/tree/main/helm
 // Repo:    https://gallery.ecr.aws/aws-controllers-k8s/s3-controller
-// Version: Latest is v0.1.2 (as of 06/21/22)
+// Version: Latest is v0.1.5 (as of 10/24/22)
 
 func NewApp() *application.Application {
 	app := &application.Application{
@@ -40,10 +40,10 @@ func NewApp() *application.Application {
 			Namespace:      "ack-system",
 			ServiceAccount: "ack-s3-controller",
 			DefaultVersion: &application.LatestPrevious{
-				LatestChart:   "v0.1.2",
-				Latest:        "v0.1.2",
-				PreviousChart: "v0.1.1",
-				Previous:      "v0.1.1",
+				LatestChart:   "v0.1.5",
+				Latest:        "v0.1.5",
+				PreviousChart: "v0.1.2",
+				Previous:      "v0.1.2",
 			},
 		},
 
