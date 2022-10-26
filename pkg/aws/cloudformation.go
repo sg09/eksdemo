@@ -37,7 +37,7 @@ func (c *CloudformationClient) CreateStack(stackName, templateBody string, param
 
 	return waiter.Wait(context.Background(),
 		&cloudformation.DescribeStacksInput{StackName: aws.String(stackName)},
-		2*time.Minute,
+		5*time.Minute,
 	)
 }
 
