@@ -9,13 +9,26 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/aws/aws-sdk-go/service/ec2"
+	awssdk "github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/ec2/types"
 )
 
 type Getter struct {
-	resource.EmptyInit
-	eniGetter network_interface.Getter
-	elbGetter load_balancer.Getter
+	ec2Client *aws.EC2Client
+	eniGetter *network_interface.Getter
+	elbGetter *load_balancer.Getter
+}
+
+func NewGetter(ec2Client *aws.EC2Client) *Getter {
+	return &Getter{ec2Client, network_interface.NewGetter(ec2Client), load_balancer.NewGetter()}
+}
+
+func (g *Getter) Init() {
+	if g.ec2Client == nil {
+		g.ec2Client = aws.NewEC2Client()
+	}
+	g.eniGetter = network_interface.NewGetter(g.ec2Client)
+	g.elbGetter = load_balancer.NewGetter()
 }
 
 func (g *Getter) Get(id string, output printer.Output, options resource.Options) error {
@@ -25,7 +38,7 @@ func (g *Getter) Get(id string, output printer.Output, options resource.Options)
 	}
 
 	var err error
-	var securityGroupRules []*ec2.SecurityGroupRule
+	var securityGroupRules []types.SecurityGroupRule
 
 	if sgrOptions.SecurityGroupId != "" {
 		securityGroupRules, err = g.GetSecurityGroupRulesBySecurityGroupId(sgrOptions.SecurityGroupId)
@@ -50,20 +63,20 @@ func (g *Getter) Get(id string, output printer.Output, options resource.Options)
 	return output.Print(os.Stdout, NewPrinter(securityGroupRules, options.Common().ClusterName))
 }
 
-func (g *Getter) GetSecurityGroupRulesById(id string) ([]*ec2.SecurityGroupRule, error) {
-	return aws.EC2DescribeSecurityGroupRules(id, "")
+func (g *Getter) GetSecurityGroupRulesById(id string) ([]types.SecurityGroupRule, error) {
+	return g.ec2Client.DescribeSecurityGroupRules(id, "")
 }
 
-func (g *Getter) GetSecurityGroupRulesByLoadBalancerName(name string) ([]*ec2.SecurityGroupRule, error) {
+func (g *Getter) GetSecurityGroupRulesByLoadBalancerName(name string) ([]types.SecurityGroupRule, error) {
 	sgIds, err := g.elbGetter.GetSecurityGroupIdsForLoadBalancer(name)
 	if err != nil {
 		return nil, err
 	}
 
-	eniRules := []*ec2.SecurityGroupRule{}
+	eniRules := []types.SecurityGroupRule{}
 
 	for _, id := range sgIds {
-		sgr, err := aws.EC2DescribeSecurityGroupRules("", id)
+		sgr, err := g.ec2Client.DescribeSecurityGroupRules("", id)
 		if err != nil {
 			return nil, err
 		}
@@ -73,15 +86,15 @@ func (g *Getter) GetSecurityGroupRulesByLoadBalancerName(name string) ([]*ec2.Se
 	return eniRules, nil
 }
 
-func (g *Getter) GetSecurityGroupRulesByNetworkInterfaceId(eniId string) ([]*ec2.SecurityGroupRule, error) {
+func (g *Getter) GetSecurityGroupRulesByNetworkInterfaceId(eniId string) ([]types.SecurityGroupRule, error) {
 	networkInterface, err := g.eniGetter.GetNetworkInterfaceById(eniId)
 	if err != nil {
 		return nil, err
 	}
-	eniRules := []*ec2.SecurityGroupRule{}
+	eniRules := []types.SecurityGroupRule{}
 
 	for _, groupIdentifier := range networkInterface.Groups {
-		sgr, err := aws.EC2DescribeSecurityGroupRules("", aws.StringValue(groupIdentifier.GroupId))
+		sgr, err := g.ec2Client.DescribeSecurityGroupRules("", awssdk.ToString(groupIdentifier.GroupId))
 		if err != nil {
 			return nil, err
 		}
@@ -91,22 +104,22 @@ func (g *Getter) GetSecurityGroupRulesByNetworkInterfaceId(eniId string) ([]*ec2
 	return eniRules, nil
 }
 
-func (g *Getter) GetSecurityGroupRulesBySecurityGroupId(securityGroupId string) ([]*ec2.SecurityGroupRule, error) {
-	return aws.EC2DescribeSecurityGroupRules("", securityGroupId)
+func (g *Getter) GetSecurityGroupRulesBySecurityGroupId(securityGroupId string) ([]types.SecurityGroupRule, error) {
+	return g.ec2Client.DescribeSecurityGroupRules("", securityGroupId)
 }
 
-func filterResults(rules []*ec2.SecurityGroupRule, egress bool) []*ec2.SecurityGroupRule {
-	filtered := make([]*ec2.SecurityGroupRule, 0, len(rules))
+func filterResults(rules []types.SecurityGroupRule, egress bool) []types.SecurityGroupRule {
+	filtered := make([]types.SecurityGroupRule, 0, len(rules))
 
 	if egress {
 		for _, rule := range rules {
-			if aws.BoolValue(rule.IsEgress) {
+			if awssdk.ToBool(rule.IsEgress) {
 				filtered = append(filtered, rule)
 			}
 		}
 	} else {
 		for _, rule := range rules {
-			if !aws.BoolValue(rule.IsEgress) {
+			if !awssdk.ToBool(rule.IsEgress) {
 				filtered = append(filtered, rule)
 			}
 		}

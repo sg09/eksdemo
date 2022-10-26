@@ -1,18 +1,18 @@
 package security_group
 
 import (
-	"eksdemo/pkg/aws"
 	"eksdemo/pkg/printer"
 	"io"
 
-	"github.com/aws/aws-sdk-go/service/ec2"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/ec2/types"
 )
 
 type SecurityGroupPrinter struct {
-	securityGroups []*ec2.SecurityGroup
+	securityGroups []types.SecurityGroup
 }
 
-func NewPrinter(securityGroups []*ec2.SecurityGroup) *SecurityGroupPrinter {
+func NewPrinter(securityGroups []types.SecurityGroup) *SecurityGroupPrinter {
 	return &SecurityGroupPrinter{securityGroups}
 }
 
@@ -24,9 +24,9 @@ func (p *SecurityGroupPrinter) PrintTable(writer io.Writer) error {
 		_ = p.getName(sg)
 
 		table.AppendRow([]string{
-			aws.StringValue(sg.GroupId),
-			aws.StringValue(sg.GroupName),
-			aws.StringValue(sg.Description),
+			aws.ToString(sg.GroupId),
+			aws.ToString(sg.GroupName),
+			aws.ToString(sg.Description),
 		})
 	}
 
@@ -44,11 +44,11 @@ func (p *SecurityGroupPrinter) PrintYAML(writer io.Writer) error {
 	return printer.EncodeYAML(writer, p.securityGroups)
 }
 
-func (p *SecurityGroupPrinter) getName(sg *ec2.SecurityGroup) string {
+func (p *SecurityGroupPrinter) getName(sg types.SecurityGroup) string {
 	name := ""
 	for _, tag := range sg.Tags {
-		if aws.StringValue(tag.Key) == "Name" {
-			name = aws.StringValue(tag.Value)
+		if aws.ToString(tag.Key) == "Name" {
+			name = aws.ToString(tag.Value)
 			continue
 		}
 	}

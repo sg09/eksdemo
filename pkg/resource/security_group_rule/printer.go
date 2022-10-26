@@ -1,21 +1,21 @@
 package security_group_rule
 
 import (
-	"eksdemo/pkg/aws"
 	"eksdemo/pkg/printer"
 	"fmt"
 	"io"
 	"strconv"
 
-	"github.com/aws/aws-sdk-go/service/ec2"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/ec2/types"
 )
 
 type SecurityGroupRulePrinter struct {
-	securityGroupRules []*ec2.SecurityGroupRule
+	securityGroupRules []types.SecurityGroupRule
 	clusterName        string
 }
 
-func NewPrinter(securityGroupRules []*ec2.SecurityGroupRule, clusterName string) *SecurityGroupRulePrinter {
+func NewPrinter(securityGroupRules []types.SecurityGroupRule, clusterName string) *SecurityGroupRulePrinter {
 	return &SecurityGroupRulePrinter{securityGroupRules, clusterName}
 }
 
@@ -24,34 +24,34 @@ func (p *SecurityGroupRulePrinter) PrintTable(writer io.Writer) error {
 	table.SetHeader([]string{"Rule Id", "Proto", "Ports", "Source", "Description"})
 
 	for _, sgr := range p.securityGroupRules {
-		fromPort := aws.Int64Value(sgr.FromPort)
-		toPort := aws.Int64Value(sgr.ToPort)
+		fromPort := aws.ToInt32(sgr.FromPort)
+		toPort := aws.ToInt32(sgr.ToPort)
 
-		id := aws.StringValue(sgr.SecurityGroupRuleId)
-		if aws.BoolValue(sgr.IsEgress) {
+		id := aws.ToString(sgr.SecurityGroupRuleId)
+		if aws.ToBool(sgr.IsEgress) {
 			id = "*" + id
 		}
 
 		ports := "All"
 		if fromPort != -1 {
 			if fromPort == toPort {
-				ports = strconv.FormatInt(fromPort, 10)
+				ports = strconv.Itoa(int(fromPort))
 			} else {
-				ports = strconv.FormatInt(fromPort, 10) + "-" + strconv.FormatInt(toPort, 10)
+				ports = strconv.Itoa(int(fromPort)) + "-" + strconv.Itoa(int(toPort))
 			}
 		}
 
 		protocol := "All"
-		if aws.StringValue(sgr.IpProtocol) != "-1" {
-			protocol = aws.StringValue(sgr.IpProtocol)
+		if aws.ToString(sgr.IpProtocol) != "-1" {
+			protocol = aws.ToString(sgr.IpProtocol)
 		}
 
 		source := "-"
 		if sgr.ReferencedGroupInfo != nil {
-			source = aws.StringValue(sgr.ReferencedGroupInfo.GroupId)
+			source = aws.ToString(sgr.ReferencedGroupInfo.GroupId)
 		}
 		if sgr.CidrIpv4 != nil {
-			source = aws.StringValue(sgr.CidrIpv4)
+			source = aws.ToString(sgr.CidrIpv4)
 		}
 
 		table.AppendRow([]string{
@@ -59,7 +59,7 @@ func (p *SecurityGroupRulePrinter) PrintTable(writer io.Writer) error {
 			protocol,
 			ports,
 			source,
-			aws.StringValue(sgr.Description),
+			aws.ToString(sgr.Description),
 		})
 	}
 

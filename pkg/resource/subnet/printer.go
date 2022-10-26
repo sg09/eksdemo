@@ -1,21 +1,21 @@
 package subnet
 
 import (
-	"eksdemo/pkg/aws"
 	"eksdemo/pkg/printer"
 	"io"
 	"strconv"
 	"strings"
 
-	"github.com/aws/aws-sdk-go/service/ec2"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/ec2/types"
 )
 
 type SubnetPrinter struct {
-	subnets       []*ec2.Subnet
+	subnets       []types.Subnet
 	multipleCidrs bool
 }
 
-func NewPrinter(subnets []*ec2.Subnet) *SubnetPrinter {
+func NewPrinter(subnets []types.Subnet) *SubnetPrinter {
 	return &SubnetPrinter{subnets: subnets}
 }
 
@@ -26,7 +26,7 @@ func (p *SubnetPrinter) PrintTable(writer io.Writer) error {
 	for _, subnet := range p.subnets {
 		v6Cidrs := make([]string, 0, len(subnet.Ipv6CidrBlockAssociationSet))
 		for _, cbas := range subnet.Ipv6CidrBlockAssociationSet {
-			v6Cidrs = append(v6Cidrs, aws.StringValue(cbas.Ipv6CidrBlock))
+			v6Cidrs = append(v6Cidrs, aws.ToString(cbas.Ipv6CidrBlock))
 		}
 
 		if len(v6Cidrs) == 0 {
@@ -36,10 +36,10 @@ func (p *SubnetPrinter) PrintTable(writer io.Writer) error {
 		}
 
 		table.AppendRow([]string{
-			aws.StringValue(subnet.SubnetId),
-			aws.StringValue(subnet.AvailabilityZone),
-			aws.StringValue(subnet.CidrBlock),
-			strconv.Itoa(int(aws.Int64Value(subnet.AvailableIpAddressCount))),
+			aws.ToString(subnet.SubnetId),
+			aws.ToString(subnet.AvailabilityZone),
+			aws.ToString(subnet.CidrBlock),
+			strconv.Itoa(int(aws.ToInt32(subnet.AvailableIpAddressCount))),
 			strings.Join(v6Cidrs, "\n"),
 		})
 	}

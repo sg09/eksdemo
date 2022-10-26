@@ -1,18 +1,18 @@
 package availability_zone
 
 import (
-	"eksdemo/pkg/aws"
 	"eksdemo/pkg/printer"
 	"io"
 
-	"github.com/aws/aws-sdk-go/service/ec2"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/ec2/types"
 )
 
 type ZonePrinter struct {
-	zones []*ec2.AvailabilityZone
+	zones []types.AvailabilityZone
 }
 
-func NewPrinter(zones []*ec2.AvailabilityZone) *ZonePrinter {
+func NewPrinter(zones []types.AvailabilityZone) *ZonePrinter {
 	return &ZonePrinter{zones}
 }
 
@@ -22,10 +22,10 @@ func (p *ZonePrinter) PrintTable(writer io.Writer) error {
 
 	for _, z := range p.zones {
 		table.AppendRow([]string{
-			aws.StringValue(z.ZoneName),
-			aws.StringValue(z.ZoneType),
-			aws.StringValue(z.OptInStatus),
-			aws.StringValue(z.ZoneId),
+			aws.ToString(z.ZoneName),
+			aws.ToString(z.ZoneType),
+			string(z.OptInStatus),
+			aws.ToString(z.ZoneId),
 		})
 	}
 	table.Print(writer)

@@ -57,7 +57,7 @@ var serviceAccountToken = &cobra.Command{
 
 var tagSubnetsCmd = &cobra.Command{
 	Use:     "tag-subnets",
-	Short:   "add kubernetes.io/cluster/<cluster-name> tag to private VPC subnets",
+	Short:   "Add kubernetes.io/cluster/<cluster-name> tag to private VPC subnets",
 	Aliases: []string{"tag-subnet"},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		_, err := aws.EksDescribeCluster(clusterName)

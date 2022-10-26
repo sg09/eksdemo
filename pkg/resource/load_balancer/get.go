@@ -22,6 +22,10 @@ type Getter struct {
 	elbs *LoadBalancers
 }
 
+func NewGetter() *Getter {
+	return &Getter{}
+}
+
 func (g *Getter) Get(name string, output printer.Output, options resource.Options) (err error) {
 	g.elbs, err = g.GetLoadBalancers(name)
 	if err != nil {

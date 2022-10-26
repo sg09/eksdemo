@@ -2,10 +2,12 @@ package util
 
 import (
 	"eksdemo/pkg/aws"
+	"eksdemo/pkg/resource"
+	"eksdemo/pkg/resource/cloudformation"
 	"fmt"
 	"strings"
 
-	"github.com/aws/aws-sdk-go/aws/awserr"
+	awssdk "github.com/aws/aws-sdk-go-v2/aws"
 )
 
 // kubernetes.io/cluster/<clusterName>
@@ -14,23 +16,18 @@ const K8stag = `kubernetes.io/cluster/%s`
 func GetPrivateSubnets(clusterName string) ([]string, error) {
 	stackName := "eksctl-" + clusterName + "-cluster"
 
-	stacks, err := aws.NewCloudformationClient().DescribeStacks(stackName)
+	stacks, err := cloudformation.NewGetter(aws.NewCloudformationClient()).GetStacks(stackName)
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			switch awsErr.Code() {
-			case "ValidationError":
-				return nil, fmt.Errorf("cloudformation stack %q not found, is this an eksctl cluster?", stackName)
-			default:
-				return nil, err
-			}
+		if _, ok := err.(resource.NotFoundError); ok {
+			return nil, fmt.Errorf("cloudformation stack %q not found, is this an eksctl cluster?", stackName)
 		}
 		return nil, err
 	}
 
 	subnets := ""
 	for _, o := range stacks[0].Outputs {
-		if aws.StringValue(o.OutputKey) == "SubnetsPrivate" {
-			subnets = aws.StringValue(o.OutputValue)
+		if awssdk.ToString(o.OutputKey) == "SubnetsPrivate" {
+			subnets = awssdk.ToString(o.OutputValue)
 			continue
 		}
 	}
@@ -51,12 +48,12 @@ func CheckSubnets(clusterName string) error {
 	tag := fmt.Sprintf(K8stag, clusterName)
 	tagsFilter := []string{tag}
 
-	result, err := aws.EC2DescribeTags(subnets, tagsFilter)
+	tags, err := aws.NewEC2Client().DescribeTags(subnets, tagsFilter)
 	if err != nil {
 		return err
 	}
 
-	if len(result.Tags) == 0 {
+	if len(tags) == 0 {
 		return fmt.Errorf("required tag %q not found on any of the following private subnets:\n%s", tag, strings.Join(subnets, "\n"))
 	}
 
@@ -76,5 +73,5 @@ func TagSubnets(clusterName string) error {
 	fmt.Println("Tagging subnets: " + strings.Join(subnets, ","))
 	fmt.Printf("With: %s\n", tags)
 
-	return aws.EC2CreateTags(subnets, tags)
+	return aws.NewEC2Client().CreateTags(subnets, tags)
 }

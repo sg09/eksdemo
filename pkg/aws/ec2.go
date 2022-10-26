@@ -1,60 +1,105 @@
 package aws
 
 import (
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/ec2"
+	"context"
+
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/ec2"
+	"github.com/aws/aws-sdk-go-v2/service/ec2/types"
 )
 
-func EC2CreateTags(resources []string, tags map[string]string) error {
-	sess := GetSession()
-	svc := ec2.New(sess)
-
-	_, err := svc.CreateTags(&ec2.CreateTagsInput{
-		Resources: aws.StringSlice(resources),
-		Tags:      createEC2Tags(tags),
-	})
-
-	if err != nil {
-		return FormatErrorSDKv1(err)
-	}
-	return nil
+type EC2Client struct {
+	*ec2.Client
 }
 
-func EC2DeleteSecurityGroup(id string) error {
-	sess := GetSession()
-	svc := ec2.New(sess)
+func NewEC2Client() *EC2Client {
+	return &EC2Client{ec2.NewFromConfig(GetConfig())}
+}
 
-	_, err := svc.DeleteSecurityGroup(&ec2.DeleteSecurityGroupInput{
+func NewEC2InstanceFilter(instanceId string) types.Filter {
+	return types.Filter{
+		Name:   aws.String("instance-id"),
+		Values: []string{instanceId},
+	}
+}
+
+func NewEC2NatGatewayFilter(natGatewayId string) types.Filter {
+	return types.Filter{
+		Name:   aws.String("nat-gateway-id"),
+		Values: []string{natGatewayId},
+	}
+}
+
+func NewEC2SecurityGroupFilter(securityGroupId string) types.Filter {
+	return types.Filter{
+		Name:   aws.String("group-id"),
+		Values: []string{securityGroupId},
+	}
+}
+
+func NewEC2SecurityGroupRuleFilter(securityGroupRuleId string) types.Filter {
+	return types.Filter{
+		Name:   aws.String("security-group-rule-id"),
+		Values: []string{securityGroupRuleId},
+	}
+}
+
+func NewEC2SubnetFilter(subnetId string) types.Filter {
+	return types.Filter{
+		Name:   aws.String("subnet-id"),
+		Values: []string{subnetId},
+	}
+}
+
+func NewEC2TagKeyFilter(tagKey string) types.Filter {
+	return types.Filter{
+		Name:   aws.String("tag-key"),
+		Values: []string{tagKey},
+	}
+}
+
+func NewEC2VpcFilter(vpcId string) types.Filter {
+	return types.Filter{
+		Name:   aws.String("vpc-id"),
+		Values: []string{vpcId},
+	}
+}
+
+func (c *EC2Client) CreateTags(resources []string, tags map[string]string) error {
+	_, err := c.Client.CreateTags(context.Background(), &ec2.CreateTagsInput{
+		Resources: resources,
+		Tags:      toEC2Tags(tags),
+	})
+
+	return err
+}
+
+func (c *EC2Client) DeleteSecurityGroup(id string) error {
+	_, err := c.Client.DeleteSecurityGroup(context.Background(), &ec2.DeleteSecurityGroupInput{
 		GroupId: aws.String(id),
 	})
 
 	return err
 }
 
-func EC2DeleteVolume(id string) error {
-	sess := GetSession()
-	svc := ec2.New(sess)
-
-	_, err := svc.DeleteVolume(&ec2.DeleteVolumeInput{
+func (c *EC2Client) DeleteVolume(id string) error {
+	_, err := c.Client.DeleteVolume(context.Background(), &ec2.DeleteVolumeInput{
 		VolumeId: aws.String(id),
 	})
 
 	return err
 }
 
-func EC2DescribeAvailabilityZones(name string, all bool) ([]*ec2.AvailabilityZone, error) {
-	sess := GetSession()
-	svc := ec2.New(sess)
-
-	filters := []*ec2.Filter{}
-	input := &ec2.DescribeAvailabilityZonesInput{
+func (c *EC2Client) DescribeAvailabilityZones(name string, all bool) ([]types.AvailabilityZone, error) {
+	filters := []types.Filter{}
+	input := ec2.DescribeAvailabilityZonesInput{
 		AllAvailabilityZones: aws.Bool(all),
 	}
 
 	if name != "" {
-		filters = append(filters, &ec2.Filter{
+		filters = append(filters, types.Filter{
 			Name:   aws.String("zone-name"),
-			Values: aws.StringSlice([]string{name}),
+			Values: []string{name},
 		})
 	}
 
@@ -62,7 +107,7 @@ func EC2DescribeAvailabilityZones(name string, all bool) ([]*ec2.AvailabilityZon
 		input.Filters = filters
 	}
 
-	result, err := svc.DescribeAvailabilityZones(input)
+	result, err := c.Client.DescribeAvailabilityZones(context.Background(), &input)
 	if err != nil {
 		return nil, err
 	}
@@ -70,418 +115,312 @@ func EC2DescribeAvailabilityZones(name string, all bool) ([]*ec2.AvailabilityZon
 	return result.AvailabilityZones, nil
 }
 
-func EC2DescribeInstances(id, vpcId string) ([]*ec2.Reservation, error) {
-	sess := GetSession()
-	svc := ec2.New(sess)
-
-	filters := []*ec2.Filter{}
-	reservations := []*ec2.Reservation{}
+func (c *EC2Client) DescribeInstances(filters []types.Filter) ([]types.Reservation, error) {
+	reservations := []types.Reservation{}
 	pageNum := 0
 
-	if id != "" {
-		filters = append(filters, &ec2.Filter{
-			Name:   aws.String("instance-id"),
-			Values: aws.StringSlice([]string{id}),
-		})
-	}
+	paginator := ec2.NewDescribeInstancesPaginator(c.Client, &ec2.DescribeInstancesInput{
+		Filters: filters,
+	})
 
-	if vpcId != "" {
-		filters = append(filters, &ec2.Filter{
-			Name:   aws.String("vpc-id"),
-			Values: aws.StringSlice([]string{vpcId}),
-		})
-	}
-
-	input := &ec2.DescribeInstancesInput{}
-
-	if len(filters) > 0 {
-		input.Filters = filters
-	}
-
-	err := svc.DescribeInstancesPages(input,
-		func(page *ec2.DescribeInstancesOutput, lastPage bool) bool {
-			pageNum++
-			reservations = append(reservations, page.Reservations...)
-			return pageNum <= maxPages
-		},
-	)
-
-	if err != nil {
-		return nil, err
+	for paginator.HasMorePages() && pageNum < maxPages {
+		out, err := paginator.NextPage(context.Background())
+		if err != nil {
+			return nil, err
+		}
+		reservations = append(reservations, out.Reservations...)
+		pageNum++
 	}
 
 	return reservations, nil
 }
 
-func EC2DescribeNATGateways(id, vpcId string) ([]*ec2.NatGateway, error) {
-	sess := GetSession()
-	svc := ec2.New(sess)
-
-	filters := []*ec2.Filter{}
-	nats := []*ec2.NatGateway{}
+func (c *EC2Client) DescribeNATGateways(filters []types.Filter) ([]types.NatGateway, error) {
+	nats := []types.NatGateway{}
 	pageNum := 0
 
-	if id != "" {
-		filters = append(filters, &ec2.Filter{
-			Name:   aws.String("nat-gateway-id"),
-			Values: aws.StringSlice([]string{id}),
-		})
-	}
+	paginator := ec2.NewDescribeNatGatewaysPaginator(c.Client, &ec2.DescribeNatGatewaysInput{
+		Filter: filters,
+	})
 
-	if vpcId != "" {
-		filters = append(filters, &ec2.Filter{
-			Name:   aws.String("vpc-id"),
-			Values: aws.StringSlice([]string{vpcId}),
-		})
-	}
-
-	input := &ec2.DescribeNatGatewaysInput{}
-
-	if len(filters) > 0 {
-		input.Filter = filters
-	}
-
-	err := svc.DescribeNatGatewaysPages(input,
-		func(page *ec2.DescribeNatGatewaysOutput, lastPage bool) bool {
-			pageNum++
-			nats = append(nats, page.NatGateways...)
-			return pageNum <= maxPages
-		},
-	)
-
-	if err != nil {
-		return nil, err
+	for paginator.HasMorePages() && pageNum < maxPages {
+		out, err := paginator.NextPage(context.Background())
+		if err != nil {
+			return nil, err
+		}
+		nats = append(nats, out.NatGateways...)
+		pageNum++
 	}
 
 	return nats, nil
 }
 
-func EC2DescribeNetworkInterfaces(id, vpcId, description, instanceId, ip, securityGroupId string) ([]*ec2.NetworkInterface, error) {
-	sess := GetSession()
-	svc := ec2.New(sess)
-
-	filters := []*ec2.Filter{}
-	networkInterfaces := []*ec2.NetworkInterface{}
+func (c *EC2Client) DescribeNetworkInterfaces(id, vpcId, description, instanceId, ip, securityGroupId string) ([]types.NetworkInterface, error) {
+	filters := []types.Filter{}
+	networkInterfaces := []types.NetworkInterface{}
 	pageNum := 0
 
 	if id != "" {
-		filters = append(filters, &ec2.Filter{
+		filters = append(filters, types.Filter{
 			Name:   aws.String("network-interface-id"),
-			Values: aws.StringSlice([]string{id}),
+			Values: []string{id},
 		})
 	}
 
 	if description != "" {
-		filters = append(filters, &ec2.Filter{
+		filters = append(filters, types.Filter{
 			Name:   aws.String("description"),
-			Values: aws.StringSlice([]string{description}),
+			Values: []string{description},
 		})
 	}
 
 	if instanceId != "" {
-		filters = append(filters, &ec2.Filter{
+		filters = append(filters, types.Filter{
 			Name:   aws.String("attachment.instance-id"),
-			Values: aws.StringSlice([]string{instanceId}),
+			Values: []string{instanceId},
 		})
 	}
 
 	if ip != "" {
-		filters = append(filters, &ec2.Filter{
+		filters = append(filters, types.Filter{
 			Name:   aws.String("addresses.private-ip-address"),
-			Values: aws.StringSlice([]string{ip}),
+			Values: []string{ip},
 		})
 	}
 
 	if securityGroupId != "" {
-		filters = append(filters, &ec2.Filter{
+		filters = append(filters, types.Filter{
 			Name:   aws.String("group-id"),
-			Values: aws.StringSlice([]string{securityGroupId}),
+			Values: []string{securityGroupId},
 		})
 	}
 
 	if vpcId != "" {
-		filters = append(filters, &ec2.Filter{
+		filters = append(filters, types.Filter{
 			Name:   aws.String("vpc-id"),
-			Values: aws.StringSlice([]string{vpcId}),
+			Values: []string{vpcId},
 		})
 	}
 
-	input := &ec2.DescribeNetworkInterfacesInput{}
+	input := ec2.DescribeNetworkInterfacesInput{}
 
 	if len(filters) > 0 {
 		input.Filters = filters
 	}
 
-	err := svc.DescribeNetworkInterfacesPages(input,
-		func(page *ec2.DescribeNetworkInterfacesOutput, lastPage bool) bool {
-			pageNum++
-			networkInterfaces = append(networkInterfaces, page.NetworkInterfaces...)
-			return pageNum <= maxPages
-		},
-	)
+	paginator := ec2.NewDescribeNetworkInterfacesPaginator(c.Client, &input)
 
-	if err != nil {
-		return nil, err
+	for paginator.HasMorePages() && pageNum < maxPages {
+		out, err := paginator.NextPage(context.Background())
+		if err != nil {
+			return nil, err
+		}
+		networkInterfaces = append(networkInterfaces, out.NetworkInterfaces...)
+		pageNum++
 	}
 
 	return networkInterfaces, nil
 }
 
-func EC2DescribeSecurityGroupRules(id, securityGroupId string) ([]*ec2.SecurityGroupRule, error) {
-	sess := GetSession()
-	svc := ec2.New(sess)
-
-	filters := []*ec2.Filter{}
-	securityGroupRules := []*ec2.SecurityGroupRule{}
+func (c *EC2Client) DescribeSecurityGroupRules(id, securityGroupId string) ([]types.SecurityGroupRule, error) {
+	filters := []types.Filter{}
+	securityGroupRules := []types.SecurityGroupRule{}
 	pageNum := 0
 
 	if id != "" {
-		filters = append(filters, &ec2.Filter{
+		filters = append(filters, types.Filter{
 			Name:   aws.String("security-group-rule-id"),
-			Values: aws.StringSlice([]string{id}),
+			Values: []string{id},
 		})
 	}
 
 	if securityGroupId != "" {
-		filters = append(filters, &ec2.Filter{
+		filters = append(filters, types.Filter{
 			Name:   aws.String("group-id"),
-			Values: aws.StringSlice([]string{securityGroupId}),
+			Values: []string{securityGroupId},
 		})
 	}
 
-	input := &ec2.DescribeSecurityGroupRulesInput{}
+	input := ec2.DescribeSecurityGroupRulesInput{}
 
 	if len(filters) > 0 {
 		input.Filters = filters
 	}
 
-	err := svc.DescribeSecurityGroupRulesPages(input,
-		func(page *ec2.DescribeSecurityGroupRulesOutput, lastPage bool) bool {
-			pageNum++
-			securityGroupRules = append(securityGroupRules, page.SecurityGroupRules...)
-			return pageNum <= maxPages
-		},
-	)
+	paginator := ec2.NewDescribeSecurityGroupRulesPaginator(c.Client, &input)
 
-	if err != nil {
-		return nil, err
+	for paginator.HasMorePages() && pageNum < maxPages {
+		out, err := paginator.NextPage(context.Background())
+		if err != nil {
+			return nil, err
+		}
+		securityGroupRules = append(securityGroupRules, out.SecurityGroupRules...)
+		pageNum++
 	}
 
 	return securityGroupRules, nil
 }
 
-func EC2DescribeSecurityGroups(id, vpcId string, ids []string) ([]*ec2.SecurityGroup, error) {
-	sess := GetSession()
-	svc := ec2.New(sess)
-
-	filters := []*ec2.Filter{}
-	securityGroups := []*ec2.SecurityGroup{}
+func (c *EC2Client) DescribeSecurityGroups(id, vpcId string, ids []string) ([]types.SecurityGroup, error) {
+	filters := []types.Filter{}
+	securityGroups := []types.SecurityGroup{}
 	pageNum := 0
 
 	if id != "" {
-		filters = append(filters, &ec2.Filter{
+		filters = append(filters, types.Filter{
 			Name:   aws.String("group-id"),
-			Values: aws.StringSlice([]string{id}),
+			Values: []string{id},
 		})
 	}
 
 	if vpcId != "" {
-		filters = append(filters, &ec2.Filter{
+		filters = append(filters, types.Filter{
 			Name:   aws.String("vpc-id"),
-			Values: aws.StringSlice([]string{vpcId}),
+			Values: []string{vpcId},
 		})
 	}
 
-	input := &ec2.DescribeSecurityGroupsInput{}
+	input := ec2.DescribeSecurityGroupsInput{}
 
 	if len(filters) > 0 {
 		input.Filters = filters
 	}
 
 	if len(ids) > 0 {
-		input.GroupIds = aws.StringSlice(ids)
+		input.GroupIds = ids
 	}
 
-	err := svc.DescribeSecurityGroupsPages(input,
-		func(page *ec2.DescribeSecurityGroupsOutput, lastPage bool) bool {
-			pageNum++
-			securityGroups = append(securityGroups, page.SecurityGroups...)
-			return pageNum <= maxPages
-		},
-	)
+	paginator := ec2.NewDescribeSecurityGroupsPaginator(c.Client, &input)
 
-	if err != nil {
-		return nil, err
+	for paginator.HasMorePages() && pageNum < maxPages {
+		out, err := paginator.NextPage(context.Background())
+		if err != nil {
+			return nil, err
+		}
+		securityGroups = append(securityGroups, out.SecurityGroups...)
+		pageNum++
 	}
 
 	return securityGroups, nil
 }
 
-func EC2DescribeSubnets(id, vpcId string) ([]*ec2.Subnet, error) {
-	sess := GetSession()
-	svc := ec2.New(sess)
-
-	filters := []*ec2.Filter{}
-	subnets := []*ec2.Subnet{}
+func (c *EC2Client) DescribeSubnets(filters []types.Filter) ([]types.Subnet, error) {
+	subnets := []types.Subnet{}
 	pageNum := 0
 
-	if id != "" {
-		filters = append(filters, &ec2.Filter{
-			Name:   aws.String("subnet-id"),
-			Values: aws.StringSlice([]string{id}),
-		})
-	}
+	paginator := ec2.NewDescribeSubnetsPaginator(c.Client, &ec2.DescribeSubnetsInput{
+		Filters: filters,
+	})
 
-	if vpcId != "" {
-		filters = append(filters, &ec2.Filter{
-			Name:   aws.String("vpc-id"),
-			Values: aws.StringSlice([]string{vpcId}),
-		})
-	}
-
-	input := &ec2.DescribeSubnetsInput{}
-
-	if len(filters) > 0 {
-		input.Filters = filters
-	}
-
-	err := svc.DescribeSubnetsPages(input,
-		func(page *ec2.DescribeSubnetsOutput, lastPage bool) bool {
-			pageNum++
-			subnets = append(subnets, page.Subnets...)
-			return pageNum <= maxPages
-		},
-	)
-
-	if err != nil {
-		return nil, err
+	for paginator.HasMorePages() && pageNum < maxPages {
+		out, err := paginator.NextPage(context.Background())
+		if err != nil {
+			return nil, err
+		}
+		subnets = append(subnets, out.Subnets...)
+		pageNum++
 	}
 
 	return subnets, nil
 }
 
-func EC2DescribeTags(resources, tagsFilter []string) (*ec2.DescribeTagsOutput, error) {
-	sess := GetSession()
-	svc := ec2.New(sess)
+func (c *EC2Client) DescribeTags(resources, tagsFilter []string) ([]types.TagDescription, error) {
+	tags := []types.TagDescription{}
+	pageNum := 0
 
-	filters := []*ec2.Filter{
+	filters := []types.Filter{
 		{
 			Name:   aws.String("resource-id"),
-			Values: aws.StringSlice(resources),
+			Values: resources,
 		},
 	}
 
 	if len(tagsFilter) > 0 {
-		filters = append(filters, &ec2.Filter{
+		filters = append(filters, types.Filter{
 			Name:   aws.String("key"),
-			Values: aws.StringSlice(tagsFilter),
+			Values: tagsFilter,
 		})
 	}
 
-	result, err := svc.DescribeTags(&ec2.DescribeTagsInput{
+	paginator := ec2.NewDescribeTagsPaginator(c.Client, &ec2.DescribeTagsInput{
 		Filters: filters,
 	})
 
-	if err != nil {
-		return nil, err
+	for paginator.HasMorePages() && pageNum < maxPages {
+		out, err := paginator.NextPage(context.Background())
+		if err != nil {
+			return nil, err
+		}
+		tags = append(tags, out.Tags...)
+		pageNum++
 	}
 
-	return result, nil
+	return tags, nil
 }
 
-func EC2DescribeVpcs(id, vpcId string) ([]*ec2.Vpc, error) {
-	sess := GetSession()
-	svc := ec2.New(sess)
-
-	filters := []*ec2.Filter{}
-	vpcs := []*ec2.Vpc{}
+func (c *EC2Client) DescribeVpcs(filters []types.Filter) ([]types.Vpc, error) {
+	vpcs := []types.Vpc{}
 	pageNum := 0
 
-	if id != "" {
-		filters = append(filters, &ec2.Filter{
-			Name:   aws.String("vpc-id"),
-			Values: aws.StringSlice([]string{id}),
-		})
-	}
+	paginator := ec2.NewDescribeVpcsPaginator(c.Client, &ec2.DescribeVpcsInput{
+		Filters: filters,
+	})
 
-	if vpcId != "" {
-		filters = append(filters, &ec2.Filter{
-			Name:   aws.String("vpc-id"),
-			Values: aws.StringSlice([]string{vpcId}),
-		})
-	}
-
-	input := &ec2.DescribeVpcsInput{}
-
-	if len(filters) > 0 {
-		input.Filters = filters
-	}
-
-	err := svc.DescribeVpcsPages(input,
-		func(page *ec2.DescribeVpcsOutput, lastPage bool) bool {
-			pageNum++
-			vpcs = append(vpcs, page.Vpcs...)
-			return pageNum <= maxPages
-		},
-	)
-
-	if err != nil {
-		return nil, err
+	for paginator.HasMorePages() && pageNum < maxPages {
+		out, err := paginator.NextPage(context.Background())
+		if err != nil {
+			return nil, err
+		}
+		vpcs = append(vpcs, out.Vpcs...)
+		pageNum++
 	}
 
 	return vpcs, nil
 }
 
-func EC2DescribeVolumes(id string) ([]*ec2.Volume, error) {
-	sess := GetSession()
-	svc := ec2.New(sess)
-
-	filters := []*ec2.Filter{}
-	volumes := []*ec2.Volume{}
+func (c *EC2Client) DescribeVolumes(id string) ([]types.Volume, error) {
+	filters := []types.Filter{}
+	volumes := []types.Volume{}
 	pageNum := 0
 
 	if id != "" {
-		filters = append(filters, &ec2.Filter{
+		filters = append(filters, types.Filter{
 			Name:   aws.String("volume-id"),
-			Values: aws.StringSlice([]string{id}),
+			Values: []string{id},
 		})
 	}
 
-	input := &ec2.DescribeVolumesInput{}
+	input := ec2.DescribeVolumesInput{}
 
 	if len(filters) > 0 {
 		input.Filters = filters
 	}
 
-	err := svc.DescribeVolumesPages(input,
-		func(page *ec2.DescribeVolumesOutput, lastPage bool) bool {
-			pageNum++
-			volumes = append(volumes, page.Volumes...)
-			return pageNum <= maxPages
-		},
-	)
+	paginator := ec2.NewDescribeVolumesPaginator(c.Client, &input)
 
-	if err != nil {
-		return nil, err
+	for paginator.HasMorePages() && pageNum < maxPages {
+		out, err := paginator.NextPage(context.Background())
+		if err != nil {
+			return nil, err
+		}
+		volumes = append(volumes, out.Volumes...)
+		pageNum++
 	}
 
 	return volumes, nil
 }
 
-func EC2TerminateInstances(id string) error {
-	sess := GetSession()
-	svc := ec2.New(sess)
-
-	_, err := svc.TerminateInstances(&ec2.TerminateInstancesInput{
-		InstanceIds: aws.StringSlice([]string{id}),
+func (c *EC2Client) TerminateInstances(id string) error {
+	_, err := c.Client.TerminateInstances(context.Background(), &ec2.TerminateInstancesInput{
+		InstanceIds: []string{id},
 	})
 
 	return err
 }
 
-func createEC2Tags(tags map[string]string) (ec2tags []*ec2.Tag) {
+func toEC2Tags(tags map[string]string) (ec2tags []types.Tag) {
 	for k, v := range tags {
-		ec2tags = append(ec2tags, &ec2.Tag{
+		ec2tags = append(ec2tags, types.Tag{
 			Key:   aws.String(k),
 			Value: aws.String(v),
 		})

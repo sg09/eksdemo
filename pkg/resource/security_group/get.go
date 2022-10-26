@@ -9,13 +9,25 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/aws/aws-sdk-go/service/ec2"
+	"github.com/aws/aws-sdk-go-v2/service/ec2/types"
 )
 
 type Getter struct {
-	resource.EmptyInit
-	eniGetter network_interface.Getter
-	elbGetter load_balancer.Getter
+	ec2Client *aws.EC2Client
+	eniGetter *network_interface.Getter
+	elbGetter *load_balancer.Getter
+}
+
+func NewGetter(ec2Client *aws.EC2Client) *Getter {
+	return &Getter{ec2Client, network_interface.NewGetter(ec2Client), load_balancer.NewGetter()}
+}
+
+func (g *Getter) Init() {
+	if g.ec2Client == nil {
+		g.ec2Client = aws.NewEC2Client()
+	}
+	g.eniGetter = network_interface.NewGetter(g.ec2Client)
+	g.elbGetter = load_balancer.NewGetter()
 }
 
 func (g *Getter) Get(id string, output printer.Output, options resource.Options) error {
@@ -25,7 +37,7 @@ func (g *Getter) Get(id string, output printer.Output, options resource.Options)
 	}
 
 	var err error
-	var securityGroups []*ec2.SecurityGroup
+	var securityGroups []types.SecurityGroup
 
 	if sgOptions.NetworkInterfaceId != "" {
 		securityGroups, err = g.GetSecurityGroupsByNetworkInterface(sgOptions.NetworkInterfaceId)
@@ -49,27 +61,23 @@ func (g *Getter) Get(id string, output printer.Output, options resource.Options)
 	return output.Print(os.Stdout, NewPrinter(securityGroups))
 }
 
-func (g *Getter) GetSecurityGroupsByIdAndVpcFilter(id, vpcId string) ([]*ec2.SecurityGroup, error) {
-	return aws.EC2DescribeSecurityGroups(id, vpcId, []string{})
+func (g *Getter) GetSecurityGroupsByIdAndVpcFilter(id, vpcId string) ([]types.SecurityGroup, error) {
+	return g.ec2Client.DescribeSecurityGroups(id, vpcId, []string{})
 }
 
-func (g *Getter) GetSecurityGroupsByLoadBalancerName(name string) ([]*ec2.SecurityGroup, error) {
+func (g *Getter) GetSecurityGroupsByLoadBalancerName(name string) ([]types.SecurityGroup, error) {
 	sgIds, err := g.elbGetter.GetSecurityGroupIdsForLoadBalancer(name)
 	if err != nil {
 		return nil, err
 	}
 
-	return aws.EC2DescribeSecurityGroups("", "", sgIds)
+	return g.ec2Client.DescribeSecurityGroups("", "", sgIds)
 }
 
-func (g *Getter) GetSecurityGroupsByNetworkInterface(networkInterfaceId string) ([]*ec2.SecurityGroup, error) {
+func (g *Getter) GetSecurityGroupsByNetworkInterface(networkInterfaceId string) ([]types.SecurityGroup, error) {
 	networkInterface, err := g.eniGetter.GetNetworkInterfaceById(networkInterfaceId)
 	if err != nil {
 		return nil, err
-	}
-
-	if networkInterface == nil {
-		return nil, nil
 	}
 
 	securityGroupIds := []string{}
@@ -81,5 +89,5 @@ func (g *Getter) GetSecurityGroupsByNetworkInterface(networkInterfaceId string) 
 		return nil, nil
 	}
 
-	return aws.EC2DescribeSecurityGroups("", "", securityGroupIds)
+	return g.ec2Client.DescribeSecurityGroups("", "", securityGroupIds)
 }

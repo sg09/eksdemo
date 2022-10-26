@@ -5,24 +5,57 @@ import (
 	"eksdemo/pkg/printer"
 	"eksdemo/pkg/resource"
 	"os"
+
+	awssdk "github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/ec2/types"
+	"github.com/aws/aws-sdk-go/service/eks"
 )
 
 type Getter struct {
-	resource.EmptyInit
+	ec2Client *aws.EC2Client
+}
+
+func NewGetter(ec2Client *aws.EC2Client) *Getter {
+	return &Getter{ec2Client}
+}
+
+func (g *Getter) Init() {
+	if g.ec2Client == nil {
+		g.ec2Client = aws.NewEC2Client()
+	}
 }
 
 func (g *Getter) Get(id string, output printer.Output, options resource.Options) error {
-	var vpcId string
-
 	cluster := options.Common().Cluster
-	if cluster != nil {
-		vpcId = aws.StringValue(cluster.ResourcesVpcConfig.VpcId)
+	filters := []types.Filter{}
+
+	if id != "" {
+		filters = append(filters, aws.NewEC2SubnetFilter(id))
 	}
 
-	subnets, err := aws.EC2DescribeSubnets(id, vpcId)
+	if cluster != nil {
+		filters = append(filters, aws.NewEC2VpcFilter(awssdk.ToString(cluster.ResourcesVpcConfig.VpcId)))
+	}
+
+	subnets, err := g.ec2Client.DescribeSubnets(filters)
 	if err != nil {
 		return err
 	}
 
 	return output.Print(os.Stdout, NewPrinter(subnets))
+}
+
+func (g *Getter) GetPrivateSubnetsForCluster(cluster *eks.Cluster) ([]types.Subnet, error) {
+	// Note: this is a short cut, must query route tables looking for no IG to truly find all private subnets
+	filters := []types.Filter{
+		aws.NewEC2VpcFilter(awssdk.ToString(cluster.ResourcesVpcConfig.VpcId)),
+		aws.NewEC2TagKeyFilter("kubernetes.io/role/internal-elb"),
+	}
+
+	subnets, err := g.ec2Client.DescribeSubnets(filters)
+	if err != nil {
+		return []types.Subnet{}, err
+	}
+
+	return subnets, nil
 }

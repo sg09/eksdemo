@@ -1,22 +1,22 @@
 package nat_gateway
 
 import (
-	"eksdemo/pkg/aws"
 	"eksdemo/pkg/printer"
 	"io"
 	"time"
 
-	"github.com/aws/aws-sdk-go/service/ec2"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/ec2/types"
 	"github.com/hako/durafmt"
 )
 
 const maxNameLength = 35
 
 type NatGatewayPrinter struct {
-	nats []*ec2.NatGateway
+	nats []types.NatGateway
 }
 
-func NewPrinter(nats []*ec2.NatGateway) *NatGatewayPrinter {
+func NewPrinter(nats []types.NatGateway) *NatGatewayPrinter {
 	return &NatGatewayPrinter{nats}
 }
 
@@ -25,12 +25,12 @@ func (p *NatGatewayPrinter) PrintTable(writer io.Writer) error {
 	table.SetHeader([]string{"Age", "State", "Id", "Name"})
 
 	for _, n := range p.nats {
-		age := durafmt.ParseShort(time.Since(aws.TimeValue(n.CreateTime)))
+		age := durafmt.ParseShort(time.Since(aws.ToTime(n.CreateTime)))
 
 		table.AppendRow([]string{
 			age.String(),
-			aws.StringValue(n.State),
-			aws.StringValue(n.NatGatewayId),
+			string(n.State),
+			aws.ToString(n.NatGatewayId),
 			p.getNatGatewayName(n),
 		})
 	}
@@ -47,11 +47,11 @@ func (p *NatGatewayPrinter) PrintYAML(writer io.Writer) error {
 	return printer.EncodeYAML(writer, p.nats)
 }
 
-func (p *NatGatewayPrinter) getNatGatewayName(nat *ec2.NatGateway) string {
+func (p *NatGatewayPrinter) getNatGatewayName(nat types.NatGateway) string {
 	name := ""
 	for _, tag := range nat.Tags {
-		if aws.StringValue(tag.Key) == "Name" {
-			name = aws.StringValue(tag.Value)
+		if aws.ToString(tag.Key) == "Name" {
+			name = aws.ToString(tag.Value)
 
 			if len(name) > maxNameLength {
 				name = name[:maxNameLength-3] + "..."

@@ -5,21 +5,38 @@ import (
 	"eksdemo/pkg/printer"
 	"eksdemo/pkg/resource"
 	"os"
+
+	awssdk "github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/ec2/types"
 )
 
 type Getter struct {
-	resource.EmptyInit
+	ec2Client *aws.EC2Client
+}
+
+func NewGetter(ec2Client *aws.EC2Client) *Getter {
+	return &Getter{ec2Client}
+}
+
+func (g *Getter) Init() {
+	if g.ec2Client == nil {
+		g.ec2Client = aws.NewEC2Client()
+	}
 }
 
 func (g *Getter) Get(id string, output printer.Output, options resource.Options) error {
-	var vpcId string
-
 	cluster := options.Common().Cluster
-	if cluster != nil {
-		vpcId = aws.StringValue(cluster.ResourcesVpcConfig.VpcId)
+	filters := []types.Filter{}
+
+	if id != "" {
+		filters = append(filters, aws.NewEC2NatGatewayFilter(id))
 	}
 
-	nats, err := aws.EC2DescribeNATGateways(id, vpcId)
+	if cluster != nil {
+		filters = append(filters, aws.NewEC2VpcFilter(awssdk.ToString(cluster.ResourcesVpcConfig.VpcId)))
+	}
+
+	nats, err := g.ec2Client.DescribeNATGateways(filters)
 	if err != nil {
 		return err
 	}

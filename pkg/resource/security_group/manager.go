@@ -9,8 +9,14 @@ import (
 )
 
 type Manager struct {
-	DryRun bool
-	resource.EmptyInit
+	DryRun    bool
+	ec2Client *aws.EC2Client
+}
+
+func (m *Manager) Init() {
+	if m.ec2Client == nil {
+		m.ec2Client = aws.NewEC2Client()
+	}
 }
 
 func (m *Manager) Create(options resource.Options) error {
@@ -18,7 +24,7 @@ func (m *Manager) Create(options resource.Options) error {
 }
 
 func (m *Manager) Delete(options resource.Options) (err error) {
-	if err := aws.EC2DeleteSecurityGroup(options.Common().Name); err != nil {
+	if err := m.ec2Client.DeleteSecurityGroup(options.Common().Name); err != nil {
 		return err
 	}
 	fmt.Println("Security Group deleted successfully")

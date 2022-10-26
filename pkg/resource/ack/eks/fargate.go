@@ -1,11 +1,15 @@
 package eks
 
 import (
+	"eksdemo/pkg/aws"
 	"eksdemo/pkg/cmd"
 	"eksdemo/pkg/kubernetes"
 	"eksdemo/pkg/resource"
+	"eksdemo/pkg/resource/subnet"
 	"eksdemo/pkg/template"
-	"eksdemo/pkg/util"
+	"fmt"
+
+	awssdk "github.com/aws/aws-sdk-go-v2/aws"
 )
 
 type FargateProfileOptions struct {
@@ -67,12 +71,19 @@ func (o *FargateProfileOptions) PreCreate() error {
 		return nil
 	}
 
-	subnets, err := util.GetPrivateSubnets(o.ClusterName)
+	subnets, err := subnet.NewGetter(aws.NewEC2Client()).GetPrivateSubnetsForCluster(o.Cluster)
 	if err != nil {
 		return err
 	}
 
-	o.Subnets = subnets
+	if len(subnets) == 0 {
+		return fmt.Errorf("subnet autodiscovery failed, use --subnets flag")
+	}
+
+	for _, s := range subnets {
+		o.Subnets = append(o.Subnets, awssdk.ToString(s.SubnetId))
+	}
+
 	return nil
 }
 

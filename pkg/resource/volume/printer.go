@@ -1,23 +1,23 @@
 package volume
 
 import (
-	"eksdemo/pkg/aws"
 	"eksdemo/pkg/printer"
 	"io"
 	"strconv"
 	"time"
 
-	"github.com/aws/aws-sdk-go/service/ec2"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/ec2/types"
 	"github.com/hako/durafmt"
 )
 
 const maxNameLength = 25
 
 type VolumePrinter struct {
-	volumes []*ec2.Volume
+	volumes []types.Volume
 }
 
-func NewPrinter(volumes []*ec2.Volume) *VolumePrinter {
+func NewPrinter(volumes []types.Volume) *VolumePrinter {
 	return &VolumePrinter{volumes}
 }
 
@@ -26,16 +26,16 @@ func (p *VolumePrinter) PrintTable(writer io.Writer) error {
 	table.SetHeader([]string{"Age", "State", "Id", "Name", "Type", "GiB", "AZ"})
 
 	for _, v := range p.volumes {
-		age := durafmt.ParseShort(time.Since(aws.TimeValue(v.CreateTime)))
+		age := durafmt.ParseShort(time.Since(aws.ToTime(v.CreateTime)))
 
 		table.AppendRow([]string{
 			age.String(),
-			aws.StringValue(v.State),
-			aws.StringValue(v.VolumeId),
+			string(v.State),
+			aws.ToString(v.VolumeId),
 			p.getVolumeName(v),
-			aws.StringValue(v.VolumeType),
-			strconv.FormatInt(aws.Int64Value(v.Size), 10),
-			aws.StringValue(v.AvailabilityZone),
+			string(v.VolumeType),
+			strconv.Itoa(int(aws.ToInt32(v.Size))),
+			aws.ToString(v.AvailabilityZone),
 		})
 	}
 	table.Print(writer)
@@ -51,11 +51,11 @@ func (p *VolumePrinter) PrintYAML(writer io.Writer) error {
 	return printer.EncodeYAML(writer, p.volumes)
 }
 
-func (p *VolumePrinter) getVolumeName(instance *ec2.Volume) string {
+func (p *VolumePrinter) getVolumeName(volume types.Volume) string {
 	name := ""
-	for _, tag := range instance.Tags {
-		if aws.StringValue(tag.Key) == "Name" {
-			name = aws.StringValue(tag.Value)
+	for _, tag := range volume.Tags {
+		if aws.ToString(tag.Key) == "Name" {
+			name = aws.ToString(tag.Value)
 
 			if len(name) > maxNameLength {
 				name = name[:maxNameLength-3] + "..."
