@@ -15,7 +15,7 @@ import (
 // GitHub:  https://github.com/awslabs/karpenter
 // Helm:    https://github.com/awslabs/karpenter/tree/main/charts/karpenter
 // Repo:    https://gallery.ecr.aws/karpenter/controller
-// Version: Latest is v0.16.0 (as of 08/29/22)
+// Version: Latest is v0.18.1 (as of 10/26/22)
 
 func NewApp() *application.Application {
 	options, flags := newOptions()
@@ -53,7 +53,7 @@ func NewApp() *application.Application {
 		Installer: &installer.HelmInstaller{
 			ChartName:     "karpenter",
 			ReleaseName:   "autoscaling-karpenter",
-			RepositoryURL: "https://charts.karpenter.sh",
+			RepositoryURL: "oci://public.ecr.aws/karpenter/karpenter",
 			ValuesTemplate: &template.TextTemplate{
 				Template: valuesTemplate,
 			},

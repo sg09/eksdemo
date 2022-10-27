@@ -4,6 +4,7 @@ import (
 	"eksdemo/pkg/application"
 	"eksdemo/pkg/application/adot_operator"
 	"eksdemo/pkg/application/appmesh_controller"
+	"eksdemo/pkg/application/autoscaling/karpenter"
 	"eksdemo/pkg/application/aws_fluentbit"
 	"eksdemo/pkg/application/aws_lb_controller"
 	"eksdemo/pkg/application/cert_manager"
@@ -73,6 +74,9 @@ func NewInstallCmd() *cobra.Command {
 	cmd.AddCommand(NewInstallStorageCmd())
 	cmd.AddCommand(NewInstallAliasCmds(storageApps, "storage-")...)
 	cmd.AddCommand(velero.NewApp().NewInstallCmd())
+
+	// Hidden commands for popular apps without using the group
+	cmd.AddCommand(NewInstallAliasCmds([]func() *application.Application{karpenter.NewApp}, "")...)
 
 	return cmd
 }
