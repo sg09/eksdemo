@@ -1,29 +1,39 @@
 package aws
 
 import (
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/ecr"
+	"context"
+
+	"github.com/aws/aws-sdk-go-v2/service/ecr"
+	"github.com/aws/aws-sdk-go-v2/service/ecr/types"
 )
 
-func ECRDescribeRepositories(name string) ([]*ecr.Repository, error) {
-	sess := GetSession()
-	svc := ecr.New(sess)
+type ECRClient struct {
+	*ecr.Client
+}
 
-	repositories := []*ecr.Repository{}
-	input := &ecr.DescribeRepositoriesInput{}
+func NewECRClient() *ECRClient {
+	return &ECRClient{ecr.NewFromConfig(GetConfig())}
+}
+
+func (c *ECRClient) DescribeRepositories(name string) ([]types.Repository, error) {
+	repositories := []types.Repository{}
 	pageNum := 0
 
+	input := ecr.DescribeRepositoriesInput{}
 	if name != "" {
-		input.RepositoryNames = aws.StringSlice([]string{name})
+		input.RepositoryNames = []string{name}
 	}
 
-	err := svc.DescribeRepositoriesPages(input,
-		func(page *ecr.DescribeRepositoriesOutput, lastPage bool) bool {
-			pageNum++
-			repositories = append(repositories, page.Repositories...)
-			return pageNum <= maxPages
-		},
-	)
+	paginator := ecr.NewDescribeRepositoriesPaginator(c.Client, &input)
 
-	return repositories, err
+	for paginator.HasMorePages() && pageNum < maxPages {
+		out, err := paginator.NextPage(context.Background())
+		if err != nil {
+			return nil, err
+		}
+		repositories = append(repositories, out.Repositories...)
+		pageNum++
+	}
+
+	return repositories, nil
 }

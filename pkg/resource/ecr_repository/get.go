@@ -8,11 +8,21 @@ import (
 )
 
 type Getter struct {
-	resource.EmptyInit
+	ecrClient *aws.ECRClient
+}
+
+func NewGetter(ecrClient *aws.ECRClient) *Getter {
+	return &Getter{ecrClient}
+}
+
+func (g *Getter) Init() {
+	if g.ecrClient == nil {
+		g.ecrClient = aws.NewECRClient()
+	}
 }
 
 func (g *Getter) Get(name string, output printer.Output, options resource.Options) error {
-	repos, err := aws.ECRDescribeRepositories(name)
+	repos, err := g.ecrClient.DescribeRepositories(name)
 	if err != nil {
 		return err
 	}

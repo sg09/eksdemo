@@ -1,22 +1,22 @@
 package ecr_repository
 
 import (
-	"eksdemo/pkg/aws"
 	"eksdemo/pkg/printer"
 	"io"
 	"time"
 
-	"github.com/aws/aws-sdk-go/service/ecr"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/ecr/types"
 	"github.com/hako/durafmt"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 )
 
 type RepositoryPrinter struct {
-	repos []*ecr.Repository
+	repos []types.Repository
 }
 
-func NewPrinter(repos []*ecr.Repository) *RepositoryPrinter {
+func NewPrinter(repos []types.Repository) *RepositoryPrinter {
 	return &RepositoryPrinter{repos}
 }
 
@@ -27,18 +27,18 @@ func (p *RepositoryPrinter) PrintTable(writer io.Writer) error {
 	caser := cases.Title(language.English)
 
 	for _, repo := range p.repos {
-		age := durafmt.ParseShort(time.Since(aws.TimeValue(repo.CreatedAt)))
+		age := durafmt.ParseShort(time.Since(aws.ToTime(repo.CreatedAt)))
 		scan := "Manual"
-		if aws.BoolValue(repo.ImageScanningConfiguration.ScanOnPush) {
+		if repo.ImageScanningConfiguration.ScanOnPush {
 			scan = "Scan on push"
 		}
 
 		table.AppendRow([]string{
 			age.String(),
-			aws.StringValue(repo.RepositoryName),
-			caser.String(aws.StringValue(repo.ImageTagMutability)),
+			aws.ToString(repo.RepositoryName),
+			caser.String(string(repo.ImageTagMutability)),
 			scan,
-			aws.StringValue(repo.EncryptionConfiguration.EncryptionType),
+			string(repo.EncryptionConfiguration.EncryptionType),
 		})
 	}
 

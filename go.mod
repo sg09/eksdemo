@@ -14,6 +14,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/cloudformation v1.22.11
 	github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.15.22
 	github.com/aws/aws-sdk-go-v2/service/ec2 v1.63.3
+	github.com/aws/aws-sdk-go-v2/service/ecr v1.17.20
 	github.com/aws/aws-sdk-go-v2/service/grafana v1.9.14
 	github.com/aws/aws-sdk-go-v2/service/ssm v1.27.13
 	github.com/aws/aws-sdk-go-v2/service/sts v1.16.16
