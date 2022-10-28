@@ -44,9 +44,9 @@ func (o *ApplicationOptions) NewClusterFlag(action Action) *cmd.StringFlag {
 			Shorthand:   "c",
 			Required:    true,
 			Validate: func(cmd *cobra.Command, args []string) error {
-				cluster, err := aws.EksDescribeCluster(o.ClusterName)
+				cluster, err := aws.NewEKSClient().DescribeCluster(o.ClusterName)
 				if err != nil {
-					return err
+					return aws.FormatErrorAsMessageOnly(err)
 				}
 
 				o.kubeContext, err = kubernetes.KubeContextForCluster(cluster)

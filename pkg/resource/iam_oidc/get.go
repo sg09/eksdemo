@@ -8,8 +8,8 @@ import (
 	"net/url"
 	"os"
 
+	"github.com/aws/aws-sdk-go-v2/service/eks/types"
 	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/service/eks"
 	"github.com/aws/aws-sdk-go/service/iam"
 )
 
@@ -56,7 +56,7 @@ func (g *Getter) GetAllOidcProviders() ([]*iam.GetOpenIDConnectProviderOutput, e
 	return oidcProviders, nil
 }
 
-func (g *Getter) GetOidcProviderByCluster(cluster *eks.Cluster) (*iam.GetOpenIDConnectProviderOutput, error) {
+func (g *Getter) GetOidcProviderByCluster(cluster *types.Cluster) (*iam.GetOpenIDConnectProviderOutput, error) {
 	u, err := url.Parse(aws.StringValue(cluster.Identity.Oidc.Issuer))
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse URL when validating options: %w", err)

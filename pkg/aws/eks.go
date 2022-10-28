@@ -1,18 +1,23 @@
 package aws
 
 import (
-	"fmt"
+	"context"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/eks"
-	"github.com/aws/aws-sdk-go/service/ssm"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/eks"
+	"github.com/aws/aws-sdk-go-v2/service/eks/types"
 )
 
-func EksDescribeAddon(clusterName, addonName string) (*eks.Addon, error) {
-	sess := GetSession()
-	svc := eks.New(sess)
+type EKSClient struct {
+	*eks.Client
+}
 
-	result, err := svc.DescribeAddon(&eks.DescribeAddonInput{
+func NewEKSClient() *EKSClient {
+	return &EKSClient{eks.NewFromConfig(GetConfig())}
+}
+
+func (c *EKSClient) DescribeAddon(clusterName, addonName string) (*types.Addon, error) {
+	result, err := c.Client.DescribeAddon(context.Background(), &eks.DescribeAddonInput{
 		AddonName:   aws.String(addonName),
 		ClusterName: aws.String(clusterName),
 	})
@@ -24,14 +29,11 @@ func EksDescribeAddon(clusterName, addonName string) (*eks.Addon, error) {
 	return result.Addon, nil
 }
 
-func EksDescribeAddonVersions(addonName, version string) ([]*eks.AddonInfo, error) {
-	sess := GetSession()
-	svc := eks.New(sess)
-
-	addons := []*eks.AddonInfo{}
+func (c *EKSClient) DescribeAddonVersions(addonName, version string) ([]types.AddonInfo, error) {
+	addons := []types.AddonInfo{}
 	pageNum := 0
 
-	input := &eks.DescribeAddonVersionsInput{
+	input := eks.DescribeAddonVersionsInput{
 		KubernetesVersion: aws.String(version),
 	}
 
@@ -39,180 +41,144 @@ func EksDescribeAddonVersions(addonName, version string) ([]*eks.AddonInfo, erro
 		input.AddonName = aws.String(addonName)
 	}
 
-	err := svc.DescribeAddonVersionsPages(input,
-		func(page *eks.DescribeAddonVersionsOutput, lastPage bool) bool {
-			pageNum++
-			addons = append(addons, page.Addons...)
-			return pageNum <= maxPages
-		},
-	)
+	paginator := eks.NewDescribeAddonVersionsPaginator(c.Client, &input)
 
-	if err != nil {
-		return nil, err
+	for paginator.HasMorePages() && pageNum < maxPages {
+		out, err := paginator.NextPage(context.Background())
+		if err != nil {
+			return nil, err
+		}
+		addons = append(addons, out.Addons...)
+		pageNum++
 	}
 
 	return addons, nil
 }
 
-func EksDescribeCluster(clusterName string) (*eks.Cluster, error) {
-	sess := GetSession()
-	svc := eks.New(sess)
-
-	result, err := svc.DescribeCluster(&eks.DescribeClusterInput{
+func (c *EKSClient) DescribeCluster(clusterName string) (*types.Cluster, error) {
+	result, err := c.Client.DescribeCluster(context.Background(), &eks.DescribeClusterInput{
 		Name: aws.String(clusterName),
 	})
 
 	if err != nil {
-		return nil, FormatErrorSDKv1(err)
+		return nil, err
 	}
 
 	return result.Cluster, nil
 }
 
-func EksDescribeFargateProfile(clusterName, profileName string) (*eks.FargateProfile, error) {
-	sess := GetSession()
-	svc := eks.New(sess)
-
-	result, err := svc.DescribeFargateProfile(&eks.DescribeFargateProfileInput{
+func (c *EKSClient) DescribeFargateProfile(clusterName, profileName string) (*types.FargateProfile, error) {
+	result, err := c.Client.DescribeFargateProfile(context.Background(), &eks.DescribeFargateProfileInput{
 		ClusterName:        aws.String(clusterName),
 		FargateProfileName: aws.String(profileName),
 	})
 
 	if err != nil {
-		return nil, FormatErrorSDKv1(err)
+		return nil, err
 	}
 
 	return result.FargateProfile, nil
 }
 
-func EksDescribeNodegroup(clusterName, nodegroupName string) (*eks.Nodegroup, error) {
-	sess := GetSession()
-	svc := eks.New(sess)
-
-	result, err := svc.DescribeNodegroup(&eks.DescribeNodegroupInput{
+func (c *EKSClient) DescribeNodegroup(clusterName, nodegroupName string) (*types.Nodegroup, error) {
+	result, err := c.Client.DescribeNodegroup(context.Background(), &eks.DescribeNodegroupInput{
 		ClusterName:   aws.String(clusterName),
 		NodegroupName: aws.String(nodegroupName),
 	})
 
 	if err != nil {
-		return nil, FormatErrorSDKv1(err)
+		return nil, err
 	}
 
 	return result.Nodegroup, nil
 }
 
-func EksListAddons(clusterName string) ([]*string, error) {
-	sess := GetSession()
-	svc := eks.New(sess)
-
-	addons := []*string{}
+func (c *EKSClient) ListAddons(clusterName string) ([]string, error) {
+	addons := []string{}
 	pageNum := 0
 
-	err := svc.ListAddonsPages(&eks.ListAddonsInput{
+	paginator := eks.NewListAddonsPaginator(c.Client, &eks.ListAddonsInput{
 		ClusterName: aws.String(clusterName),
-	},
-		func(page *eks.ListAddonsOutput, lastPage bool) bool {
-			pageNum++
-			addons = append(addons, page.Addons...)
-			return pageNum <= maxPages
-		},
-	)
+	})
 
-	if err != nil {
-		return nil, err
+	for paginator.HasMorePages() && pageNum < maxPages {
+		out, err := paginator.NextPage(context.Background())
+		if err != nil {
+			return nil, err
+		}
+		addons = append(addons, out.Addons...)
+		pageNum++
 	}
 
 	return addons, nil
 }
 
-func EksListClusters() ([]*string, error) {
-	sess := GetSession()
-	svc := eks.New(sess)
-
-	clusters := []*string{}
+func (c *EKSClient) ListClusters() ([]string, error) {
+	clusters := []string{}
 	pageNum := 0
 
-	err := svc.ListClustersPages(&eks.ListClustersInput{},
-		func(page *eks.ListClustersOutput, lastPage bool) bool {
-			pageNum++
-			clusters = append(clusters, page.Clusters...)
-			return pageNum <= maxPages
-		},
-	)
+	paginator := eks.NewListClustersPaginator(c.Client, &eks.ListClustersInput{})
 
-	if err != nil {
-		return nil, FormatErrorSDKv1(err)
+	for paginator.HasMorePages() && pageNum < maxPages {
+		out, err := paginator.NextPage(context.Background())
+		if err != nil {
+			return nil, err
+		}
+		clusters = append(clusters, out.Clusters...)
+		pageNum++
 	}
 
 	return clusters, nil
 }
 
-func EksListFargateProfiles(clusterName string) ([]*string, error) {
-	sess := GetSession()
-	svc := eks.New(sess)
-
-	profiles := []*string{}
+func (c *EKSClient) ListFargateProfiles(clusterName string) ([]string, error) {
+	profileNames := []string{}
 	pageNum := 0
 
-	err := svc.ListFargateProfilesPages(&eks.ListFargateProfilesInput{
-		ClusterName: aws.String(clusterName),
-	},
-		func(page *eks.ListFargateProfilesOutput, lastPage bool) bool {
-			pageNum++
-			profiles = append(profiles, page.FargateProfileNames...)
-			return pageNum <= maxPages
-		},
-	)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return profiles, nil
-}
-
-func EksListNodegroups(clusterName string) ([]*string, error) {
-	sess := GetSession()
-	svc := eks.New(sess)
-
-	nodegroups, err := svc.ListNodegroups(&eks.ListNodegroupsInput{
+	paginator := eks.NewListFargateProfilesPaginator(c.Client, &eks.ListFargateProfilesInput{
 		ClusterName: aws.String(clusterName),
 	})
 
-	if err != nil {
-		return nil, FormatErrorSDKv1(err)
+	for paginator.HasMorePages() && pageNum < maxPages {
+		out, err := paginator.NextPage(context.Background())
+		if err != nil {
+			return nil, err
+		}
+		profileNames = append(profileNames, out.FargateProfileNames...)
+		pageNum++
 	}
 
-	return nodegroups.Nodegroups, nil
+	return profileNames, nil
 }
 
-func EksOptimizedAmi(eksVersion string) (string, error) {
-	sess := GetSession()
-	svc := ssm.New(sess)
+func (c *EKSClient) ListNodegroups(clusterName string) ([]string, error) {
+	nodegroupNames := []string{}
+	pageNum := 0
 
-	input := ssm.GetParameterInput{
-		Name: aws.String("/aws/service/eks/optimized-ami/" + eksVersion + "/amazon-linux-2/recommended/image_id"),
+	paginator := eks.NewListNodegroupsPaginator(c.Client, &eks.ListNodegroupsInput{
+		ClusterName: aws.String(clusterName),
+	})
+
+	for paginator.HasMorePages() && pageNum < maxPages {
+		out, err := paginator.NextPage(context.Background())
+		if err != nil {
+			return nil, err
+		}
+		nodegroupNames = append(nodegroupNames, out.Nodegroups...)
+		pageNum++
 	}
 
-	result, err := svc.GetParameter(&input)
-	if err != nil {
-		return "", fmt.Errorf("ssm failed to lookup EKS Optimized AMI: %s", err)
-	}
-
-	return aws.StringValue(result.Parameter.Value), nil
+	return nodegroupNames, nil
 }
 
-func EksUpdateNodegroupConfig(clusterName, nodegroupName string, desired, min, max int) error {
-	sess := GetSession()
-	svc := eks.New(sess)
-
-	_, err := svc.UpdateNodegroupConfig(&eks.UpdateNodegroupConfigInput{
+func (c *EKSClient) UpdateNodegroupConfig(clusterName, nodegroupName string, desired, min, max int) error {
+	_, err := c.Client.UpdateNodegroupConfig(context.Background(), &eks.UpdateNodegroupConfigInput{
 		ClusterName:   aws.String(clusterName),
 		NodegroupName: aws.String(nodegroupName),
-		ScalingConfig: &eks.NodegroupScalingConfig{
-			DesiredSize: aws.Int64(int64(desired)),
-			MinSize:     aws.Int64(int64(min)),
-			MaxSize:     aws.Int64(int64(max)),
+		ScalingConfig: &types.NodegroupScalingConfig{
+			DesiredSize: aws.Int32(int32(desired)),
+			MinSize:     aws.Int32(int32(min)),
+			MaxSize:     aws.Int32(int32(max)),
 		},
 	})
 

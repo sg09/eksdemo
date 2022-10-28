@@ -20,7 +20,7 @@ func NewOptions() (options *FargateProfileOptions, flags cmd.Flags) {
 		&cmd.StringSliceFlag{
 			CommandFlag: cmd.CommandFlag{
 				Name:        "namespaces",
-				Description: "TODO",
+				Description: "namespaces to select pods from",
 			},
 			Option: &options.Namespaces,
 		},

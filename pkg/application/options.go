@@ -6,7 +6,7 @@ import (
 	"eksdemo/pkg/resource/irsa"
 	"fmt"
 
-	"github.com/aws/aws-sdk-go/service/eks"
+	"github.com/aws/aws-sdk-go-v2/service/eks/types"
 	"github.com/spf13/cobra"
 )
 
@@ -45,7 +45,7 @@ type ApplicationOptions struct {
 	Partition      string
 	Region         string
 	ServiceAccount string
-	Cluster        *eks.Cluster
+	Cluster        *types.Cluster
 	kubeContext    string
 }
 

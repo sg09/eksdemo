@@ -1,22 +1,21 @@
 package addon
 
 import (
-	"eksdemo/pkg/aws"
 	"eksdemo/pkg/printer"
 	"io"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/eks/types"
 	"github.com/hako/durafmt"
-
-	"github.com/aws/aws-sdk-go/service/eks"
 )
 
 type AddonPrinter struct {
-	addons []*eks.Addon
+	addons []*types.Addon
 }
 
-func NewPrinter(clusters []*eks.Addon) *AddonPrinter {
-	return &AddonPrinter{clusters}
+func NewPrinter(addons []*types.Addon) *AddonPrinter {
+	return &AddonPrinter{addons}
 }
 
 func (p *AddonPrinter) PrintTable(writer io.Writer) error {
@@ -24,14 +23,14 @@ func (p *AddonPrinter) PrintTable(writer io.Writer) error {
 	table.SetHeader([]string{"Age", "Status", "Name", "Version"})
 
 	for _, addon := range p.addons {
-		age := durafmt.ParseShort(time.Since(*addon.CreatedAt))
-		name := aws.StringValue(addon.AddonName)
+		age := durafmt.ParseShort(time.Since(aws.ToTime(addon.CreatedAt)))
+		name := aws.ToString(addon.AddonName)
 
 		table.AppendRow([]string{
 			age.String(),
-			aws.StringValue(addon.Status),
+			string(addon.Status),
 			name,
-			aws.StringValue(addon.AddonVersion),
+			aws.ToString(addon.AddonVersion),
 		})
 	}
 

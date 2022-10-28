@@ -5,6 +5,7 @@ import (
 	"eksdemo/pkg/cmd"
 	"fmt"
 
+	awssdk "github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/spf13/cobra"
 )
 
@@ -20,12 +21,12 @@ func (o *CommonOptions) NewClusterFlag(action Action, required bool) *cmd.String
 					return nil
 				}
 
-				cluster, err := aws.EksDescribeCluster(o.ClusterName)
+				cluster, err := aws.NewEKSClient().DescribeCluster(o.ClusterName)
 				if err != nil {
-					return err
+					return aws.FormatErrorAsMessageOnly(err)
 				}
 				o.Cluster = cluster
-				o.KubernetesVersion = aws.StringValue(cluster.Version)
+				o.KubernetesVersion = awssdk.ToString(cluster.Version)
 
 				o.Account = aws.AccountId()
 				o.Partition = aws.Partition()

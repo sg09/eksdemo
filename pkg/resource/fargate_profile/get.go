@@ -6,21 +6,33 @@ import (
 	"eksdemo/pkg/resource"
 	"os"
 
-	"github.com/aws/aws-sdk-go/service/eks"
+	"github.com/aws/aws-sdk-go-v2/service/eks/types"
 )
 
 type Getter struct {
-	resource.EmptyInit
+	eksClient *aws.EKSClient
+}
+
+func NewGetter(eksClient *aws.EKSClient) *Getter {
+	return &Getter{eksClient}
+}
+
+func (g *Getter) Init() {
+	if g.eksClient == nil {
+		g.eksClient = aws.NewEKSClient()
+	}
 }
 
 func (g *Getter) Get(name string, output printer.Output, options resource.Options) error {
-	var profiles []*eks.FargateProfile
+	var profile *types.FargateProfile
+	var profiles []*types.FargateProfile
 	var err error
 
 	clusterName := options.Common().ClusterName
 
 	if name != "" {
-		profiles, err = g.GetProfileByName(name, clusterName)
+		profile, err = g.GetProfileByName(name, clusterName)
+		profiles = []*types.FargateProfile{profile}
 	} else {
 		profiles, err = g.GetAllProfiles(clusterName)
 	}
@@ -32,16 +44,16 @@ func (g *Getter) Get(name string, output printer.Output, options resource.Option
 	return output.Print(os.Stdout, NewPrinter(profiles))
 }
 
-func (g *Getter) GetAllProfiles(clusterName string) ([]*eks.FargateProfile, error) {
-	profileNames, err := aws.EksListFargateProfiles(clusterName)
-	profiles := make([]*eks.FargateProfile, 0, len(profileNames))
+func (g *Getter) GetAllProfiles(clusterName string) ([]*types.FargateProfile, error) {
+	profileNames, err := g.eksClient.ListFargateProfiles(clusterName)
+	profiles := make([]*types.FargateProfile, 0, len(profileNames))
 
 	if err != nil {
 		return nil, err
 	}
 
 	for _, name := range profileNames {
-		result, err := aws.EksDescribeFargateProfile(clusterName, aws.StringValue(name))
+		result, err := g.eksClient.DescribeFargateProfile(clusterName, name)
 		if err != nil {
 			return nil, err
 		}
@@ -51,11 +63,8 @@ func (g *Getter) GetAllProfiles(clusterName string) ([]*eks.FargateProfile, erro
 	return profiles, nil
 }
 
-func (g *Getter) GetProfileByName(name, clusterName string) ([]*eks.FargateProfile, error) {
-	profile, err := aws.EksDescribeFargateProfile(clusterName, name)
-	if err != nil {
-		return nil, err
-	}
+func (g *Getter) GetProfileByName(name, clusterName string) (*types.FargateProfile, error) {
+	profile, err := g.eksClient.DescribeFargateProfile(clusterName, name)
 
-	return []*eks.FargateProfile{profile}, nil
+	return profile, aws.FormatErrorAsMessageOnly(err)
 }

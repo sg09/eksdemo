@@ -5,11 +5,11 @@ import (
 	"eksdemo/pkg/kubernetes"
 	"fmt"
 
-	"github.com/aws/aws-sdk-go/service/eks"
+	"github.com/aws/aws-sdk-go-v2/service/eks/types"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func ServiceAccountToken(cluster *eks.Cluster, namespace, serviceAccount string) error {
+func ServiceAccountToken(cluster *types.Cluster, namespace, serviceAccount string) error {
 	kubeContext, err := kubernetes.KubeContextForCluster(cluster)
 	if err != nil {
 		return err

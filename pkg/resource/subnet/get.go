@@ -8,7 +8,7 @@ import (
 
 	awssdk "github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ec2/types"
-	"github.com/aws/aws-sdk-go/service/eks"
+	ekstypes "github.com/aws/aws-sdk-go-v2/service/eks/types"
 )
 
 type Getter struct {
@@ -45,7 +45,7 @@ func (g *Getter) Get(id string, output printer.Output, options resource.Options)
 	return output.Print(os.Stdout, NewPrinter(subnets))
 }
 
-func (g *Getter) GetPrivateSubnetsForCluster(cluster *eks.Cluster) ([]types.Subnet, error) {
+func (g *Getter) GetPrivateSubnetsForCluster(cluster *ekstypes.Cluster) ([]types.Subnet, error) {
 	// Note: this is a short cut, must query route tables looking for no IG to truly find all private subnets
 	filters := []types.Filter{
 		aws.NewEC2VpcFilter(awssdk.ToString(cluster.ResourcesVpcConfig.VpcId)),

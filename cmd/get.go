@@ -62,7 +62,7 @@ var getHelmCmd = &cobra.Command{
 	Short:   "Installed Applications",
 	Aliases: []string{"app", "apps", "helm"},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		cluster, err := aws.EksDescribeCluster(clusterName)
+		cluster, err := aws.NewEKSClient().DescribeCluster(clusterName)
 		if err != nil {
 			return err
 		}

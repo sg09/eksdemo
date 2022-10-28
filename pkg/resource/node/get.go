@@ -7,7 +7,7 @@ import (
 	"eksdemo/pkg/resource"
 	"os"
 
-	"github.com/aws/aws-sdk-go/service/eks"
+	"github.com/aws/aws-sdk-go-v2/service/eks/types"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -35,7 +35,7 @@ func (g *Getter) Get(name string, output printer.Output, options resource.Option
 	return output.Print(os.Stdout, NewPrinter(nodes))
 }
 
-func (g *Getter) GetNodeByName(name string, cluster *eks.Cluster) ([]v1.Node, error) {
+func (g *Getter) GetNodeByName(name string, cluster *types.Cluster) ([]v1.Node, error) {
 	kubeContext, err := kubernetes.KubeContextForCluster(cluster)
 	if err != nil {
 		return nil, err
@@ -54,7 +54,7 @@ func (g *Getter) GetNodeByName(name string, cluster *eks.Cluster) ([]v1.Node, er
 	return []v1.Node{*node}, nil
 }
 
-func (g *Getter) GetAllNodes(cluster *eks.Cluster) ([]v1.Node, error) {
+func (g *Getter) GetAllNodes(cluster *types.Cluster) ([]v1.Node, error) {
 	kubeContext, err := kubernetes.KubeContextForCluster(cluster)
 	if err != nil {
 		return nil, err

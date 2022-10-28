@@ -1,22 +1,22 @@
 package fargate_profile
 
 import (
-	"eksdemo/pkg/aws"
 	"eksdemo/pkg/printer"
+	"encoding/json"
 	"io"
 	"strings"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/eks/types"
 	"github.com/hako/durafmt"
-
-	"github.com/aws/aws-sdk-go/service/eks"
 )
 
 type FargateProfilePrinter struct {
-	profiles []*eks.FargateProfile
+	profiles []*types.FargateProfile
 }
 
-func NewPrinter(profiles []*eks.FargateProfile) *FargateProfilePrinter {
+func NewPrinter(profiles []*types.FargateProfile) *FargateProfilePrinter {
 	return &FargateProfilePrinter{profiles}
 }
 
@@ -25,22 +25,24 @@ func (p *FargateProfilePrinter) PrintTable(writer io.Writer) error {
 	table.SetHeader([]string{"Age", "Status", "Name", "Selectors"})
 
 	for _, profile := range p.profiles {
-		age := durafmt.ParseShort(time.Since(aws.TimeValue(profile.CreatedAt)))
-		name := aws.StringValue(profile.FargateProfileName)
+		age := durafmt.ParseShort(time.Since(aws.ToTime(profile.CreatedAt)))
+		name := aws.ToString(profile.FargateProfileName)
 
 		selectors := make([]string, 0, len(profile.Selectors))
 		for _, s := range profile.Selectors {
-			selectors = append(selectors, s.String())
+			selectorYaml, _ := json.MarshalIndent(s, "", "")
+			selectors = append(selectors, string(selectorYaml))
 		}
 
 		table.AppendRow([]string{
 			age.String(),
-			aws.StringValue(profile.Status),
+			string(profile.Status),
 			name,
 			strings.Join(selectors, ","),
 		})
 	}
 
+	table.SeparateRows()
 	table.Print(writer)
 
 	return nil

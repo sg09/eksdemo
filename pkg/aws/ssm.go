@@ -85,6 +85,18 @@ func (c *SSMClient) Endpoint() (aws.Endpoint, error) {
 	return ssm.NewDefaultEndpointResolver().ResolveEndpoint(region, ssm.EndpointResolverOptions{})
 }
 
+func (c *SSMClient) GetParameter(name string) (*types.Parameter, error) {
+	out, err := c.Client.GetParameter(context.Background(), &ssm.GetParameterInput{
+		Name: aws.String(name),
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return out.Parameter, nil
+}
+
 func (c *SSMClient) StartSession(instanceId string) (*ssm.StartSessionOutput, error) {
 	return c.Client.StartSession(context.Background(), &ssm.StartSessionInput{
 		Target: aws.String(instanceId),

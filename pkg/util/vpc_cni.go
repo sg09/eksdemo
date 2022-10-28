@@ -5,13 +5,13 @@ import (
 	"eksdemo/pkg/kubernetes"
 	"fmt"
 
-	"github.com/aws/aws-sdk-go/service/eks"
+	ekstypes "github.com/aws/aws-sdk-go-v2/service/eks/types"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/yaml"
 )
 
-func EnablePrefixAssignment(cluster *eks.Cluster) error {
+func EnablePrefixAssignment(cluster *ekstypes.Cluster) error {
 	kubeContext, err := kubernetes.KubeContextForCluster(cluster)
 	if err != nil {
 		return err
@@ -41,7 +41,7 @@ func EnablePrefixAssignment(cluster *eks.Cluster) error {
 	return nil
 }
 
-func EnableSecurityGroupsForPods(cluster *eks.Cluster) error {
+func EnableSecurityGroupsForPods(cluster *ekstypes.Cluster) error {
 	kubeContext, err := kubernetes.KubeContextForCluster(cluster)
 	if err != nil {
 		return err

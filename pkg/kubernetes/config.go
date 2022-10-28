@@ -3,8 +3,8 @@ package kubernetes
 import (
 	"fmt"
 
+	"github.com/aws/aws-sdk-go-v2/service/eks/types"
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/eks"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
@@ -73,7 +73,7 @@ func DynamicClient(context string) (dynamic.Interface, error) {
 	return dynamic.NewForConfig(restConfig)
 }
 
-func KubeContextForCluster(cluster *eks.Cluster) (string, error) {
+func KubeContextForCluster(cluster *types.Cluster) (string, error) {
 	raw, err := Kubeconfig()
 	if err != nil {
 		return "", err

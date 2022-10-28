@@ -7,7 +7,7 @@ import (
 	"eksdemo/pkg/resource"
 	"os"
 
-	"github.com/aws/aws-sdk-go/service/eks"
+	"github.com/aws/aws-sdk-go-v2/service/eks/types"
 )
 
 func NewVersionsResource() *resource.Resource {
@@ -28,11 +28,21 @@ func NewVersionsResource() *resource.Resource {
 }
 
 type VersionGetter struct {
-	resource.EmptyInit
+	eksClient *aws.EKSClient
+}
+
+func NewVersionGetter(eksClient *aws.EKSClient) *Getter {
+	return &Getter{eksClient}
+}
+
+func (g *VersionGetter) Init() {
+	if g.eksClient == nil {
+		g.eksClient = aws.NewEKSClient()
+	}
 }
 
 func (g *VersionGetter) Get(name string, output printer.Output, options resource.Options) error {
-	var addonVersions []*eks.AddonInfo
+	var addonVersions []types.AddonInfo
 	var err error
 
 	k8sversion := options.Common().KubernetesVersion
@@ -50,8 +60,8 @@ func (g *VersionGetter) Get(name string, output printer.Output, options resource
 	return output.Print(os.Stdout, NewVersionPrinter(addonVersions))
 }
 
-func (g *VersionGetter) GetAddonVersionsByName(name, k8sversion string) ([]*eks.AddonInfo, error) {
-	addonVersions, err := aws.EksDescribeAddonVersions(name, k8sversion)
+func (g *VersionGetter) GetAddonVersionsByName(name, k8sversion string) ([]types.AddonInfo, error) {
+	addonVersions, err := g.eksClient.DescribeAddonVersions(name, k8sversion)
 	if err != nil {
 		return nil, err
 	}
@@ -59,8 +69,8 @@ func (g *VersionGetter) GetAddonVersionsByName(name, k8sversion string) ([]*eks.
 	return addonVersions, nil
 }
 
-func (g *VersionGetter) GetAllAddonVersions(k8sversion string) ([]*eks.AddonInfo, error) {
-	addonVersions, err := aws.EksDescribeAddonVersions("", k8sversion)
+func (g *VersionGetter) GetAllAddonVersions(k8sversion string) ([]types.AddonInfo, error) {
+	addonVersions, err := g.eksClient.DescribeAddonVersions("", k8sversion)
 	if err != nil {
 		return nil, err
 	}

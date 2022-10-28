@@ -6,21 +6,33 @@ import (
 	"eksdemo/pkg/resource"
 	"os"
 
-	"github.com/aws/aws-sdk-go/service/eks"
+	"github.com/aws/aws-sdk-go-v2/service/eks/types"
 )
 
 type Getter struct {
-	resource.EmptyInit
+	eksClient *aws.EKSClient
+}
+
+func NewGetter(eksClient *aws.EKSClient) *Getter {
+	return &Getter{eksClient}
+}
+
+func (g *Getter) Init() {
+	if g.eksClient == nil {
+		g.eksClient = aws.NewEKSClient()
+	}
 }
 
 func (g *Getter) Get(name string, output printer.Output, options resource.Options) error {
-	var addons []*eks.Addon
+	var addon *types.Addon
+	var addons []*types.Addon
 	var err error
 
 	clusterName := options.Common().ClusterName
 
 	if name != "" {
-		addons, err = g.GetAddonsByName(name, clusterName)
+		addon, err = g.GetAddonByName(name, clusterName)
+		addons = []*types.Addon{addon}
 	} else {
 		addons, err = g.GetAllAddons(clusterName)
 	}
@@ -32,25 +44,22 @@ func (g *Getter) Get(name string, output printer.Output, options resource.Option
 	return output.Print(os.Stdout, NewPrinter(addons))
 }
 
-func (g *Getter) GetAddonsByName(name, clusterName string) ([]*eks.Addon, error) {
-	addon, err := aws.EksDescribeAddon(clusterName, name)
-	if err != nil {
-		return nil, err
-	}
+func (g *Getter) GetAddonByName(name, clusterName string) (*types.Addon, error) {
+	addon, err := g.eksClient.DescribeAddon(clusterName, name)
 
-	return []*eks.Addon{addon}, nil
+	return addon, aws.FormatErrorAsMessageOnly(err)
 }
 
-func (g *Getter) GetAllAddons(clusterName string) ([]*eks.Addon, error) {
-	addonNames, err := aws.EksListAddons(clusterName)
-	addons := make([]*eks.Addon, 0, len(addonNames))
+func (g *Getter) GetAllAddons(clusterName string) ([]*types.Addon, error) {
+	addonNames, err := g.eksClient.ListAddons(clusterName)
+	addons := make([]*types.Addon, 0, len(addonNames))
 
 	if err != nil {
 		return nil, err
 	}
 
 	for _, name := range addonNames {
-		result, err := aws.EksDescribeAddon(clusterName, aws.StringValue(name))
+		result, err := g.eksClient.DescribeAddon(clusterName, name)
 		if err != nil {
 			return nil, err
 		}

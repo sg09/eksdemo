@@ -20,7 +20,7 @@ var enablePrefixAssignmentCmd = &cobra.Command{
 	Short:   "Enable Prefix Assignmenr with VPC CNI",
 	Aliases: []string{"enable-prefix"},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		cluster, err := aws.EksDescribeCluster(clusterName)
+		cluster, err := aws.NewEKSClient().DescribeCluster(clusterName)
 		if err != nil {
 			return err
 		}
@@ -33,7 +33,7 @@ var enableSecurityGroupsForPodsCmd = &cobra.Command{
 	Short:   "Enable Security Groups for Pods with VPC CNI",
 	Aliases: []string{"enable-sgpods"},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		cluster, err := aws.EksDescribeCluster(clusterName)
+		cluster, err := aws.NewEKSClient().DescribeCluster(clusterName)
 		if err != nil {
 			return err
 		}
@@ -47,7 +47,7 @@ var serviceAccountToken = &cobra.Command{
 	Aliases: []string{"sa-token"},
 	Args:    cobra.ExactArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
-		cluster, err := aws.EksDescribeCluster(clusterName)
+		cluster, err := aws.NewEKSClient().DescribeCluster(clusterName)
 		if err != nil {
 			return err
 		}
@@ -60,7 +60,7 @@ var tagSubnetsCmd = &cobra.Command{
 	Short:   "Add kubernetes.io/cluster/<cluster-name> tag to private VPC subnets",
 	Aliases: []string{"tag-subnet"},
 	RunE: func(cmd *cobra.Command, args []string) error {
-		_, err := aws.EksDescribeCluster(clusterName)
+		_, err := aws.NewEKSClient().DescribeCluster(clusterName)
 		if err != nil {
 			return err
 		}

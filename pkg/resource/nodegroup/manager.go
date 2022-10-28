@@ -6,13 +6,21 @@ import (
 	"fmt"
 	"strings"
 
+	awssdk "github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/spf13/cobra"
 )
 
 type Manager struct {
-	Eksctl resource.Manager
-	Getter
-	resource.EmptyInit
+	Eksctl          resource.Manager
+	nodegroupGetter *Getter
+	eksClient       *aws.EKSClient
+}
+
+func (m *Manager) Init() {
+	if m.eksClient == nil {
+		m.eksClient = aws.NewEKSClient()
+	}
+	m.nodegroupGetter = NewGetter(m.eksClient)
 }
 
 func (m *Manager) Create(options resource.Options) error {
@@ -32,7 +40,7 @@ func (m *Manager) Update(options resource.Options, cmd *cobra.Command) error {
 	cluster := options.Common().ClusterName
 	nodegroup := ngOptions.NodegroupName
 
-	ng, err := m.GetNodeGroupByName(nodegroup, cluster)
+	ng, err := m.nodegroupGetter.GetNodeGroupByName(nodegroup, cluster)
 	if err != nil {
 		return err
 	}
@@ -43,7 +51,7 @@ func (m *Manager) Update(options resource.Options, cmd *cobra.Command) error {
 	if cmd.Flags().Changed("nodes") {
 		update += fmt.Sprintf("%d Nodes", ngOptions.UpdateDesired)
 	} else {
-		ngOptions.UpdateDesired = int(aws.Int64Value(ng.ScalingConfig.DesiredSize))
+		ngOptions.UpdateDesired = int(awssdk.ToInt32(ng.ScalingConfig.DesiredSize))
 		unsetFlags++
 	}
 
@@ -53,7 +61,7 @@ func (m *Manager) Update(options resource.Options, cmd *cobra.Command) error {
 		}
 		update += fmt.Sprintf("%d Min", ngOptions.MinSize)
 	} else {
-		ngOptions.UpdateMin = int(aws.Int64Value(ng.ScalingConfig.MinSize))
+		ngOptions.UpdateMin = int(awssdk.ToInt32(ng.ScalingConfig.MinSize))
 		unsetFlags++
 	}
 
@@ -63,7 +71,7 @@ func (m *Manager) Update(options resource.Options, cmd *cobra.Command) error {
 		}
 		update += fmt.Sprintf("%d Max", ngOptions.MaxSize)
 	} else {
-		ngOptions.UpdateMax = int(aws.Int64Value(ng.ScalingConfig.MaxSize))
+		ngOptions.UpdateMax = int(awssdk.ToInt32(ng.ScalingConfig.MaxSize))
 		unsetFlags++
 	}
 
@@ -73,7 +81,7 @@ func (m *Manager) Update(options resource.Options, cmd *cobra.Command) error {
 
 	fmt.Printf("Updating nodegroup with %s...", update)
 
-	err = aws.EksUpdateNodegroupConfig(cluster, nodegroup, ngOptions.UpdateDesired, ngOptions.UpdateMin, ngOptions.UpdateMax)
+	err = m.eksClient.UpdateNodegroupConfig(cluster, nodegroup, ngOptions.UpdateDesired, ngOptions.UpdateMin, ngOptions.UpdateMax)
 	if err != nil {
 		return err
 	}

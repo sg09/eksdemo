@@ -1,24 +1,23 @@
 package cluster
 
 import (
-	"eksdemo/pkg/aws"
 	"eksdemo/pkg/printer"
 	"fmt"
 	"io"
 	"strconv"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/eks/types"
 	"github.com/hako/durafmt"
-
-	"github.com/aws/aws-sdk-go/service/eks"
 )
 
 type ClusterPrinter struct {
-	clusters   []*eks.Cluster
+	clusters   []*types.Cluster
 	clusterURL string
 }
 
-func NewPrinter(clusters []*eks.Cluster, clusterURL string) *ClusterPrinter {
+func NewPrinter(clusters []*types.Cluster, clusterURL string) *ClusterPrinter {
 	return &ClusterPrinter{clusters, clusterURL}
 }
 
@@ -33,30 +32,30 @@ func (p *ClusterPrinter) PrintTable(writer io.Writer) error {
 		vpcConf := cluster.ResourcesVpcConfig
 		if vpcConf == nil {
 			endpoint = "-"
-		} else if aws.BoolValue(vpcConf.EndpointPublicAccess) && !aws.BoolValue(vpcConf.EndpointPrivateAccess) {
+		} else if vpcConf.EndpointPublicAccess && !vpcConf.EndpointPrivateAccess {
 			endpoint = "Public"
-		} else if aws.BoolValue(vpcConf.EndpointPublicAccess) && aws.BoolValue(vpcConf.EndpointPrivateAccess) {
+		} else if vpcConf.EndpointPublicAccess && vpcConf.EndpointPrivateAccess {
 			endpoint = "Public/Private"
 		} else {
 			endpoint = "Private"
 		}
 
-		age := durafmt.ParseShort(time.Since(aws.TimeValue(cluster.CreatedAt)))
-		name := aws.StringValue(cluster.Name)
+		age := durafmt.ParseShort(time.Since(aws.ToTime(cluster.CreatedAt)))
+		name := aws.ToString(cluster.Name)
 
-		if aws.StringValue(cluster.Endpoint) == p.clusterURL {
+		if aws.ToString(cluster.Endpoint) == p.clusterURL {
 			currentContext = true
 			name = "*" + name
 		}
 
 		table.AppendRow([]string{
 			age.String(),
-			aws.StringValue(cluster.Status),
+			string(cluster.Status),
 			name,
-			aws.StringValue(cluster.Version),
-			aws.StringValue(cluster.PlatformVersion),
+			aws.ToString(cluster.Version),
+			aws.ToString(cluster.PlatformVersion),
 			endpoint,
-			strconv.FormatBool(*cluster.Logging.ClusterLogging[0].Enabled),
+			strconv.FormatBool(aws.ToBool(cluster.Logging.ClusterLogging[0].Enabled)),
 		})
 	}
 

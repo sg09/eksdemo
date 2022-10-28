@@ -35,6 +35,15 @@ func FormatError(err error) error {
 	return err
 }
 
+// Return cleaner error message for service API errors
+func FormatErrorAsMessageOnly(err error) error {
+	var ae smithy.APIError
+	if err != nil && errors.As(err, &ae) {
+		return fmt.Errorf(ae.ErrorMessage())
+	}
+	return err
+}
+
 // BoolValue returns the value of the bool pointer passed in or
 // false if the pointer is nil.
 func BoolValue(v *bool) bool {

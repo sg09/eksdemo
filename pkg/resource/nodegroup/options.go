@@ -7,8 +7,12 @@ import (
 	"fmt"
 	"strings"
 
+	awssdk "github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/spf13/cobra"
 )
+
+// /aws/service/eks/optimized-ami/<eks-version>/amazon-linux-2/recommended/image_id
+const eksOptmizedAmiPath = "/aws/service/eks/optimized-ami/%s/amazon-linux-2/recommended/image_id"
 
 type NodegroupOptions struct {
 	resource.CommonOptions
@@ -101,18 +105,18 @@ func NewOptions() (options *NodegroupOptions, createFlags, updateFlags cmd.Flags
 				Validate: func(cmd *cobra.Command, args []string) error {
 					if strings.EqualFold(options.OperatingSystem, "AmazonLinux2") {
 						options.OperatingSystem = "AmazonLinux2"
-						return nil
 					}
 					if strings.EqualFold(options.OperatingSystem, "Bottlerocket") {
 						options.OperatingSystem = "Bottlerocket"
-						return nil
 					}
 					if strings.EqualFold(options.OperatingSystem, "Ubuntu2004") {
 						options.OperatingSystem = "Ubuntu2004"
-						return nil
 					}
 					if strings.EqualFold(options.OperatingSystem, "Ubuntu1804") {
 						options.OperatingSystem = "Ubuntu1804"
+					}
+					if options.Containerd && options.OperatingSystem != "AmazonLinux2" {
+						return fmt.Errorf("%q flag can only be used with %q Operating System", "containerd", "AmazonLinux2")
 					}
 					return nil
 				},
@@ -155,12 +159,12 @@ func (o *NodegroupOptions) PreCreate() error {
 		return nil
 	}
 
-	ami, err := aws.EksOptimizedAmi(o.KubernetesVersion)
+	param, err := aws.NewSSMClient().GetParameter(fmt.Sprintf(eksOptmizedAmiPath, o.KubernetesVersion))
 	if err != nil {
-		return err
+		return fmt.Errorf("ssm failed to lookup EKS Optimized AMI: %w", err)
 	}
 
-	o.AMI = ami
+	o.AMI = awssdk.ToString(param.Value)
 
 	return nil
 }

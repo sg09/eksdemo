@@ -6,58 +6,66 @@ import (
 	"eksdemo/pkg/resource"
 	"os"
 
-	"github.com/aws/aws-sdk-go/service/eks"
+	"github.com/aws/aws-sdk-go-v2/service/eks/types"
 )
 
 type Getter struct {
-	resource.EmptyInit
+	eksClient *aws.EKSClient
+}
+
+func NewGetter(eksClient *aws.EKSClient) *Getter {
+	return &Getter{eksClient}
+}
+
+func (g *Getter) Init() {
+	if g.eksClient == nil {
+		g.eksClient = aws.NewEKSClient()
+	}
 }
 
 func (g *Getter) Get(name string, output printer.Output, options resource.Options) error {
-	var nodeGroup *eks.Nodegroup
-	var nodeGroups []*eks.Nodegroup
+	var nodegroup *types.Nodegroup
+	var nodegroups []*types.Nodegroup
 	var err error
 
 	clusterName := options.Common().ClusterName
 
 	if name != "" {
-		nodeGroup, err = g.GetNodeGroupByName(name, clusterName)
-		nodeGroups = []*eks.Nodegroup{nodeGroup}
+		nodegroup, err = g.GetNodeGroupByName(name, clusterName)
+		nodegroups = []*types.Nodegroup{nodegroup}
 	} else {
-		nodeGroups, err = g.GetAllNodeGroups(clusterName)
+		nodegroups, err = g.GetAllNodeGroups(clusterName)
 	}
 
 	if err != nil {
 		return err
 	}
 
-	return output.Print(os.Stdout, NewPrinter(nodeGroups))
+	return output.Print(os.Stdout, NewPrinter(nodegroups))
 }
 
-func (g *Getter) GetAllNodeGroups(clusterName string) ([]*eks.Nodegroup, error) {
-	nodeGroupNames, err := aws.EksListNodegroups(clusterName)
-	nodeGroups := make([]*eks.Nodegroup, 0, len(nodeGroupNames))
+func (g *Getter) GetAllNodeGroups(clusterName string) ([]*types.Nodegroup, error) {
+	nodegroupNames, err := g.eksClient.ListNodegroups(clusterName)
+	nodegroups := make([]*types.Nodegroup, 0, len(nodegroupNames))
 
 	if err != nil {
 		return nil, err
 	}
 
-	for _, name := range nodeGroupNames {
-		result, err := aws.EksDescribeNodegroup(clusterName, *name)
+	for _, name := range nodegroupNames {
+		result, err := g.eksClient.DescribeNodegroup(clusterName, name)
 		if err != nil {
 			return nil, err
 		}
-		nodeGroups = append(nodeGroups, result)
+		nodegroups = append(nodegroups, result)
 	}
 
-	return nodeGroups, nil
+	return nodegroups, nil
 }
 
-func (g *Getter) GetNodeGroupByName(name, clusterName string) (*eks.Nodegroup, error) {
-	nodeGroup, err := aws.EksDescribeNodegroup(clusterName, name)
-	if err != nil {
-		return nil, err
-	}
+func (g *Getter) GetNodeGroupByName(name, clusterName string) (*types.Nodegroup, error) {
+	nodegroup, err := g.eksClient.DescribeNodegroup(clusterName, name)
 
-	return nodeGroup, nil
+	return nodegroup, aws.FormatErrorAsMessageOnly(err)
+
 }

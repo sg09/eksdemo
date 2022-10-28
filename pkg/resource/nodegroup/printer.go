@@ -7,16 +7,16 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/eks"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/eks/types"
 	"github.com/hako/durafmt"
 )
 
 type NodegroupPrinter struct {
-	Nodegroups []*eks.Nodegroup
+	Nodegroups []*types.Nodegroup
 }
 
-func NewPrinter(Nodegroups []*eks.Nodegroup) *NodegroupPrinter {
+func NewPrinter(Nodegroups []*types.Nodegroup) *NodegroupPrinter {
 	return &NodegroupPrinter{Nodegroups}
 }
 
@@ -25,18 +25,18 @@ func (p *NodegroupPrinter) PrintTable(writer io.Writer) error {
 	table.SetHeader([]string{"Age", "Status", "Name", "Nodes", "Min", "Max", "Version", "Type", "Instance(s)"})
 
 	for _, n := range p.Nodegroups {
-		age := durafmt.ParseShort(time.Since(aws.TimeValue(n.CreatedAt)))
+		age := durafmt.ParseShort(time.Since(aws.ToTime(n.CreatedAt)))
 
 		table.AppendRow([]string{
 			age.String(),
-			aws.StringValue(n.Status),
-			aws.StringValue(n.NodegroupName),
-			strconv.FormatInt(aws.Int64Value(n.ScalingConfig.DesiredSize), 10),
-			strconv.FormatInt(aws.Int64Value(n.ScalingConfig.MinSize), 10),
-			strconv.FormatInt(aws.Int64Value(n.ScalingConfig.MaxSize), 10),
-			aws.StringValue(n.ReleaseVersion),
-			aws.StringValue(n.CapacityType),
-			strings.Join(aws.StringValueSlice(n.InstanceTypes), ","),
+			string(n.Status),
+			aws.ToString(n.NodegroupName),
+			strconv.Itoa(int(aws.ToInt32(n.ScalingConfig.DesiredSize))),
+			strconv.Itoa(int(aws.ToInt32(n.ScalingConfig.MinSize))),
+			strconv.Itoa(int(aws.ToInt32(n.ScalingConfig.MaxSize))),
+			aws.ToString(n.ReleaseVersion),
+			string(n.CapacityType),
+			strings.Join(n.InstanceTypes, ","),
 		})
 	}
 

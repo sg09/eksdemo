@@ -3,7 +3,7 @@ package resource
 import (
 	"eksdemo/pkg/cmd"
 
-	"github.com/aws/aws-sdk-go/service/eks"
+	"github.com/aws/aws-sdk-go-v2/service/eks/types"
 	"github.com/spf13/cobra"
 )
 
@@ -30,7 +30,7 @@ type CommonOptions struct {
 	NamespaceFlag       bool
 
 	Account           string
-	Cluster           *eks.Cluster
+	Cluster           *types.Cluster
 	ClusterName       string
 	DryRun            bool
 	Id                string

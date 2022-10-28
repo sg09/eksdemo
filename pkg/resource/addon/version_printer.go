@@ -1,20 +1,20 @@
 package addon
 
 import (
-	"eksdemo/pkg/aws"
 	"eksdemo/pkg/printer"
 	"fmt"
 	"io"
 	"strings"
 
-	"github.com/aws/aws-sdk-go/service/eks"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/eks/types"
 )
 
 type AddonVersionPrinter struct {
-	addonInfos []*eks.AddonInfo
+	addonInfos []types.AddonInfo
 }
 
-func NewVersionPrinter(addonInfos []*eks.AddonInfo) *AddonVersionPrinter {
+func NewVersionPrinter(addonInfos []types.AddonInfo) *AddonVersionPrinter {
 	return &AddonVersionPrinter{addonInfos}
 }
 
@@ -23,25 +23,25 @@ func (p *AddonVersionPrinter) PrintTable(writer io.Writer) error {
 	table.SetHeader([]string{"Name", "Version", "Restrictions"})
 
 	for _, addonInfo := range p.addonInfos {
-		name := aws.StringValue(addonInfo.AddonName)
+		name := aws.ToString(addonInfo.AddonName)
 
 		for _, av := range addonInfo.AddonVersions {
 			isDefault := ""
 			restrictions := "-"
 
 			if len(av.Compatibilities) > 0 {
-				if *av.Compatibilities[0].DefaultVersion {
+				if av.Compatibilities[0].DefaultVersion {
 					isDefault = "*"
 				}
 
-				if len(av.Compatibilities[0].PlatformVersions) > 0 && aws.StringValue(av.Compatibilities[0].PlatformVersions[0]) != "*" {
-					restrictions = strings.Join(aws.StringValueSlice(av.Compatibilities[0].PlatformVersions), ",")
+				if len(av.Compatibilities[0].PlatformVersions) > 0 && av.Compatibilities[0].PlatformVersions[0] != "*" {
+					restrictions = strings.Join((av.Compatibilities[0].PlatformVersions), ",")
 				}
 			}
 
 			table.AppendRow([]string{
 				name,
-				aws.StringValue(av.AddonVersion) + isDefault,
+				aws.ToString(av.AddonVersion) + isDefault,
 				restrictions,
 			})
 		}
