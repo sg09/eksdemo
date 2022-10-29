@@ -10,12 +10,12 @@ import (
 
 type Manager struct {
 	DryRun               bool
-	cloudwatchlogsClient *aws.CloudWatchLogsClient
+	cloudwatchlogsClient *aws.CloudwatchlogsClient
 }
 
 func (m *Manager) Init() {
 	if m.cloudwatchlogsClient == nil {
-		m.cloudwatchlogsClient = aws.NewCloudWatchLogsClient()
+		m.cloudwatchlogsClient = aws.NewCloudwatchlogsClient()
 	}
 }
 

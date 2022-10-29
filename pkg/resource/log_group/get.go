@@ -11,16 +11,16 @@ import (
 )
 
 type Getter struct {
-	cloudwatchlogsClient *aws.CloudWatchLogsClient
+	cloudwatchlogsClient *aws.CloudwatchlogsClient
 }
 
-func NewGetter(cloudwatchlogsClient *aws.CloudWatchLogsClient) *Getter {
+func NewGetter(cloudwatchlogsClient *aws.CloudwatchlogsClient) *Getter {
 	return &Getter{cloudwatchlogsClient}
 }
 
 func (g *Getter) Init() {
 	if g.cloudwatchlogsClient == nil {
-		g.cloudwatchlogsClient = aws.NewCloudWatchLogsClient()
+		g.cloudwatchlogsClient = aws.NewCloudwatchlogsClient()
 	}
 }
 

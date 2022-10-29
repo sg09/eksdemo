@@ -8,15 +8,15 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs/types"
 )
 
-type CloudWatchLogsClient struct {
+type CloudwatchlogsClient struct {
 	*cloudwatchlogs.Client
 }
 
-func NewCloudWatchLogsClient() *CloudWatchLogsClient {
-	return &CloudWatchLogsClient{cloudwatchlogs.NewFromConfig(GetConfig())}
+func NewCloudwatchlogsClient() *CloudwatchlogsClient {
+	return &CloudwatchlogsClient{cloudwatchlogs.NewFromConfig(GetConfig())}
 }
 
-func (c *CloudWatchLogsClient) DeleteLogGroup(name string) error {
+func (c *CloudwatchlogsClient) DeleteLogGroup(name string) error {
 	_, err := c.Client.DeleteLogGroup(context.Background(), &cloudwatchlogs.DeleteLogGroupInput{
 		LogGroupName: aws.String(name),
 	})
@@ -24,7 +24,7 @@ func (c *CloudWatchLogsClient) DeleteLogGroup(name string) error {
 	return err
 }
 
-func (c *CloudWatchLogsClient) DescribeLogGroups(namePrefix string) ([]types.LogGroup, error) {
+func (c *CloudwatchlogsClient) DescribeLogGroups(namePrefix string) ([]types.LogGroup, error) {
 	logGroups := []types.LogGroup{}
 	pageNum := 0
 
@@ -47,7 +47,7 @@ func (c *CloudWatchLogsClient) DescribeLogGroups(namePrefix string) ([]types.Log
 	return logGroups, nil
 }
 
-func (c *CloudWatchLogsClient) DescribeLogStreams(namePrefix, logGroupName string) ([]types.LogStream, error) {
+func (c *CloudwatchlogsClient) DescribeLogStreams(namePrefix, logGroupName string) ([]types.LogStream, error) {
 	logStreams := []types.LogStream{}
 	pageNum := 0
 
@@ -73,7 +73,7 @@ func (c *CloudWatchLogsClient) DescribeLogStreams(namePrefix, logGroupName strin
 	return logStreams, nil
 }
 
-func (c *CloudWatchLogsClient) GetLogEvents(logStreamName, logGroupName string) ([]types.OutputLogEvent, error) {
+func (c *CloudwatchlogsClient) GetLogEvents(logStreamName, logGroupName string) ([]types.OutputLogEvent, error) {
 	logEvents := []types.OutputLogEvent{}
 	pageNum := 0
 
