@@ -7,11 +7,24 @@ import (
 	"eksdemo/pkg/resource/target_group"
 	"fmt"
 	"os"
+
+	awssdk "github.com/aws/aws-sdk-go-v2/aws"
 )
 
 type Getter struct {
-	resource.EmptyInit
-	tgGetter target_group.Getter
+	elbClientv2       *aws.Elasticloadbalancingv2Client
+	targetGroupGetter *target_group.Getter
+}
+
+func NewGetter(elbClientv2 *aws.Elasticloadbalancingv2Client) *Getter {
+	return &Getter{elbClientv2, target_group.NewGetter(elbClientv2)}
+}
+
+func (g *Getter) Init() {
+	if g.elbClientv2 == nil {
+		g.elbClientv2 = aws.NewElasticloadbalancingClientv2()
+	}
+	g.targetGroupGetter = target_group.NewGetter(g.elbClientv2)
 }
 
 func (g *Getter) Get(id string, output printer.Output, options resource.Options) error {
@@ -20,12 +33,12 @@ func (g *Getter) Get(id string, output printer.Output, options resource.Options)
 		return fmt.Errorf("internal error, unable to cast options to TargetHealthOptions")
 	}
 
-	targetGroup, err := g.tgGetter.GetTargetGroupByName(thOptions.TargetGroupName)
+	targetGroup, err := g.targetGroupGetter.GetTargetGroupByName(thOptions.TargetGroupName)
 	if err != nil {
 		return err
 	}
 
-	targets, err := aws.ELBDescribeTargetHealth(aws.StringValue(targetGroup.TargetGroupArn), id)
+	targets, err := g.elbClientv2.DescribeTargetHealth(awssdk.ToString(targetGroup.TargetGroupArn), id)
 	if err != nil {
 		return err
 	}

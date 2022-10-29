@@ -1,20 +1,20 @@
 package target_group
 
 import (
-	"eksdemo/pkg/aws"
 	"eksdemo/pkg/printer"
 	"io"
 	"strconv"
 	"strings"
 
-	"github.com/aws/aws-sdk-go/service/elbv2"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2/types"
 )
 
 type TargetGroupPrinter struct {
-	targetGroups []*elbv2.TargetGroup
+	targetGroups []types.TargetGroup
 }
 
-func NewPrinter(targetGroups []*elbv2.TargetGroup) *TargetGroupPrinter {
+func NewPrinter(targetGroups []types.TargetGroup) *TargetGroupPrinter {
 	return &TargetGroupPrinter{targetGroups}
 }
 
@@ -23,15 +23,15 @@ func (p *TargetGroupPrinter) PrintTable(writer io.Writer) error {
 	table.SetHeader([]string{"Name", "Type", "Proto:Port", "Load Balancer"})
 
 	for _, tg := range p.targetGroups {
-		proto := aws.StringValue(tg.Protocol)
-		if version := aws.StringValue(tg.ProtocolVersion); version != "" {
+		proto := string(tg.Protocol)
+		if version := aws.ToString(tg.ProtocolVersion); version != "" {
 			proto = version
 		}
 
 		table.AppendRow([]string{
-			aws.StringValue(tg.TargetGroupName),
-			aws.StringValue(tg.TargetType),
-			proto + ":" + strconv.FormatInt(aws.Int64Value(tg.Port), 10),
+			aws.ToString(tg.TargetGroupName),
+			string(tg.TargetType),
+			proto + ":" + strconv.Itoa(int(aws.ToInt32(tg.Port))),
 			getLoadBalancer(tg),
 		})
 	}
@@ -49,7 +49,7 @@ func (p *TargetGroupPrinter) PrintYAML(writer io.Writer) error {
 	return printer.EncodeYAML(writer, p.targetGroups)
 }
 
-func getLoadBalancer(tg *elbv2.TargetGroup) string {
+func getLoadBalancer(tg types.TargetGroup) string {
 	lbArns := tg.LoadBalancerArns
 	if len(lbArns) == 0 {
 		return "None associated"
@@ -57,7 +57,7 @@ func getLoadBalancer(tg *elbv2.TargetGroup) string {
 		return strconv.Itoa(len(lbArns)) + " LBs associated"
 	}
 
-	splitArn := strings.Split(aws.StringValue(lbArns[0]), "/")
+	splitArn := strings.Split(lbArns[0], "/")
 	if len(splitArn) < 2 {
 		return "Error parsing LoadBalancer ARN"
 	}

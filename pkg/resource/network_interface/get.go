@@ -14,19 +14,19 @@ import (
 )
 
 type Getter struct {
-	ec2Client *aws.EC2Client
-	elbGetter *load_balancer.Getter
+	ec2Client          *aws.EC2Client
+	loadBalancerGetter *load_balancer.Getter
 }
 
 func NewGetter(ec2Client *aws.EC2Client) *Getter {
-	return &Getter{ec2Client, load_balancer.NewGetter()}
+	return &Getter{ec2Client, load_balancer.NewGetter(aws.NewElasticloadbalancingClientv1(), aws.NewElasticloadbalancingClientv2())}
 }
 
 func (g *Getter) Init() {
 	if g.ec2Client == nil {
 		g.ec2Client = aws.NewEC2Client()
 	}
-	g.elbGetter = load_balancer.NewGetter()
+	g.loadBalancerGetter = load_balancer.NewGetter(aws.NewElasticloadbalancingClientv1(), aws.NewElasticloadbalancingClientv2())
 }
 
 func (g *Getter) Get(id string, output printer.Output, options resource.Options) error {
@@ -44,7 +44,7 @@ func (g *Getter) Get(id string, output printer.Output, options resource.Options)
 	}
 
 	if eniOptions.LoadBalancerName != "" {
-		elbs, err := g.elbGetter.GetLoadBalancers(eniOptions.LoadBalancerName)
+		elbs, err := g.loadBalancerGetter.GetLoadBalancers(eniOptions.LoadBalancerName)
 		if err != nil {
 			return err
 		}
@@ -59,13 +59,13 @@ func (g *Getter) Get(id string, output printer.Output, options resource.Options)
 			lbArn := awssdk.ToString(elb.LoadBalancerArn)
 			lbId := lbArn[strings.LastIndex(lbArn, "/")+1:]
 
-			switch awssdk.ToString(elb.Type) {
+			switch string(elb.Type) {
 			case "application":
 				description = fmt.Sprintf("ELB app/%s/%s", lbName, lbId)
 			case "network":
 				description = fmt.Sprintf("ELB net/%s/%s", lbName, lbId)
 			default:
-				return fmt.Errorf("load balancer type %q not supported", aws.StringValue(elb.Type))
+				return fmt.Errorf("load balancer type %q not supported", string(elb.Type))
 			}
 		}
 	}

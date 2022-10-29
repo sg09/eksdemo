@@ -1,19 +1,19 @@
 package target_health
 
 import (
-	"eksdemo/pkg/aws"
 	"eksdemo/pkg/printer"
 	"io"
 	"strconv"
 
-	"github.com/aws/aws-sdk-go/service/elbv2"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2/types"
 )
 
 type TargetHealthPrinter struct {
-	targets []*elbv2.TargetHealthDescription
+	targets []types.TargetHealthDescription
 }
 
-func NewPrinter(targets []*elbv2.TargetHealthDescription) *TargetHealthPrinter {
+func NewPrinter(targets []types.TargetHealthDescription) *TargetHealthPrinter {
 	return &TargetHealthPrinter{targets}
 }
 
@@ -23,10 +23,10 @@ func (p *TargetHealthPrinter) PrintTable(writer io.Writer) error {
 
 	for _, t := range p.targets {
 		table.AppendRow([]string{
-			aws.StringValue(t.TargetHealth.State),
-			aws.StringValue(t.Target.Id),
-			strconv.FormatInt(aws.Int64Value(t.Target.Port), 10),
-			aws.StringValue(t.TargetHealth.Description),
+			string(t.TargetHealth.State),
+			aws.ToString(t.Target.Id),
+			strconv.Itoa(int(aws.ToInt32(t.Target.Port))),
+			aws.ToString(t.TargetHealth.Description),
 		})
 	}
 	table.Print(writer)

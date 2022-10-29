@@ -1,13 +1,13 @@
 package load_balancer
 
 import (
-	"eksdemo/pkg/aws"
 	"eksdemo/pkg/printer"
 	"fmt"
 	"io"
 	"strconv"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/hako/durafmt"
 )
 
@@ -23,11 +23,11 @@ func (p *LoadBalancerPrinter) PrintTable(writer io.Writer) error {
 	table := printer.NewTablePrinter()
 	table.SetHeader([]string{"Age", "State", "Name", "Type", "Stack", "AZs", "SGs"})
 
-	for _, elb := range p.V1 {
-		age := durafmt.ParseShort(time.Since(aws.TimeValue(elb.CreatedTime)))
+	for _, lb := range p.V1 {
+		age := durafmt.ParseShort(time.Since(aws.ToTime(lb.CreatedTime)))
 
-		name := aws.StringValue(elb.LoadBalancerName)
-		if aws.StringValue(elb.Scheme) == "internal" {
+		name := aws.ToString(lb.LoadBalancerName)
+		if aws.ToString(lb.Scheme) == "internal" {
 			name = "*" + name
 		}
 
@@ -37,16 +37,16 @@ func (p *LoadBalancerPrinter) PrintTable(writer io.Writer) error {
 			name,
 			"CLB",
 			"ipv4",
-			strconv.Itoa(len(elb.AvailabilityZones)),
-			strconv.Itoa(len(elb.SecurityGroups)),
+			strconv.Itoa(len(lb.AvailabilityZones)),
+			strconv.Itoa(len(lb.SecurityGroups)),
 		})
 	}
 
 	for _, elb := range p.V2 {
-		age := durafmt.ParseShort(time.Since(aws.TimeValue(elb.CreatedTime)))
+		age := durafmt.ParseShort(time.Since(aws.ToTime(elb.CreatedTime)))
 
 		elbType := "unknown"
-		switch aws.StringValue(elb.Type) {
+		switch string(elb.Type) {
 		case "application":
 			elbType = "ALB"
 		case "network":
@@ -57,10 +57,10 @@ func (p *LoadBalancerPrinter) PrintTable(writer io.Writer) error {
 
 		table.AppendRow([]string{
 			age.String(),
-			aws.StringValue(elb.State.Code),
-			aws.StringValue(elb.LoadBalancerName),
+			string(elb.State.Code),
+			aws.ToString(elb.LoadBalancerName),
 			elbType,
-			aws.StringValue(elb.IpAddressType),
+			string(elb.IpAddressType),
 			strconv.Itoa(len(elb.AvailabilityZones)),
 			strconv.Itoa(len(elb.SecurityGroups)),
 		})

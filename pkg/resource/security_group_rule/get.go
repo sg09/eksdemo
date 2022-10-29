@@ -20,7 +20,8 @@ type Getter struct {
 }
 
 func NewGetter(ec2Client *aws.EC2Client) *Getter {
-	return &Getter{ec2Client, network_interface.NewGetter(ec2Client), load_balancer.NewGetter()}
+	return &Getter{ec2Client, network_interface.NewGetter(ec2Client),
+		load_balancer.NewGetter(aws.NewElasticloadbalancingClientv1(), aws.NewElasticloadbalancingClientv2())}
 }
 
 func (g *Getter) Init() {
@@ -28,7 +29,7 @@ func (g *Getter) Init() {
 		g.ec2Client = aws.NewEC2Client()
 	}
 	g.eniGetter = network_interface.NewGetter(g.ec2Client)
-	g.elbGetter = load_balancer.NewGetter()
+	g.elbGetter = load_balancer.NewGetter(aws.NewElasticloadbalancingClientv1(), aws.NewElasticloadbalancingClientv2())
 }
 
 func (g *Getter) Get(id string, output printer.Output, options resource.Options) error {

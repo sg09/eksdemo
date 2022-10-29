@@ -1,21 +1,21 @@
 package listener
 
 import (
-	"eksdemo/pkg/aws"
 	"eksdemo/pkg/printer"
 	"io"
 	"regexp"
 	"strconv"
 	"strings"
 
-	"github.com/aws/aws-sdk-go/service/elbv2"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2/types"
 )
 
 type ListenerPrinter struct {
-	listeners []*elbv2.Listener
+	listeners []types.Listener
 }
 
-func NewPrinter(listeners []*elbv2.Listener) *ListenerPrinter {
+func NewPrinter(listeners []types.Listener) *ListenerPrinter {
 	return &ListenerPrinter{listeners}
 }
 
@@ -30,12 +30,12 @@ func (p *ListenerPrinter) PrintTable(writer io.Writer) error {
 		// https://docs.aws.amazon.com/elasticloadbalancing/latest/APIReference/API_DescribeListeners.html
 		defaultCert := "-"
 		if len(l.Certificates) > 0 {
-			defaultCert = resourceId.FindString(aws.StringValue(l.Certificates[0].CertificateArn))
+			defaultCert = resourceId.FindString(aws.ToString(l.Certificates[0].CertificateArn))
 		}
 
 		table.AppendRow([]string{
-			resourceId.FindString(aws.StringValue(l.ListenerArn)),
-			aws.StringValue(l.Protocol) + ":" + strconv.FormatInt(aws.Int64Value(l.Port), 10),
+			resourceId.FindString(aws.ToString(l.ListenerArn)),
+			string(l.Protocol) + ":" + strconv.Itoa((int(aws.ToInt32(l.Port)))),
 			defaultCert,
 			strings.Join(PrintActions(l.DefaultActions), "\n"),
 		})
@@ -55,28 +55,28 @@ func (p *ListenerPrinter) PrintYAML(writer io.Writer) error {
 	return printer.EncodeYAML(writer, p.listeners)
 }
 
-func PrintActions(elbActions []*elbv2.Action) (actions []string) {
+func PrintActions(elbActions []types.Action) (actions []string) {
 	for _, a := range elbActions {
 		switch {
 		case a.AuthenticateCognitoConfig != nil || a.AuthenticateOidcConfig != nil:
 			actions = append(actions, "TODO: authenticate action")
 
 		case a.FixedResponseConfig != nil:
-			actions = append(actions, "return fixed response "+aws.StringValue(a.FixedResponseConfig.StatusCode))
+			actions = append(actions, "return fixed response "+aws.ToString(a.FixedResponseConfig.StatusCode))
 
 		case a.ForwardConfig != nil:
 			tgNames := []string{}
 			for _, tg := range a.ForwardConfig.TargetGroups {
-				tgNames = append(tgNames, tgName(aws.StringValue(tg.TargetGroupArn)))
+				tgNames = append(tgNames, tgName(aws.ToString(tg.TargetGroupArn)))
 			}
 			actions = append(actions, "forward to "+strings.Join(tgNames, "\n"))
 
 		case a.RedirectConfig != nil:
-			prot := aws.StringValue(a.RedirectConfig.Protocol)
-			host := aws.StringValue(a.RedirectConfig.Host)
-			port := aws.StringValue(a.RedirectConfig.Port)
-			path := aws.StringValue(a.RedirectConfig.Path)
-			query := aws.StringValue(a.RedirectConfig.Query)
+			prot := aws.ToString(a.RedirectConfig.Protocol)
+			host := aws.ToString(a.RedirectConfig.Host)
+			port := aws.ToString(a.RedirectConfig.Port)
+			path := aws.ToString(a.RedirectConfig.Path)
+			query := aws.ToString(a.RedirectConfig.Query)
 			actions = append(actions, "redirect to "+prot+"://"+host+":"+port+path+"?"+query)
 		}
 	}

@@ -44,6 +44,10 @@ func newOptions() (options *TargeGroupOptions, createFlags, getFlags cmd.Flags) 
 				Name:        "target-type",
 				Description: "target type",
 				Shorthand:   "t",
+				Validate: func(cmd *cobra.Command, args []string) error {
+					options.TargetType = strings.ToLower(options.TargetType)
+					return nil
+				},
 			},
 			Choices: []string{"ip", "instance", "lambda", "alb"},
 			Option:  &options.TargetType,

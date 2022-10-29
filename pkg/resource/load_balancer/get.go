@@ -4,120 +4,117 @@ import (
 	"eksdemo/pkg/aws"
 	"eksdemo/pkg/printer"
 	"eksdemo/pkg/resource"
+	"errors"
 	"fmt"
 	"os"
 
-	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/service/elb"
-	"github.com/aws/aws-sdk-go/service/elbv2"
+	awssdk "github.com/aws/aws-sdk-go-v2/aws"
+	typesv1 "github.com/aws/aws-sdk-go-v2/service/elasticloadbalancing/types"
+	typesv2 "github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2/types"
 )
 
 type LoadBalancers struct {
-	V1 []*elb.LoadBalancerDescription
-	V2 []*elbv2.LoadBalancer
+	V1 []typesv1.LoadBalancerDescription
+	V2 []typesv2.LoadBalancer
 }
 
 type Getter struct {
-	resource.EmptyInit
-	elbs *LoadBalancers
+	elbClientv1 *aws.ElasticloadbalancingClient
+	elbClientv2 *aws.Elasticloadbalancingv2Client
 }
 
-func NewGetter() *Getter {
-	return &Getter{}
+func NewGetter(elbClientv1 *aws.ElasticloadbalancingClient, elbClientv2 *aws.Elasticloadbalancingv2Client) *Getter {
+	return &Getter{elbClientv1, elbClientv2}
 }
 
-func (g *Getter) Get(name string, output printer.Output, options resource.Options) (err error) {
-	g.elbs, err = g.GetLoadBalancers(name)
+func (g *Getter) Init() {
+	if g.elbClientv1 == nil {
+		g.elbClientv1 = aws.NewElasticloadbalancingClientv1()
+	}
+	if g.elbClientv2 == nil {
+		g.elbClientv2 = aws.NewElasticloadbalancingClientv2()
+	}
+}
+
+func (g *Getter) Get(name string, output printer.Output, options resource.Options) error {
+	loadBalancers, err := g.GetLoadBalancers(name)
 	if err != nil {
 		return err
 	}
 
 	cluster := options.Common().Cluster
 	if cluster != nil {
-		g.filterByVpc(aws.StringValue(cluster.ResourcesVpcConfig.VpcId))
+		filterByVpcId(loadBalancers, awssdk.ToString(cluster.ResourcesVpcConfig.VpcId))
 	}
 
-	return output.Print(os.Stdout, NewPrinter(g.elbs))
+	return output.Print(os.Stdout, NewPrinter(loadBalancers))
 }
 
-func (g *Getter) GetLoadBalancers(name string) (elbs *LoadBalancers, err error) {
-	elbs = &LoadBalancers{}
+func (g *Getter) GetLoadBalancers(name string) (*LoadBalancers, error) {
+	var err error
+	loadBalancers := &LoadBalancers{}
 
-	elbs.V1, err = aws.ELBDescribeLoadBalancersv1(name)
-	if err != nil {
-		// Return all errors except NotFound
-		if awsErr, ok := err.(awserr.Error); ok {
-			switch awsErr.Code() {
-			case elb.ErrCodeAccessPointNotFoundException:
-				break
-			default:
-				return nil, err
-			}
-		} else {
-			return nil, err
-		}
+	loadBalancers.V1, err = g.elbClientv1.DescribeLoadBalancers(name)
+
+	// Return all errors except NotFound
+	var apnfe *typesv1.AccessPointNotFoundException
+	if err != nil && !errors.As(err, &apnfe) {
+		return nil, err
 	}
 
-	elbs.V2, err = aws.ELBDescribeLoadBalancersv2(name)
-	if err != nil {
-		// Return all errors except NotFound
-		if awsErr, ok := err.(awserr.Error); ok {
-			switch awsErr.Code() {
-			case elbv2.ErrCodeLoadBalancerNotFoundException:
-				break
-			default:
-				return nil, err
-			}
-		} else {
-			return nil, err
-		}
+	loadBalancers.V2, err = g.elbClientv2.DescribeLoadBalancers(name)
+
+	// Return all errors except NotFound
+	var lbnfe *typesv2.LoadBalancerNotFoundException
+	if err != nil && !errors.As(err, &lbnfe) {
+		return nil, err
 	}
 
-	if name != "" && len(elbs.V1) == 0 && len(elbs.V2) == 0 {
+	if name != "" && len(loadBalancers.V1) == 0 && len(loadBalancers.V2) == 0 {
 		return nil, fmt.Errorf("load balancer %q not found", name)
 	}
 
-	return elbs, nil
+	return loadBalancers, nil
 }
 
-func (g *Getter) GetSecurityGroupIdsForLoadBalancer(name string) (ids []string, err error) {
-	g.elbs, err = g.GetLoadBalancers(name)
+func (g *Getter) GetSecurityGroupIdsForLoadBalancer(name string) ([]string, error) {
+	loadBalancers, err := g.GetLoadBalancers(name)
 	if err != nil {
 		return nil, err
 	}
 
 	// Check for the unlikely but possible scenario with elbv1 and elbv2 with same name
-	if len(g.elbs.V1) > 0 && len(g.elbs.V2) > 0 {
+	if len(loadBalancers.V1) > 0 && len(loadBalancers.V2) > 0 {
 		return nil, fmt.Errorf("multiple load balancers with name %q", name)
 	}
 
-	if len(g.elbs.V2) > 0 {
-		return aws.StringValueSlice(g.elbs.V2[0].SecurityGroups), nil
+	if len(loadBalancers.V2) > 0 {
+		return loadBalancers.V2[0].SecurityGroups, nil
 	}
 
-	if len(g.elbs.V1) > 0 {
-		return aws.StringValueSlice(g.elbs.V1[0].SecurityGroups), nil
+	if len(loadBalancers.V1) > 0 {
+		return loadBalancers.V1[0].SecurityGroups, nil
 	}
 
-	return nil, nil
+	return []string{}, nil
 }
 
-func (g *Getter) filterByVpc(id string) {
-	filteredV1 := make([]*elb.LoadBalancerDescription, 0, len(g.elbs.V1))
-	filteredV2 := make([]*elbv2.LoadBalancer, 0, len(g.elbs.V2))
+func filterByVpcId(loadBalancers *LoadBalancers, id string) {
+	filteredV1 := make([]typesv1.LoadBalancerDescription, 0, len(loadBalancers.V1))
+	filteredV2 := make([]typesv2.LoadBalancer, 0, len(loadBalancers.V2))
 
-	for _, v1 := range g.elbs.V1 {
-		if aws.StringValue(v1.VPCId) == id {
+	for _, v1 := range loadBalancers.V1 {
+		if awssdk.ToString(v1.VPCId) == id {
 			filteredV1 = append(filteredV1, v1)
 		}
 	}
 
-	for _, v2 := range g.elbs.V2 {
-		if aws.StringValue(v2.VpcId) == id {
+	for _, v2 := range loadBalancers.V2 {
+		if awssdk.ToString(v2.VpcId) == id {
 			filteredV2 = append(filteredV2, v2)
 		}
 	}
 
-	g.elbs.V1 = filteredV1
-	g.elbs.V2 = filteredV2
+	loadBalancers.V1 = filteredV1
+	loadBalancers.V2 = filteredV2
 }

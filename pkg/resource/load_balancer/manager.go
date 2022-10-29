@@ -5,12 +5,25 @@ import (
 	"eksdemo/pkg/resource"
 	"fmt"
 
+	awssdk "github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/spf13/cobra"
 )
 
 type Manager struct {
-	DryRun bool
-	Getter
+	DryRun             bool
+	elbClientv1        *aws.ElasticloadbalancingClient
+	elbClientv2        *aws.Elasticloadbalancingv2Client
+	loadBalancerGetter *Getter
+}
+
+func (m *Manager) Init() {
+	if m.elbClientv1 == nil {
+		m.elbClientv1 = aws.NewElasticloadbalancingClientv1()
+	}
+	if m.elbClientv2 == nil {
+		m.elbClientv2 = aws.NewElasticloadbalancingClientv2()
+	}
+	m.loadBalancerGetter = NewGetter(m.elbClientv1, m.elbClientv2)
 }
 
 func (m *Manager) Create(options resource.Options) error {
@@ -20,15 +33,15 @@ func (m *Manager) Create(options resource.Options) error {
 func (m *Manager) Delete(options resource.Options) (err error) {
 	lbName := options.Common().Name
 
-	elbs, err := m.Getter.GetLoadBalancers(lbName)
+	elbs, err := m.loadBalancerGetter.GetLoadBalancers(lbName)
 	if err != nil {
 		return err
 	}
 
 	if len(elbs.V1) > 0 {
-		err = aws.ELBDeleteLoadBalancerV1(lbName)
+		err = m.elbClientv1.DeleteLoadBalancer(lbName)
 	} else {
-		err = aws.ELBDeleteLoadBalancerV2(aws.StringValue(elbs.V2[0].LoadBalancerArn))
+		err = m.elbClientv2.DeleteLoadBalancer(awssdk.ToString(elbs.V2[0].LoadBalancerArn))
 	}
 
 	if err != nil {

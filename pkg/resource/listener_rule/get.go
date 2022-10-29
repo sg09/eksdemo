@@ -11,8 +11,19 @@ import (
 )
 
 type Getter struct {
-	resource.EmptyInit
-	elbGetter load_balancer.Getter
+	elbClientv2        *aws.Elasticloadbalancingv2Client
+	loadBalancerGetter *load_balancer.Getter
+}
+
+func NewGetter(elbClientv2 *aws.Elasticloadbalancingv2Client) *Getter {
+	return &Getter{elbClientv2, load_balancer.NewGetter(aws.NewElasticloadbalancingClientv1(), aws.NewElasticloadbalancingClientv2())}
+}
+
+func (g *Getter) Init() {
+	if g.elbClientv2 == nil {
+		g.elbClientv2 = aws.NewElasticloadbalancingClientv2()
+	}
+	g.loadBalancerGetter = load_balancer.NewGetter(aws.NewElasticloadbalancingClientv1(), aws.NewElasticloadbalancingClientv2())
 }
 
 func (g *Getter) Get(id string, output printer.Output, options resource.Options) (err error) {
@@ -21,7 +32,7 @@ func (g *Getter) Get(id string, output printer.Output, options resource.Options)
 		return fmt.Errorf("internal error, unable to cast options to ListenerRuleOptions")
 	}
 
-	elbs, err := g.elbGetter.GetLoadBalancers(lrOptions.LoadBalancerName)
+	elbs, err := g.loadBalancerGetter.GetLoadBalancers(lrOptions.LoadBalancerName)
 	if err != nil {
 		return err
 	}
@@ -39,7 +50,7 @@ func (g *Getter) Get(id string, output printer.Output, options resource.Options)
 		ruleArn = strings.Replace(lbArn, ":loadbalancer/", ":listener-rule/", 1) + "/" + lrOptions.ListenerId + "/" + id
 	}
 
-	rules, err := aws.ELBDescribeRules(listernArn, []string{ruleArn})
+	rules, err := g.elbClientv2.DescribeRules(listernArn, []string{ruleArn})
 	if err != nil {
 		return err
 	}

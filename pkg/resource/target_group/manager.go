@@ -5,12 +5,21 @@ import (
 	"eksdemo/pkg/resource"
 	"fmt"
 
+	awssdk "github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/spf13/cobra"
 )
 
 type Manager struct {
-	DryRun bool
-	Getter
+	DryRun            bool
+	elbClientv2       *aws.Elasticloadbalancingv2Client
+	targetGroupGetter *Getter
+}
+
+func (m *Manager) Init() {
+	if m.elbClientv2 == nil {
+		m.elbClientv2 = aws.NewElasticloadbalancingClientv2()
+	}
+	m.targetGroupGetter = NewGetter(m.elbClientv2)
 }
 
 func (m *Manager) Create(options resource.Options) error {
@@ -25,7 +34,7 @@ func (m *Manager) Create(options resource.Options) error {
 		return m.dryRun(tgOptions, vpcId)
 	}
 
-	if err := aws.ELBCreateTargetGroup(tgOptions.Name, tgOptions.Protocol, tgOptions.TargetType, vpcId, 1); err != nil {
+	if err := m.elbClientv2.CreateTargetGroup(tgOptions.Name, 1, tgOptions.Protocol, tgOptions.TargetType, vpcId); err != nil {
 		return err
 	}
 	fmt.Printf("Target Group %q created successfully\n", tgOptions.Name)
@@ -36,12 +45,12 @@ func (m *Manager) Create(options resource.Options) error {
 func (m *Manager) Delete(options resource.Options) error {
 	name := options.Common().Name
 
-	tg, err := m.Getter.GetTargetGroupByName(name)
+	tg, err := m.targetGroupGetter.GetTargetGroupByName(name)
 	if err != nil {
 		return err
 	}
 
-	if err := aws.ELBDeleteTargetGroup(aws.StringValue(tg.TargetGroupArn)); err != nil {
+	if err := m.elbClientv2.DeleteTargetGroup(awssdk.ToString(tg.TargetGroupArn)); err != nil {
 		return err
 	}
 	fmt.Printf("Target Group %q deleted\n", name)

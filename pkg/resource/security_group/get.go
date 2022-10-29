@@ -13,21 +13,24 @@ import (
 )
 
 type Getter struct {
-	ec2Client *aws.EC2Client
-	eniGetter *network_interface.Getter
-	elbGetter *load_balancer.Getter
+	ec2Client              *aws.EC2Client
+	loadBalancerGetter     *load_balancer.Getter
+	networkInterfaceGetter *network_interface.Getter
 }
 
 func NewGetter(ec2Client *aws.EC2Client) *Getter {
-	return &Getter{ec2Client, network_interface.NewGetter(ec2Client), load_balancer.NewGetter()}
+	return &Getter{ec2Client,
+		load_balancer.NewGetter(aws.NewElasticloadbalancingClientv1(), aws.NewElasticloadbalancingClientv2()),
+		network_interface.NewGetter(ec2Client),
+	}
 }
 
 func (g *Getter) Init() {
 	if g.ec2Client == nil {
 		g.ec2Client = aws.NewEC2Client()
 	}
-	g.eniGetter = network_interface.NewGetter(g.ec2Client)
-	g.elbGetter = load_balancer.NewGetter()
+	g.loadBalancerGetter = load_balancer.NewGetter(aws.NewElasticloadbalancingClientv1(), aws.NewElasticloadbalancingClientv2())
+	g.networkInterfaceGetter = network_interface.NewGetter(g.ec2Client)
 }
 
 func (g *Getter) Get(id string, output printer.Output, options resource.Options) error {
@@ -66,16 +69,20 @@ func (g *Getter) GetSecurityGroupsByIdAndVpcFilter(id, vpcId string) ([]types.Se
 }
 
 func (g *Getter) GetSecurityGroupsByLoadBalancerName(name string) ([]types.SecurityGroup, error) {
-	sgIds, err := g.elbGetter.GetSecurityGroupIdsForLoadBalancer(name)
+	sgIds, err := g.loadBalancerGetter.GetSecurityGroupIdsForLoadBalancer(name)
 	if err != nil {
 		return nil, err
+	}
+
+	if len(sgIds) == 0 {
+		return []types.SecurityGroup{}, nil
 	}
 
 	return g.ec2Client.DescribeSecurityGroups("", "", sgIds)
 }
 
 func (g *Getter) GetSecurityGroupsByNetworkInterface(networkInterfaceId string) ([]types.SecurityGroup, error) {
-	networkInterface, err := g.eniGetter.GetNetworkInterfaceById(networkInterfaceId)
+	networkInterface, err := g.networkInterfaceGetter.GetNetworkInterfaceById(networkInterfaceId)
 	if err != nil {
 		return nil, err
 	}

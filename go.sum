@@ -166,6 +166,10 @@ github.com/aws/aws-sdk-go-v2/service/ecr v1.17.20 h1:nJnXfQggNZdrWz/0cm2ZGyddGK+
 github.com/aws/aws-sdk-go-v2/service/ecr v1.17.20/go.mod h1:kEVGiy2tACP0cegVqx4MrjsgQMSgrtgRq1fSa+Ix6F0=
 github.com/aws/aws-sdk-go-v2/service/eks v1.22.3 h1:0Xe/4sfe1HusK07nxpmo611Ing7zdW6HW69goYXRe/M=
 github.com/aws/aws-sdk-go-v2/service/eks v1.22.3/go.mod h1:bxjOnpk0lwAq4jmmTONfUGPjgO8sLAbflxTHsY7thkU=
+github.com/aws/aws-sdk-go-v2/service/elasticloadbalancing v1.14.20 h1:+pjpsr6Wij4gSUeajiKjWLGOBCz5rDqrKBdsWFmK9tE=
+github.com/aws/aws-sdk-go-v2/service/elasticloadbalancing v1.14.20/go.mod h1:gHgx63dm28U/o5NotzfFWhxUASzcZuPgO8GDpsI1Aqw=
+github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.18.22 h1:EbYXWwuQAoT2Wtc9LC+n0cQiSokCB8em/8T0dtPowos=
+github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.18.22/go.mod h1:uIsRP+M5F/Ch+21isqTg6u16FXl2yzupCX0Dli4eQEM=
 github.com/aws/aws-sdk-go-v2/service/grafana v1.9.14 h1:+AXhs9xjLgxzJCR0UTuB64W2Vx7zi1vHrQcPJlOBWyY=
 github.com/aws/aws-sdk-go-v2/service/grafana v1.9.14/go.mod h1:Ci8OZ0LbDsQayDMlklwbaNO/QaG/iVYRkkJnEgsEIgg=
 github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.9.14/go.mod h1:8qOLjqMzY/S1kh3myDXA1yxK5eD4uN8aOJgKpgvc4OM=

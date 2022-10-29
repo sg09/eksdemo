@@ -1,7 +1,6 @@
 package listener_rule
 
 import (
-	"eksdemo/pkg/aws"
 	"eksdemo/pkg/printer"
 	"eksdemo/pkg/resource/listener"
 	"fmt"
@@ -9,14 +8,15 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/aws/aws-sdk-go/service/elbv2"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2/types"
 )
 
 type ListenerRulePrinter struct {
-	rules []*elbv2.Rule
+	rules []types.Rule
 }
 
-func NewPrinter(rules []*elbv2.Rule) *ListenerRulePrinter {
+func NewPrinter(rules []types.Rule) *ListenerRulePrinter {
 	return &ListenerRulePrinter{rules}
 }
 
@@ -28,8 +28,8 @@ func (p *ListenerRulePrinter) PrintTable(writer io.Writer) error {
 
 	for _, r := range p.rules {
 		table.AppendRow([]string{
-			resourceId.FindString(aws.StringValue(r.RuleArn)),
-			aws.StringValue(r.Priority),
+			resourceId.FindString(aws.ToString(r.RuleArn)),
+			aws.ToString(r.Priority),
 			strings.Join(printConditions(r.Conditions), "\n"),
 			strings.Join(listener.PrintActions(r.Actions), "\n"),
 		})
@@ -49,39 +49,39 @@ func (p *ListenerRulePrinter) PrintYAML(writer io.Writer) error {
 	return printer.EncodeYAML(writer, p.rules)
 }
 
-func printConditions(elbConditions []*elbv2.RuleCondition) (conditions []string) {
+func printConditions(elbConditions []types.RuleCondition) (conditions []string) {
 	if len(elbConditions) == 0 {
 		conditions = []string{"Requests otherwise not routed"}
 	} else {
 		for _, c := range elbConditions {
 			switch {
 			case c.HostHeaderConfig != nil:
-				hostHeaders := aws.StringValueSlice(c.HostHeaderConfig.Values)
+				hostHeaders := c.HostHeaderConfig.Values
 				conditions = append(conditions, "Host is "+strings.Join(hostHeaders, " OR "))
 
 			case c.HttpHeaderConfig != nil:
-				header := aws.StringValue(c.HttpHeaderConfig.HttpHeaderName)
-				headerValues := aws.StringValueSlice(c.HttpHeaderConfig.Values)
+				header := aws.ToString(c.HttpHeaderConfig.HttpHeaderName)
+				headerValues := c.HttpHeaderConfig.Values
 				conditions = append(conditions, "Http header "+header+" is "+strings.Join(headerValues, " OR "))
 
 			case c.HttpRequestMethodConfig != nil:
-				methods := aws.StringValueSlice(c.HttpRequestMethodConfig.Values)
+				methods := c.HttpRequestMethodConfig.Values
 				conditions = append(conditions, "Http request method is "+strings.Join(methods, " OR "))
 
 			case c.PathPatternConfig != nil:
-				pathPattern := aws.StringValueSlice(c.PathPatternConfig.Values)
+				pathPattern := c.PathPatternConfig.Values
 				conditions = append(conditions, "Path is "+strings.Join(pathPattern, " OR "))
 
 			case c.QueryStringConfig != nil:
 				kvText := []string{}
 				for _, kvp := range c.QueryStringConfig.Values {
-					condText := fmt.Sprintf("%s:%s", aws.StringValue(kvp.Key), aws.StringValue(kvp.Value))
+					condText := fmt.Sprintf("%s:%s", aws.ToString(kvp.Key), aws.ToString(kvp.Value))
 					kvText = append(kvText, condText)
 				}
 				conditions = append(conditions, "Query string is "+strings.Join(kvText, " OR "))
 
 			case c.SourceIpConfig != nil:
-				sourceIPs := aws.StringValueSlice(c.SourceIpConfig.Values)
+				sourceIPs := c.SourceIpConfig.Values
 				conditions = append(conditions, "Source IP is "+strings.Join(sourceIPs, " OR "))
 			}
 		}
