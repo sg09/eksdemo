@@ -141,10 +141,3 @@ func (o *IrsaOptions) RoleName() string {
 func (o *IrsaOptions) SetName(name string) {
 	o.ServiceAccount = name
 }
-
-func (o *IrsaOptions) Validate(args []string) error {
-	if o.PolicyType == None {
-		return fmt.Errorf("a single policy type must be used")
-	}
-	return nil
-}

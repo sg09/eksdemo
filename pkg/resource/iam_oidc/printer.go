@@ -1,12 +1,12 @@
 package iam_oidc
 
 import (
-	"eksdemo/pkg/aws"
 	"eksdemo/pkg/printer"
 	"io"
 	"time"
 
-	"github.com/aws/aws-sdk-go/service/iam"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/iam"
 	"github.com/hako/durafmt"
 )
 
@@ -23,11 +23,11 @@ func (p *IamOidcPrinter) PrintTable(writer io.Writer) error {
 	table.SetHeader([]string{"Age", "Provider URL"})
 
 	for _, oidc := range p.oidcProviders {
-		age := durafmt.ParseShort(time.Since(aws.TimeValue(oidc.CreateDate)))
+		age := durafmt.ParseShort(time.Since(aws.ToTime(oidc.CreateDate)))
 
 		table.AppendRow([]string{
 			age.String(),
-			aws.StringValue(oidc.Url),
+			aws.ToString(oidc.Url),
 		})
 	}
 

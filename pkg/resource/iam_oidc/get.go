@@ -4,17 +4,29 @@ import (
 	"eksdemo/pkg/aws"
 	"eksdemo/pkg/printer"
 	"eksdemo/pkg/resource"
+	"errors"
 	"fmt"
 	"net/url"
 	"os"
 
-	"github.com/aws/aws-sdk-go-v2/service/eks/types"
-	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/service/iam"
+	awssdk "github.com/aws/aws-sdk-go-v2/aws"
+	ekstypes "github.com/aws/aws-sdk-go-v2/service/eks/types"
+	"github.com/aws/aws-sdk-go-v2/service/iam"
+	"github.com/aws/aws-sdk-go-v2/service/iam/types"
 )
 
 type Getter struct {
-	resource.EmptyInit
+	iamClient *aws.IAMClient
+}
+
+func NewGetter(iamClient *aws.IAMClient) *Getter {
+	return &Getter{iamClient}
+}
+
+func (g *Getter) Init() {
+	if g.iamClient == nil {
+		g.iamClient = aws.NewIAMClient()
+	}
 }
 
 func (g *Getter) Get(providerUrl string, output printer.Output, options resource.Options) error {
@@ -40,14 +52,14 @@ func (g *Getter) Get(providerUrl string, output printer.Output, options resource
 }
 
 func (g *Getter) GetAllOidcProviders() ([]*iam.GetOpenIDConnectProviderOutput, error) {
-	providerList, err := aws.IamListOpenIDConnectProviders()
+	providerList, err := g.iamClient.ListOpenIDConnectProviders()
 	if err != nil {
 		return nil, err
 	}
 	oidcProviders := make([]*iam.GetOpenIDConnectProviderOutput, 0, len(providerList))
 
 	for _, p := range providerList {
-		provider, err := aws.IamGetOpenIDConnectProvider(aws.StringValue(p.Arn))
+		provider, err := g.iamClient.GetOpenIDConnectProvider(awssdk.ToString(p.Arn))
 		if err != nil {
 			return nil, err
 		}
@@ -56,29 +68,34 @@ func (g *Getter) GetAllOidcProviders() ([]*iam.GetOpenIDConnectProviderOutput, e
 	return oidcProviders, nil
 }
 
-func (g *Getter) GetOidcProviderByCluster(cluster *types.Cluster) (*iam.GetOpenIDConnectProviderOutput, error) {
-	u, err := url.Parse(aws.StringValue(cluster.Identity.Oidc.Issuer))
+func (g *Getter) GetOidcProviderByCluster(cluster *ekstypes.Cluster) (*iam.GetOpenIDConnectProviderOutput, error) {
+	u, err := url.Parse(awssdk.ToString(cluster.Identity.Oidc.Issuer))
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse URL when validating options: %w", err)
 	}
-	return g.GetOidcProviderByUrl(u.Hostname() + u.Path)
+
+	oidc, err := g.GetOidcProviderByUrl(u.Hostname() + u.Path)
+	if err != nil {
+		if _, ok := err.(resource.NotFoundError); ok {
+			return nil, fmt.Errorf("cluster %q has no IAM OIDC identity provider configured", awssdk.ToString(cluster.Name))
+		}
+		return nil, err
+	}
+
+	return oidc, nil
 }
 
 func (g *Getter) GetOidcProviderByUrl(url string) (*iam.GetOpenIDConnectProviderOutput, error) {
 	arn := fmt.Sprintf("arn:%s:iam::%s:oidc-provider/%s", aws.Partition(), aws.AccountId(), url)
 
-	provider, err := aws.IamGetOpenIDConnectProvider(arn)
+	provider, err := g.iamClient.GetOpenIDConnectProvider(arn)
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			switch awsErr.Code() {
-			case iam.ErrCodeNoSuchEntityException:
-				return nil, resource.NotFoundError(fmt.Sprintf("oidc-provider %q not found", url))
-			default:
-				return nil, err
-			}
-		} else {
-			return nil, err
+		var nsee *types.NoSuchEntityException
+		if errors.As(err, &nsee) {
+			return nil, resource.NotFoundError(fmt.Sprintf("oidc-provider %q not found", url))
 		}
+		return nil, err
 	}
+
 	return provider, nil
 }

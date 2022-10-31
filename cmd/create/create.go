@@ -9,7 +9,6 @@ import (
 	"eksdemo/pkg/resource/cluster"
 	"eksdemo/pkg/resource/dns_record"
 	"eksdemo/pkg/resource/fargate_profile"
-	"eksdemo/pkg/resource/irsa"
 	"eksdemo/pkg/resource/nodegroup"
 	"eksdemo/pkg/resource/organization"
 	"eksdemo/pkg/resource/ssm_session"
@@ -36,7 +35,6 @@ func NewCreateCmd() *cobra.Command {
 	cmd.AddCommand(cluster.NewResource().NewCreateCmd())
 	cmd.AddCommand(dns_record.NewResource().NewCreateCmd())
 	cmd.AddCommand(fargate_profile.NewResource().NewCreateCmd())
-	cmd.AddCommand(irsa.NewResource().NewCreateCmd())
 	cmd.AddCommand(NewKyvernoCmd())
 	cmd.AddCommand(NewCreateAliasCmds(kyvernoPolicies, "kyverno-")...)
 	cmd.AddCommand(nodegroup.NewResource().NewCreateCmd())

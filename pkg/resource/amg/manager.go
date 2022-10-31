@@ -4,13 +4,13 @@ import (
 	"eksdemo/pkg/aws"
 	"eksdemo/pkg/resource"
 	"eksdemo/pkg/template"
+	"errors"
 	"fmt"
 	"strings"
 
 	awssdk "github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/grafana/types"
-	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/service/iam"
+	iamtypes "github.com/aws/aws-sdk-go-v2/service/iam/types"
 	"github.com/spf13/cobra"
 )
 
@@ -19,6 +19,7 @@ type Manager struct {
 	DryRun                   bool
 	grafanaClient            *aws.GrafanaClient
 	grafanaGetter            *Getter
+	iamClient                *aws.IAMClient
 }
 
 func (m *Manager) Init() {
@@ -26,6 +27,7 @@ func (m *Manager) Init() {
 		m.grafanaClient = aws.NewGrafanaClient()
 	}
 	m.grafanaGetter = NewGetter(m.grafanaClient)
+	m.iamClient = aws.NewIAMClient()
 }
 
 func (m *Manager) Create(options resource.Options) error {
@@ -56,7 +58,7 @@ func (m *Manager) Create(options resource.Options) error {
 		return err
 	}
 
-	err = aws.IamPutRolePolicy(awssdk.ToString(role.RoleName), rolePolicName, rolePolicyDoc)
+	err = m.iamClient.PutRolePolicy(awssdk.ToString(role.RoleName), rolePolicName, rolePolicyDoc)
 	if err != nil {
 		return err
 	}
@@ -122,7 +124,7 @@ func (m *Manager) Update(options resource.Options, cmd *cobra.Command) error {
 	return fmt.Errorf("feature not supported")
 }
 
-func (m *Manager) createIamRole(options *AmgOptions) (*iam.Role, error) {
+func (m *Manager) createIamRole(options *AmgOptions) (*iamtypes.Role, error) {
 	assumeRolePolicy, err := m.AssumeRolePolicyTemplate.Render(options)
 	if err != nil {
 		return nil, err
@@ -130,13 +132,12 @@ func (m *Manager) createIamRole(options *AmgOptions) (*iam.Role, error) {
 
 	roleName := options.iamRoleName()
 
-	role, err := aws.IamCreateRole(assumeRolePolicy, roleName, "/service-role/")
+	role, err := m.iamClient.CreateRole(assumeRolePolicy, roleName, "/service-role/")
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			if awsErr.Code() == iam.ErrCodeEntityAlreadyExistsException {
-				fmt.Printf("IAM Role %q already exists\n", roleName)
-				return aws.IamGetRole(roleName)
-			}
+		var eaee *iamtypes.EntityAlreadyExistsException
+		if errors.As(err, &eaee) {
+			fmt.Printf("IAM Role %q already exists\n", roleName)
+			return m.iamClient.GetRole(roleName)
 		}
 		return nil, err
 	}
@@ -150,37 +151,37 @@ func (m *Manager) deleteIamRole(roleArn string) error {
 	roleName := roleArn[strings.LastIndex(roleArn, "/")+1:]
 
 	// Delete inline policies before deleting role
-	inlinePolicyNames, err := aws.IamListRolePolicies(roleName)
+	inlinePolicyNames, err := m.iamClient.ListRolePolicies(roleName)
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			if awsErr.Code() == iam.ErrCodeNoSuchEntityException {
-				return nil
-			}
+		// Return an error if it's anything other than IAM role doesn't exist
+		var nsee *iamtypes.NoSuchEntityException
+		if errors.As(err, &nsee) {
+			return nil
 		}
 		return err
 	}
 
 	for _, policyName := range inlinePolicyNames {
-		err := aws.IamDeleteRolePolicy(roleName, policyName)
+		err := m.iamClient.DeleteRolePolicy(roleName, policyName)
 		if err != nil {
 			return err
 		}
 	}
 
 	// Remove managed policies before deleting role
-	mgdPolicies, err := aws.IamListAttachedRolePolicies(roleName)
+	mgdPolicies, err := m.iamClient.ListAttachedRolePolicies(roleName)
 	if err != nil {
 		return err
 	}
 
 	for _, policy := range mgdPolicies {
-		err := aws.IamDetachRolePolicy(roleName, awssdk.ToString(policy.PolicyArn))
+		err := m.iamClient.DetachRolePolicy(roleName, awssdk.ToString(policy.PolicyArn))
 		if err != nil {
 			return err
 		}
 	}
 
-	return aws.IamDeleteRole(roleName)
+	return m.iamClient.DeleteRole(roleName)
 }
 
 func (m *Manager) dryRun(options *AmgOptions) error {

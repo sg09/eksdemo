@@ -1,23 +1,32 @@
 package aws
 
 import (
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/iam"
+	"context"
+
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/iam"
+	"github.com/aws/aws-sdk-go-v2/service/iam/types"
 )
 
-func IamCreateRole(assumeRolePolicy, name, path string) (*iam.Role, error) {
-	sess := GetSession()
-	svc := iam.New(sess)
+type IAMClient struct {
+	*iam.Client
+}
 
+func NewIAMClient() *IAMClient {
+	return &IAMClient{iam.NewFromConfig(GetConfig())}
+}
+
+func (c *IAMClient) CreateRole(assumeRolePolicy, name, path string) (*types.Role, error) {
 	if path == "" {
 		path = "/"
 	}
 
-	result, err := svc.CreateRole(&iam.CreateRoleInput{
+	result, err := c.Client.CreateRole(context.Background(), &iam.CreateRoleInput{
 		AssumeRolePolicyDocument: aws.String(assumeRolePolicy),
 		RoleName:                 aws.String(name),
 		Path:                     aws.String(path),
 	})
+
 	if err != nil {
 		return nil, err
 	}
@@ -25,11 +34,8 @@ func IamCreateRole(assumeRolePolicy, name, path string) (*iam.Role, error) {
 	return result.Role, nil
 }
 
-func IamDeleteRole(name string) error {
-	sess := GetSession()
-	svc := iam.New(sess)
-
-	_, err := svc.DeleteRole(&iam.DeleteRoleInput{
+func (c *IAMClient) DeleteRole(name string) error {
+	_, err := c.Client.DeleteRole(context.Background(), &iam.DeleteRoleInput{
 		RoleName: aws.String(name),
 	})
 
@@ -37,158 +43,117 @@ func IamDeleteRole(name string) error {
 }
 
 // Deletes the specified inline policy that is embedded in the specified IAM role.
-func IamDeleteRolePolicy(roleName, policyName string) error {
-	sess := GetSession()
-	svc := iam.New(sess)
-
-	_, err := svc.DeleteRolePolicy(&iam.DeleteRolePolicyInput{
+func (c *IAMClient) DeleteRolePolicy(roleName, policyName string) error {
+	_, err := c.Client.DeleteRolePolicy(context.Background(), &iam.DeleteRolePolicyInput{
 		PolicyName: aws.String(policyName),
 		RoleName:   aws.String(roleName),
 	})
-	if err != nil {
-		return err
-	}
 
-	return nil
+	return err
 }
 
-func IamDetachRolePolicy(roleName, policyArn string) error {
-	sess := GetSession()
-	svc := iam.New(sess)
-
-	_, err := svc.DetachRolePolicy(&iam.DetachRolePolicyInput{
+func (c *IAMClient) DetachRolePolicy(roleName, policyArn string) error {
+	_, err := c.Client.DetachRolePolicy(context.Background(), &iam.DetachRolePolicyInput{
 		PolicyArn: aws.String(policyArn),
 		RoleName:  aws.String(roleName),
 	})
 
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return err
 }
 
-func IamGetOpenIDConnectProvider(arn string) (*iam.GetOpenIDConnectProviderOutput, error) {
-	sess := GetSession()
-	svc := iam.New(sess)
-
-	result, err := svc.GetOpenIDConnectProvider(&iam.GetOpenIDConnectProviderInput{
+func (c *IAMClient) GetOpenIDConnectProvider(arn string) (*iam.GetOpenIDConnectProviderOutput, error) {
+	return c.Client.GetOpenIDConnectProvider(context.Background(), &iam.GetOpenIDConnectProviderInput{
 		OpenIDConnectProviderArn: aws.String(arn),
 	})
-	if err != nil {
-		return nil, FormatErrorSDKv1(err)
-	}
-
-	return result, nil
 }
 
-func IamGetRole(name string) (*iam.Role, error) {
-	sess := GetSession()
-	svc := iam.New(sess)
-
-	result, err := svc.GetRole(&iam.GetRoleInput{
+func (c *IAMClient) GetRole(name string) (*types.Role, error) {
+	result, err := c.Client.GetRole(context.Background(), &iam.GetRoleInput{
 		RoleName: aws.String(name),
 	})
+
 	if err != nil {
-		return nil, FormatErrorSDKv1(err)
+		return nil, err
 	}
 
 	return result.Role, nil
 }
 
 // Lists all managed policies that are attached to the specified IAM role.
-func IamListAttachedRolePolicies(roleName string) ([]*iam.AttachedPolicy, error) {
-	sess := GetSession()
-	svc := iam.New(sess)
-
-	policies := []*iam.AttachedPolicy{}
+func (c *IAMClient) ListAttachedRolePolicies(roleName string) ([]types.AttachedPolicy, error) {
+	policies := []types.AttachedPolicy{}
 	pageNum := 0
 
-	err := svc.ListAttachedRolePoliciesPages(&iam.ListAttachedRolePoliciesInput{
+	paginator := iam.NewListAttachedRolePoliciesPaginator(c.Client, &iam.ListAttachedRolePoliciesInput{
 		RoleName: aws.String(roleName),
-	},
-		func(page *iam.ListAttachedRolePoliciesOutput, lastPage bool) bool {
-			pageNum++
-			policies = append(policies, page.AttachedPolicies...)
-			return pageNum <= maxPages
-		},
-	)
-	if err != nil {
-		return nil, err
+	})
+
+	for paginator.HasMorePages() && pageNum < maxPages {
+		out, err := paginator.NextPage(context.Background())
+		if err != nil {
+			return nil, err
+		}
+		policies = append(policies, out.AttachedPolicies...)
+		pageNum++
 	}
 
-	return policies, err
+	return policies, nil
 }
 
-func IamListOpenIDConnectProviders() ([]*iam.OpenIDConnectProviderListEntry, error) {
-	sess := GetSession()
-	svc := iam.New(sess)
-
-	result, err := svc.ListOpenIDConnectProviders(&iam.ListOpenIDConnectProvidersInput{})
+func (c *IAMClient) ListOpenIDConnectProviders() ([]types.OpenIDConnectProviderListEntry, error) {
+	result, err := c.Client.ListOpenIDConnectProviders(context.Background(), &iam.ListOpenIDConnectProvidersInput{})
 	if err != nil {
-		return nil, FormatErrorSDKv1(err)
+		return nil, err
 	}
 
 	return result.OpenIDConnectProviderList, nil
 }
 
 // Lists the names of the inline policies that are embedded in the specified IAM role.
-func IamListRolePolicies(roleName string) ([]string, error) {
-	sess := GetSession()
-	svc := iam.New(sess)
-
+func (c *IAMClient) ListRolePolicies(roleName string) ([]string, error) {
 	policyNames := []string{}
 	pageNum := 0
 
-	err := svc.ListRolePoliciesPages(&iam.ListRolePoliciesInput{
+	paginator := iam.NewListRolePoliciesPaginator(c.Client, &iam.ListRolePoliciesInput{
 		RoleName: aws.String(roleName),
-	},
-		func(page *iam.ListRolePoliciesOutput, lastPage bool) bool {
-			pageNum++
-			policyNames = append(policyNames, aws.StringValueSlice(page.PolicyNames)...)
-			return pageNum <= maxPages
-		},
-	)
-	if err != nil {
-		return nil, err
+	})
+
+	for paginator.HasMorePages() && pageNum < maxPages {
+		out, err := paginator.NextPage(context.Background())
+		if err != nil {
+			return nil, err
+		}
+		policyNames = append(policyNames, out.PolicyNames...)
+		pageNum++
 	}
 
-	return policyNames, err
+	return policyNames, nil
 }
 
-func IamListRoles() ([]*iam.Role, error) {
-	sess := GetSession()
-	svc := iam.New(sess)
-
-	roles := []*iam.Role{}
+func (c *IAMClient) ListRoles() ([]types.Role, error) {
+	roles := []types.Role{}
 	pageNum := 0
 
-	err := svc.ListRolesPages(&iam.ListRolesInput{},
-		func(page *iam.ListRolesOutput, lastPage bool) bool {
-			pageNum++
-			roles = append(roles, page.Roles...)
-			return pageNum <= maxPages
-		},
-	)
+	paginator := iam.NewListRolesPaginator(c.Client, &iam.ListRolesInput{})
 
-	if err != nil {
-		return nil, FormatErrorSDKv1(err)
+	for paginator.HasMorePages() && pageNum < maxPages {
+		out, err := paginator.NextPage(context.Background())
+		if err != nil {
+			return nil, err
+		}
+		roles = append(roles, out.Roles...)
+		pageNum++
 	}
 
 	return roles, nil
 }
 
-func IamPutRolePolicy(roleName, policyName, policyDoc string) error {
-	sess := GetSession()
-	svc := iam.New(sess)
-
-	_, err := svc.PutRolePolicy(&iam.PutRolePolicyInput{
+func (c *IAMClient) PutRolePolicy(roleName, policyName, policyDoc string) error {
+	_, err := c.Client.PutRolePolicy(context.Background(), &iam.PutRolePolicyInput{
 		PolicyDocument: aws.String(policyDoc),
 		PolicyName:     aws.String(policyName),
 		RoleName:       aws.String(roleName),
 	})
-	if err != nil {
-		return err
-	}
-	return nil
+
+	return err
 }
