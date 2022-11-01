@@ -1,20 +1,20 @@
 package hosted_zone
 
 import (
-	"eksdemo/pkg/aws"
 	"eksdemo/pkg/printer"
 	"io"
 	"strconv"
 	"strings"
 
-	"github.com/aws/aws-sdk-go/service/route53"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/route53/types"
 )
 
 type HostedZonePrinter struct {
-	zones []*route53.HostedZone
+	zones []types.HostedZone
 }
 
-func NewPrinter(zones []*route53.HostedZone) *HostedZonePrinter {
+func NewPrinter(zones []types.HostedZone) *HostedZonePrinter {
 	return &HostedZonePrinter{zones}
 }
 
@@ -24,17 +24,17 @@ func (p *HostedZonePrinter) PrintTable(writer io.Writer) error {
 
 	for _, z := range p.zones {
 		var zoneType string
-		if aws.BoolValue(z.Config.PrivateZone) {
+		if z.Config.PrivateZone {
 			zoneType = "Private"
 		} else {
 			zoneType = "Public"
 		}
 
 		table.AppendRow([]string{
-			strings.TrimSuffix(aws.StringValue(z.Name), "."),
+			strings.TrimSuffix(aws.ToString(z.Name), "."),
 			zoneType,
-			strconv.Itoa(int(aws.Int64Value(z.ResourceRecordSetCount))),
-			strings.TrimPrefix(aws.StringValue(z.Id), "/hostedzone/"),
+			strconv.Itoa(int(aws.ToInt64(z.ResourceRecordSetCount))),
+			strings.TrimPrefix(aws.ToString(z.Id), "/hostedzone/"),
 		})
 	}
 

@@ -7,18 +7,24 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/aws/aws-sdk-go/service/route53"
+	awssdk "github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/route53/types"
 	"github.com/spf13/cobra"
-
-	awssdk "github.com/aws/aws-sdk-go/aws"
 )
 
 type Manager struct {
-	DryRun bool
+	DryRun          bool
+	dnsRecordGetter *Getter
+	route53Client   *aws.Route53Client
+	zoneGetter      *hosted_zone.Getter
+}
 
-	dnsRecordGetter Getter
-	zoneGetter      hosted_zone.Getter
-	resource.EmptyInit
+func (m *Manager) Init() {
+	if m.route53Client == nil {
+		m.route53Client = aws.NewRoute53Client()
+	}
+	m.dnsRecordGetter = NewGetter(m.route53Client)
+	m.zoneGetter = hosted_zone.NewGetter(m.route53Client)
 }
 
 func (m *Manager) Create(options resource.Options) error {
@@ -32,26 +38,26 @@ func (m *Manager) Create(options resource.Options) error {
 		return err
 	}
 
-	changeBatch := &route53.ChangeBatch{
-		Changes: []*route53.Change{
+	changeBatch := &types.ChangeBatch{
+		Changes: []types.Change{
 			{
-				Action: awssdk.String("CREATE"),
-				ResourceRecordSet: &route53.ResourceRecordSet{
+				Action: types.ChangeActionCreate,
+				ResourceRecordSet: &types.ResourceRecordSet{
 					Name: awssdk.String(dnsOptions.Name),
-					ResourceRecords: []*route53.ResourceRecord{
+					ResourceRecords: []types.ResourceRecord{
 						{
 							Value: awssdk.String(dnsOptions.Value),
 						},
 					},
 					TTL:  awssdk.Int64(300),
-					Type: awssdk.String(dnsOptions.Type),
+					Type: types.RRType(dnsOptions.Type),
 				},
 			},
 		},
 		Comment: awssdk.String("eksdemo create dns-record"),
 	}
 
-	if err := aws.Route53ChangeResourceRecordSets(changeBatch, aws.StringValue(zone.Id)); err != nil {
+	if err := m.route53Client.ChangeResourceRecordSets(changeBatch, awssdk.ToString(zone.Id)); err != nil {
 		return err
 	}
 	fmt.Println("Record created successfully")
@@ -70,7 +76,7 @@ func (m *Manager) Delete(options resource.Options) error {
 		return err
 	}
 
-	records, err := m.dnsRecordGetter.GetRecords(dnsOptions.Name, aws.StringValue(zone.Id))
+	records, err := m.dnsRecordGetter.GetRecords(dnsOptions.Name, awssdk.ToString(zone.Id))
 	if err != nil {
 		return err
 	}
@@ -83,19 +89,19 @@ func (m *Manager) Delete(options resource.Options) error {
 		return fmt.Errorf("multiple records found with name %q, use %q flag to delete all records", dnsOptions.Name, "--all")
 	}
 
-	changes := make([]*route53.Change, 0, len(records))
+	changes := make([]types.Change, 0, len(records))
 
 	for _, rec := range records {
-		if aws.StringValue(rec.Type) == "NS" || aws.StringValue(rec.Type) == "SOA" {
+		if rec.Type == types.RRTypeNs || rec.Type == types.RRTypeSoa {
 			continue
 		}
 
-		change := &route53.Change{
-			Action:            awssdk.String("DELETE"),
-			ResourceRecordSet: rec,
+		change := types.Change{
+			Action:            types.ChangeActionDelete,
+			ResourceRecordSet: &rec,
 		}
 		changes = append(changes, change)
-		fmt.Printf("Deleting %s record %q...\n", aws.StringValue(rec.Type), strings.TrimSuffix(aws.StringValue(rec.Name), "."))
+		fmt.Printf("Deleting %s record %q...\n", string(rec.Type), strings.TrimSuffix(awssdk.ToString(rec.Name), "."))
 	}
 
 	if len(changes) == 0 {
@@ -103,12 +109,12 @@ func (m *Manager) Delete(options resource.Options) error {
 		return nil
 	}
 
-	changeBatch := &route53.ChangeBatch{
+	changeBatch := &types.ChangeBatch{
 		Changes: changes,
 		Comment: awssdk.String("eksdemo delete dns-record"),
 	}
 
-	if err := aws.Route53ChangeResourceRecordSets(changeBatch, aws.StringValue(zone.Id)); err != nil {
+	if err := m.route53Client.ChangeResourceRecordSets(changeBatch, awssdk.ToString(zone.Id)); err != nil {
 		return err
 	}
 	fmt.Println("Record(s) deleted successfully")

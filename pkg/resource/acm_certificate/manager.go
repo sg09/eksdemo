@@ -12,21 +12,26 @@ import (
 	awssdk "github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/acm"
 	"github.com/aws/aws-sdk-go-v2/service/acm/types"
-	"github.com/aws/aws-sdk-go/service/route53"
+	route53types "github.com/aws/aws-sdk-go-v2/service/route53/types"
 	"github.com/spf13/cobra"
 )
 
 type Manager struct {
-	acmClient  *aws.ACMClient
-	acmGetter  *Getter
-	zoneGetter hosted_zone.Getter
+	acmClient     *aws.ACMClient
+	acmGetter     *Getter
+	route53Client *aws.Route53Client
+	zoneGetter    *hosted_zone.Getter
 }
 
 func (m *Manager) Init() {
 	if m.acmClient == nil {
 		m.acmClient = aws.NewACMClient()
 	}
+	if m.route53Client == nil {
+		m.route53Client = aws.NewRoute53Client()
+	}
 	m.acmGetter = NewGetter(m.acmClient)
+	m.zoneGetter = hosted_zone.NewGetter(m.route53Client)
 }
 
 func (m *Manager) Create(options resource.Options) error {
@@ -44,7 +49,7 @@ func (m *Manager) Create(options resource.Options) error {
 		}
 	}
 
-	if cert != nil && strings.EqualFold(aws.StringValue(cert.DomainName), name) {
+	if cert != nil && strings.EqualFold(awssdk.ToString(cert.DomainName), name) {
 		fmt.Printf("Certificate %q already exists\n", name)
 		return nil
 	}
@@ -80,7 +85,7 @@ func (m *Manager) Delete(options resource.Options) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("ACM Certificate Domain name %q deleted\n", aws.StringValue(cert.DomainName))
+	fmt.Printf("ACM Certificate Domain name %q deleted\n", awssdk.ToString(cert.DomainName))
 
 	return nil
 }
@@ -111,7 +116,7 @@ func (m *Manager) validate(cert *types.CertificateDetail) error {
 	}
 
 	for _, z := range zones {
-		changes := []*route53.Change{}
+		changes := []route53types.Change{}
 		zoneName := strings.TrimSuffix(awssdk.ToString(z.Name), ".")
 
 		for _, dv := range cert.DomainValidationOptions {
@@ -126,12 +131,12 @@ func (m *Manager) validate(cert *types.CertificateDetail) error {
 			continue
 		}
 
-		changeBatch := &route53.ChangeBatch{
+		changeBatch := &route53types.ChangeBatch{
 			Changes: changes,
 			Comment: awssdk.String("certificate validation"),
 		}
 
-		if err := aws.Route53ChangeResourceRecordSets(changeBatch, aws.StringValue(z.Id)); err != nil {
+		if err := m.route53Client.ChangeResourceRecordSets(changeBatch, awssdk.ToString(z.Id)); err != nil {
 			return err
 		}
 	}
@@ -156,18 +161,18 @@ func (m *Manager) validate(cert *types.CertificateDetail) error {
 	return nil
 }
 
-func createChange(name, value, zoneId *string, recType types.RecordType) *route53.Change {
-	return &route53.Change{
-		Action: awssdk.String("UPSERT"),
-		ResourceRecordSet: &route53.ResourceRecordSet{
+func createChange(name, value, zoneId *string, recType types.RecordType) route53types.Change {
+	return route53types.Change{
+		Action: route53types.ChangeActionUpsert,
+		ResourceRecordSet: &route53types.ResourceRecordSet{
 			Name: name,
-			ResourceRecords: []*route53.ResourceRecord{
+			ResourceRecords: []route53types.ResourceRecord{
 				{
 					Value: value,
 				},
 			},
 			TTL:  awssdk.Int64(300),
-			Type: awssdk.String(string(recType)),
+			Type: route53types.RRType(recType),
 		},
 	}
 }

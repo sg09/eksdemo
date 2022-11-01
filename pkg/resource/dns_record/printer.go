@@ -1,22 +1,22 @@
 package dns_record
 
 import (
-	"eksdemo/pkg/aws"
 	"eksdemo/pkg/printer"
 	"io"
 	"strings"
 
-	"github.com/aws/aws-sdk-go/service/route53"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/route53/types"
 )
 
 const MAX_COMBINED_NAME_AND_RECORD_LENGTH int = 90
 
 type RecordSetPrinter struct {
-	recordSets        []*route53.ResourceRecordSet
+	recordSets        []types.ResourceRecordSet
 	longestNameLength int
 }
 
-func NewPrinter(recordSets []*route53.ResourceRecordSet) *RecordSetPrinter {
+func NewPrinter(recordSets []types.ResourceRecordSet) *RecordSetPrinter {
 	return &RecordSetPrinter{recordSets: recordSets}
 }
 
@@ -25,7 +25,7 @@ func (p *RecordSetPrinter) PrintTable(writer io.Writer) error {
 	table.SetHeader([]string{"Name", "Type", "Value"})
 
 	for _, rs := range p.recordSets {
-		if l := len(aws.StringValue(rs.Name)); l > p.longestNameLength {
+		if l := len(aws.ToString(rs.Name)); l > p.longestNameLength {
 			p.longestNameLength = l
 		}
 	}
@@ -34,10 +34,10 @@ func (p *RecordSetPrinter) PrintTable(writer io.Writer) error {
 		records := ""
 		// ALIAS records
 		if rs.AliasTarget != nil {
-			records = p.limitLength(aws.StringValue(rs.AliasTarget.DNSName))
-		} else if aws.StringValue(rs.Type) == "SOA" {
+			records = p.limitLength(aws.ToString(rs.AliasTarget.DNSName))
+		} else if rs.Type == types.RRTypeSoa {
 			// SOA records: split the MNAME, RNAME and rest into separate lines
-			transform := strings.Replace(aws.StringValue(rs.ResourceRecords[0].Value), " ", ",", 2)
+			transform := strings.Replace(aws.ToString(rs.ResourceRecords[0].Value), " ", ",", 2)
 			for i, rec := range strings.Split(transform, ",") {
 				if i == 0 {
 					records = p.limitLength(rec)
@@ -49,16 +49,16 @@ func (p *RecordSetPrinter) PrintTable(writer io.Writer) error {
 			// All other records
 			for i, rec := range rs.ResourceRecords {
 				if i == 0 {
-					records = p.limitLength(aws.StringValue(rec.Value))
+					records = p.limitLength(aws.ToString(rec.Value))
 				} else {
-					records += "\n" + p.limitLength(aws.StringValue(rec.Value))
+					records += "\n" + p.limitLength(aws.ToString(rec.Value))
 				}
 			}
 		}
 
 		table.AppendRow([]string{
-			strings.TrimSuffix(aws.StringValue(rs.Name), "."),
-			aws.StringValue(rs.Type),
+			strings.TrimSuffix(aws.ToString(rs.Name), "."),
+			string(rs.Type),
 			records,
 		})
 	}
