@@ -1,18 +1,18 @@
 package organization
 
 import (
-	"eksdemo/pkg/aws"
 	"eksdemo/pkg/printer"
 	"io"
 
-	"github.com/aws/aws-sdk-go/service/organizations"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/organizations/types"
 )
 
 type OrganizationPrinter struct {
-	Organization *organizations.Organization
+	Organization *types.Organization
 }
 
-func NewPrinter(Organization *organizations.Organization) *OrganizationPrinter {
+func NewPrinter(Organization *types.Organization) *OrganizationPrinter {
 	return &OrganizationPrinter{Organization}
 }
 
@@ -23,9 +23,9 @@ func (p *OrganizationPrinter) PrintTable(writer io.Writer) error {
 	o := p.Organization
 
 	table.AppendRow([]string{
-		aws.StringValue(o.Id),
-		aws.StringValue(o.FeatureSet),
-		aws.StringValue(o.MasterAccountId),
+		aws.ToString(o.Id),
+		string(o.FeatureSet),
+		aws.ToString(o.MasterAccountId),
 	})
 
 	table.Print(writer)

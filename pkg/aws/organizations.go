@@ -1,14 +1,22 @@
 package aws
 
 import (
-	"github.com/aws/aws-sdk-go/service/organizations"
+	"context"
+
+	"github.com/aws/aws-sdk-go-v2/service/organizations"
+	"github.com/aws/aws-sdk-go-v2/service/organizations/types"
 )
 
-func OrgsCreateOrganization() (*organizations.Organization, error) {
-	sess := GetSession()
-	svc := organizations.New(sess)
+type OrganizationsClient struct {
+	*organizations.Client
+}
 
-	result, err := svc.CreateOrganization(&organizations.CreateOrganizationInput{})
+func NewOrganizationsClient() *OrganizationsClient {
+	return &OrganizationsClient{organizations.NewFromConfig(GetConfig())}
+}
+
+func (c *OrganizationsClient) CreateOrganization() (*types.Organization, error) {
+	result, err := c.Client.CreateOrganization(context.Background(), &organizations.CreateOrganizationInput{})
 	if err != nil {
 		return nil, err
 	}
@@ -16,19 +24,13 @@ func OrgsCreateOrganization() (*organizations.Organization, error) {
 	return result.Organization, nil
 }
 
-func OrgsDeleteOrganization() error {
-	sess := GetSession()
-	svc := organizations.New(sess)
-
-	_, err := svc.DeleteOrganization(&organizations.DeleteOrganizationInput{})
+func (c *OrganizationsClient) DeleteOrganization() error {
+	_, err := c.Client.DeleteOrganization(context.Background(), &organizations.DeleteOrganizationInput{})
 	return err
 }
 
-func OrgsDescribeOrganization() (*organizations.Organization, error) {
-	sess := GetSession()
-	svc := organizations.New(sess)
-
-	result, err := svc.DescribeOrganization(&organizations.DescribeOrganizationInput{})
+func (c *OrganizationsClient) DescribeOrganization() (*types.Organization, error) {
+	result, err := c.Client.DescribeOrganization(context.Background(), &organizations.DescribeOrganizationInput{})
 	if err != nil {
 		return nil, err
 	}
