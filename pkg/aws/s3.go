@@ -1,56 +1,46 @@
 package aws
 
 import (
-	"fmt"
+	"context"
 
+	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/service/s3"
 )
 
-func S3CreateBucket(name, region string) error {
-	sess := GetSession()
-	svc := s3.New(sess)
+type S3Client struct {
+	*s3.Client
+}
 
-	_, err := svc.CreateBucket(&s3.CreateBucketInput{
+func NewS3Client() *S3Client {
+	return &S3Client{s3.NewFromConfig(GetConfig())}
+}
+
+func (c *S3Client) CreateBucket(name, region string) error {
+	_, err := c.Client.CreateBucket(context.Background(), &s3.CreateBucketInput{
 		Bucket: aws.String(name),
-		CreateBucketConfiguration: &s3.CreateBucketConfiguration{
-			LocationConstraint: aws.String(region),
+		CreateBucketConfiguration: &types.CreateBucketConfiguration{
+			LocationConstraint: types.BucketLocationConstraint(region),
 		},
 	})
 
 	return err
 }
 
-func S3GetBucketLocation(name string) (exists bool, err error) {
-	sess := GetSession()
-	svc := s3.New(sess)
-
-	_, err = svc.GetBucketLocation(&s3.GetBucketLocationInput{
+func (c *S3Client) GetBucketLocation(name string) (types.BucketLocationConstraint, error) {
+	result, err := c.Client.GetBucketLocation(context.Background(), &s3.GetBucketLocationInput{
 		Bucket: aws.String(name),
 	})
 
 	if err != nil {
-		if awsErr, ok := err.(awserr.Error); ok {
-			switch awsErr.Code() {
-			case s3.ErrCodeNoSuchBucket:
-				return false, nil
-			case "AccessDenied":
-				return false, fmt.Errorf(awsErr.Message())
-			default:
-				return false, awsErr
-			}
-		}
-		return false, err
+		return types.BucketLocationConstraint(""), err
 	}
-	return true, nil
+
+	return result.LocationConstraint, nil
 }
 
-func S3ListBuckets() ([]*s3.Bucket, error) {
-	sess := GetSession()
-	svc := s3.New(sess)
-
-	result, err := svc.ListBuckets(&s3.ListBucketsInput{})
+func (c *S3Client) ListBuckets() ([]types.Bucket, error) {
+	result, err := c.Client.ListBuckets(context.Background(), &s3.ListBucketsInput{})
 
 	if err != nil {
 		return nil, err

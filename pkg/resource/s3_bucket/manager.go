@@ -9,8 +9,16 @@ import (
 )
 
 type Manager struct {
-	DryRun bool
-	resource.EmptyInit
+	DryRun   bool
+	s3Client *aws.S3Client
+	s3Getter *Getter
+}
+
+func (m *Manager) Init() {
+	if m.s3Client == nil {
+		m.s3Client = aws.NewS3Client()
+	}
+	m.s3Getter = NewGetter(m.s3Client)
 }
 
 func (m *Manager) Create(options resource.Options) error {
@@ -19,23 +27,25 @@ func (m *Manager) Create(options resource.Options) error {
 		return fmt.Errorf("internal error, unable to cast options to BucketOptions")
 	}
 
+	_, err := m.s3Getter.GetBucketByName(bucketOptions.BucketName)
+
+	if err == nil {
+		fmt.Printf("Bucket %q already exists\n", bucketOptions.BucketName)
+		return nil
+	} else {
+		if _, ok := err.(resource.NotFoundError); !ok {
+			// Return an error if it's anything other than resource not found
+			return err
+		}
+	}
+
 	if m.DryRun {
 		return m.dryRun(bucketOptions)
 	}
 
-	exists, err := aws.S3GetBucketLocation(bucketOptions.BucketName)
-	if err != nil {
-		return fmt.Errorf("failed checking if bucket %q exists: %w", bucketOptions.BucketName, err)
-	}
-
-	if exists {
-		fmt.Printf("Bucket %q already exists\n", bucketOptions.BucketName)
-		return nil
-	}
-
 	fmt.Printf("Creating Bucket: %s...", bucketOptions.BucketName)
 
-	err = aws.S3CreateBucket(bucketOptions.BucketName, options.Common().Region)
+	err = m.s3Client.CreateBucket(bucketOptions.BucketName, options.Common().Region)
 	if err != nil {
 		return err
 	}

@@ -1,20 +1,20 @@
 package s3_bucket
 
 import (
-	"eksdemo/pkg/aws"
 	"eksdemo/pkg/printer"
 	"io"
 	"time"
 
-	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/s3/types"
 	"github.com/hako/durafmt"
 )
 
 type BucketPrinter struct {
-	buckets []*s3.Bucket
+	buckets []types.Bucket
 }
 
-func NewPrinter(buckets []*s3.Bucket) *BucketPrinter {
+func NewPrinter(buckets []types.Bucket) *BucketPrinter {
 	return &BucketPrinter{buckets}
 }
 
@@ -23,11 +23,11 @@ func (p *BucketPrinter) PrintTable(writer io.Writer) error {
 	table.SetHeader([]string{"Age", "Name"})
 
 	for _, b := range p.buckets {
-		age := durafmt.ParseShort(time.Since(aws.TimeValue(b.CreationDate)))
+		age := durafmt.ParseShort(time.Since(aws.ToTime(b.CreationDate)))
 
 		table.AppendRow([]string{
 			age.String(),
-			aws.StringValue(b.Name),
+			aws.ToString(b.Name),
 		})
 	}
 	table.Print(writer)
