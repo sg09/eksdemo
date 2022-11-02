@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"os"
 
+	awssdk "github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ec2/types"
 )
 
@@ -51,7 +52,7 @@ func (g *Getter) Get(id string, output printer.Output, options resource.Options)
 
 		cluster := options.Common().Cluster
 		if cluster != nil {
-			vpcId = aws.StringValue(cluster.ResourcesVpcConfig.VpcId)
+			vpcId = awssdk.ToString(cluster.ResourcesVpcConfig.VpcId)
 		}
 
 		securityGroups, err = g.GetSecurityGroupsByIdAndVpcFilter(id, vpcId)
@@ -89,7 +90,7 @@ func (g *Getter) GetSecurityGroupsByNetworkInterface(networkInterfaceId string) 
 
 	securityGroupIds := []string{}
 	for _, groupIdentifier := range networkInterface.Groups {
-		securityGroupIds = append(securityGroupIds, aws.StringValue(groupIdentifier.GroupId))
+		securityGroupIds = append(securityGroupIds, awssdk.ToString(groupIdentifier.GroupId))
 	}
 
 	if len(securityGroupIds) == 0 {

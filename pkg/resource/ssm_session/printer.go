@@ -1,12 +1,11 @@
 package ssm_session
 
 import (
-	"eksdemo/pkg/aws"
 	"eksdemo/pkg/printer"
 	"io"
 	"time"
 
-	awssdk "github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ssm/types"
 	"github.com/hako/durafmt"
 )
@@ -24,13 +23,13 @@ func (p *SessionPrinter) PrintTable(writer io.Writer) error {
 	table.SetHeader([]string{"Age", "Status", "Id", "Instance"})
 
 	for _, s := range p.sessions {
-		age := durafmt.ParseShort(time.Since(aws.TimeValue(s.StartDate)))
+		age := durafmt.ParseShort(time.Since(aws.ToTime(s.StartDate)))
 
 		table.AppendRow([]string{
 			age.String(),
 			string(s.Status),
-			awssdk.ToString(s.SessionId),
-			awssdk.ToString(s.Target),
+			aws.ToString(s.SessionId),
+			aws.ToString(s.Target),
 		})
 	}
 

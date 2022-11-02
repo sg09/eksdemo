@@ -28,7 +28,7 @@ func (m *Manager) Create(options resource.Options) error {
 		return fmt.Errorf("internal error, unable to cast options to TargeGroupOptions")
 	}
 
-	vpcId := aws.StringValue(tgOptions.Cluster.ResourcesVpcConfig.VpcId)
+	vpcId := awssdk.ToString(tgOptions.Cluster.ResourcesVpcConfig.VpcId)
 
 	if m.DryRun {
 		return m.dryRun(tgOptions, vpcId)

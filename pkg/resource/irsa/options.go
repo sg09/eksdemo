@@ -1,7 +1,6 @@
 package irsa
 
 import (
-	"eksdemo/pkg/aws"
 	"eksdemo/pkg/cmd"
 	"eksdemo/pkg/resource"
 	"eksdemo/pkg/template"
@@ -9,6 +8,7 @@ import (
 	"hash/fnv"
 	"strings"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/spf13/cobra"
 )
 
@@ -92,7 +92,7 @@ func addOptions(res *resource.Resource) *resource.Resource {
 }
 
 func (o *IrsaOptions) ClusterOIDCProvider() (string, error) {
-	issuer := aws.StringValue(o.Cluster.Identity.Oidc.Issuer)
+	issuer := aws.ToString(o.Cluster.Identity.Oidc.Issuer)
 
 	slices := strings.Split(issuer, "//")
 	if len(slices) < 2 {

@@ -70,7 +70,7 @@ func (g *Getter) GetAllAmgByName(name string) ([]*types.WorkspaceDescription, er
 	workspaces := make([]*types.WorkspaceDescription, 0, len(summaries))
 
 	for _, s := range summaries {
-		if aws.StringValue(s.Name) != name {
+		if awssdk.ToString(s.Name) != name {
 			continue
 		}
 

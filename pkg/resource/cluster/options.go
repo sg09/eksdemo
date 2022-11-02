@@ -15,6 +15,8 @@ import (
 	"eksdemo/pkg/template"
 	"fmt"
 	"strings"
+
+	awssdk "github.com/aws/aws-sdk-go-v2/aws"
 )
 
 type ClusterOptions struct {
@@ -132,7 +134,7 @@ func (o *ClusterOptions) PreDelete() error {
 	}
 
 	for _, stack := range stacks {
-		stackName := aws.StringValue(stack.StackName)
+		stackName := awssdk.ToString(stack.StackName)
 		if strings.HasPrefix(stackName, "eksdemo-") {
 			fmt.Printf("Deleting Cloudformation stack %q\n", stackName)
 			err := cloudformationClient.DeleteStack(stackName)

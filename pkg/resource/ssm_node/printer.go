@@ -1,11 +1,11 @@
 package ssm_node
 
 import (
-	"eksdemo/pkg/aws"
 	"eksdemo/pkg/printer"
 	"io"
 	"time"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ssm/types"
 	"github.com/hako/durafmt"
 )
@@ -23,15 +23,15 @@ func (p *NodePrinter) PrintTable(writer io.Writer) error {
 	table.SetHeader([]string{"Ping", "Status", "Instance Id", "IP Address", "Agent Ver", "OS"})
 
 	for _, n := range p.nodes {
-		ping := durafmt.ParseShort(time.Since(aws.TimeValue(n.LastPingDateTime)))
+		ping := durafmt.ParseShort(time.Since(aws.ToTime(n.LastPingDateTime)))
 
 		table.AppendRow([]string{
 			ping.String(),
 			string(n.PingStatus),
-			aws.StringValue(n.InstanceId),
-			aws.StringValue(n.IPAddress),
-			aws.StringValue(n.AgentVersion),
-			aws.StringValue(n.PlatformName) + " " + aws.StringValue(n.PlatformVersion),
+			aws.ToString(n.InstanceId),
+			aws.ToString(n.IPAddress),
+			aws.ToString(n.AgentVersion),
+			aws.ToString(n.PlatformName) + " " + aws.ToString(n.PlatformVersion),
 		})
 	}
 

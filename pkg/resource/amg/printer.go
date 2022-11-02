@@ -1,13 +1,12 @@
 package amg
 
 import (
-	"eksdemo/pkg/aws"
 	"eksdemo/pkg/printer"
 	"io"
 	"strings"
 	"time"
 
-	awssdk "github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/grafana/types"
 	"github.com/hako/durafmt"
 )
@@ -26,13 +25,13 @@ func (p *AmgPrinter) PrintTable(writer io.Writer) error {
 
 	for _, w := range p.Workspaces {
 
-		age := durafmt.ParseShort(time.Since(aws.TimeValue(w.Created)))
+		age := durafmt.ParseShort(time.Since(aws.ToTime(w.Created)))
 
 		table.AppendRow([]string{
 			age.String(),
 			string(w.Status),
-			awssdk.ToString(w.Name),
-			awssdk.ToString(w.Id),
+			aws.ToString(w.Name),
+			aws.ToString(w.Id),
 			strings.Join(toStringSlice(w.Authentication.Providers), ","),
 		})
 	}

@@ -9,6 +9,7 @@ import (
 	"os"
 	"strings"
 
+	awssdk "github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/cloudformation/types"
 	"github.com/aws/smithy-go"
 )
@@ -66,7 +67,7 @@ func (g *Getter) GetStacksByCluster(clusterName, stackName string) ([]types.Stac
 	clusterStacks := make([]types.Stack, 0, len(stacks))
 
 	for _, stack := range stacks {
-		name := aws.StringValue(stack.StackName)
+		name := awssdk.ToString(stack.StackName)
 		if strings.Contains(name, "eksdemo-"+clusterName+"-") || strings.Contains(name, "eksctl-"+clusterName+"-") {
 			clusterStacks = append(clusterStacks, stack)
 		}

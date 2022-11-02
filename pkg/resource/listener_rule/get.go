@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	awssdk "github.com/aws/aws-sdk-go-v2/aws"
 )
 
 type Getter struct {
@@ -40,7 +42,7 @@ func (g *Getter) Get(id string, output printer.Output, options resource.Options)
 		return fmt.Errorf("%q is a classic load balancer", lrOptions.LoadBalancerName)
 	}
 
-	lbArn := aws.StringValue(elbs.V2[0].LoadBalancerArn)
+	lbArn := awssdk.ToString(elbs.V2[0].LoadBalancerArn)
 	listernArn := ""
 	ruleArn := ""
 

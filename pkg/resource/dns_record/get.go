@@ -9,6 +9,7 @@ import (
 	"os"
 	"strings"
 
+	awssdk "github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/route53/types"
 )
 
@@ -44,7 +45,7 @@ func (g *Getter) Get(name string, output printer.Output, options resource.Option
 		filterTypes[f] = true
 	}
 
-	recordSets, err := g.GetRecordsWithFilter(name, aws.StringValue(zone.Id), filterTypes)
+	recordSets, err := g.GetRecordsWithFilter(name, awssdk.ToString(zone.Id), filterTypes)
 	if err != nil {
 		return err
 	}
@@ -66,7 +67,7 @@ func (g *Getter) GetRecordsWithFilter(name, zoneId string, filterTypes map[strin
 		n := strings.ToLower(name) + "."
 		filtered := []types.ResourceRecordSet{}
 		for _, rs := range recordSets {
-			if n == strings.ToLower(aws.StringValue(rs.Name)) {
+			if n == strings.ToLower(awssdk.ToString(rs.Name)) {
 				filtered = append(filtered, rs)
 			}
 		}

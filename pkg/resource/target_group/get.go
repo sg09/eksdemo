@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"os"
 
+	awssdk "github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2/types"
 )
 
@@ -38,7 +39,7 @@ func (g *Getter) Get(name string, output printer.Output, options resource.Option
 
 	cluster := options.Common().Cluster
 	if cluster != nil {
-		vpcId = aws.StringValue(cluster.ResourcesVpcConfig.VpcId)
+		vpcId = awssdk.ToString(cluster.ResourcesVpcConfig.VpcId)
 	}
 
 	if tgOptions.LoadBalancerName != "" {
@@ -50,7 +51,7 @@ func (g *Getter) Get(name string, output printer.Output, options resource.Option
 			return fmt.Errorf("%q is a classic load balancer", tgOptions.LoadBalancerName)
 		}
 
-		lbArn = aws.StringValue(elbs.V2[0].LoadBalancerArn)
+		lbArn = awssdk.ToString(elbs.V2[0].LoadBalancerArn)
 	}
 
 	targetGroups, err := g.elbClientv2.DescribeTargetGroups(name, lbArn)
@@ -62,7 +63,7 @@ func (g *Getter) Get(name string, output printer.Output, options resource.Option
 		filtered := make([]types.TargetGroup, 0, len(targetGroups))
 
 		for _, tg := range targetGroups {
-			if aws.StringValue(tg.VpcId) == vpcId {
+			if awssdk.ToString(tg.VpcId) == vpcId {
 				filtered = append(filtered, tg)
 			}
 		}

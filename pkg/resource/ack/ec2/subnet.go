@@ -1,11 +1,12 @@
 package ec2
 
 import (
-	"eksdemo/pkg/aws"
 	"eksdemo/pkg/cmd"
 	"eksdemo/pkg/kubernetes"
 	"eksdemo/pkg/resource"
 	"eksdemo/pkg/template"
+
+	"github.com/aws/aws-sdk-go-v2/aws"
 )
 
 type SubnetOptions struct {
@@ -64,7 +65,7 @@ func NewSubnetResource() *resource.Resource {
 
 func (o *SubnetOptions) PreCreate() error {
 	if o.VpcId == "" {
-		o.VpcId = aws.StringValue(o.Cluster.ResourcesVpcConfig.VpcId)
+		o.VpcId = aws.ToString(o.Cluster.ResourcesVpcConfig.VpcId)
 	}
 	return nil
 }

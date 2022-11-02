@@ -5,6 +5,7 @@ import (
 	"eksdemo/pkg/resource"
 	"fmt"
 
+	awssdk "github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/spf13/cobra"
 )
 
@@ -71,7 +72,7 @@ func (m *Manager) Delete(options resource.Options) error {
 			}
 			return err
 		}
-		id = aws.StringValue(amp.WorkspaceId)
+		id = awssdk.ToString(amp.WorkspaceId)
 	}
 
 	err := m.ampClient.DeleteWorkspace(id)

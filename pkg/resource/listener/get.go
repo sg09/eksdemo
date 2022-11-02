@@ -7,6 +7,8 @@ import (
 	"eksdemo/pkg/resource/load_balancer"
 	"fmt"
 	"os"
+
+	awssdk "github.com/aws/aws-sdk-go-v2/aws"
 )
 
 type Getter struct {
@@ -39,7 +41,7 @@ func (g *Getter) Get(name string, output printer.Output, options resource.Option
 		return fmt.Errorf("%q is a classic load balancer", listenerOptions.LoadBalancerName)
 	}
 
-	lbArn := aws.StringValue(elbs.V2[0].LoadBalancerArn)
+	lbArn := awssdk.ToString(elbs.V2[0].LoadBalancerArn)
 
 	listeners, err := g.elbClientv2.DescribeListeners(lbArn)
 	if err != nil {

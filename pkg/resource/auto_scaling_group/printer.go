@@ -1,13 +1,12 @@
 package auto_scaling_group
 
 import (
-	"eksdemo/pkg/aws"
 	"eksdemo/pkg/printer"
 	"io"
 	"strconv"
 	"time"
 
-	awssdk "github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/autoscaling/types"
 	"github.com/hako/durafmt"
 )
@@ -25,15 +24,15 @@ func (p *AutoScalingGroupPrinter) PrintTable(writer io.Writer) error {
 	table.SetHeader([]string{"Age", "Name", "Instances", "Desired", "Min", "Max"})
 
 	for _, asg := range p.autoScalingGroups {
-		age := durafmt.ParseShort(time.Since(aws.TimeValue(asg.CreatedTime)))
+		age := durafmt.ParseShort(time.Since(aws.ToTime(asg.CreatedTime)))
 
 		table.AppendRow([]string{
 			age.String(),
-			awssdk.ToString(asg.AutoScalingGroupName),
+			aws.ToString(asg.AutoScalingGroupName),
 			strconv.Itoa(len(asg.Instances)),
-			strconv.Itoa(int(awssdk.ToInt32(asg.DesiredCapacity))),
-			strconv.Itoa(int(awssdk.ToInt32(asg.MinSize))),
-			strconv.Itoa(int(awssdk.ToInt32(asg.MaxSize))),
+			strconv.Itoa(int(aws.ToInt32(asg.DesiredCapacity))),
+			strconv.Itoa(int(aws.ToInt32(asg.MinSize))),
+			strconv.Itoa(int(aws.ToInt32(asg.MaxSize))),
 		})
 	}
 

@@ -3,8 +3,8 @@ package kubernetes
 import (
 	"fmt"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/eks/types"
-	"github.com/aws/aws-sdk-go/aws"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
@@ -83,7 +83,7 @@ func KubeContextForCluster(cluster *types.Cluster) (string, error) {
 
 	for name, context := range raw.Contexts {
 		if _, ok := raw.Clusters[context.Cluster]; ok {
-			if raw.Clusters[context.Cluster].Server == aws.StringValue(cluster.Endpoint) {
+			if raw.Clusters[context.Cluster].Server == aws.ToString(cluster.Endpoint) {
 				found = name
 				break
 			}
