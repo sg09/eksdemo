@@ -19,6 +19,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.18.22
 	github.com/aws/aws-sdk-go-v2/service/grafana v1.9.14
 	github.com/aws/aws-sdk-go-v2/service/iam v1.18.23
+	github.com/aws/aws-sdk-go-v2/service/kms v1.18.15
 	github.com/aws/aws-sdk-go-v2/service/organizations v1.16.15
 	github.com/aws/aws-sdk-go-v2/service/route53 v1.22.4
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.29.1
