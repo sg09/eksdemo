@@ -14,7 +14,7 @@ import (
 // GitHub:  https://github.com/aws/aws-app-mesh-controller-for-k8s
 // Helm:    https://github.com/aws/eks-charts/tree/master/stable/appmesh-controller
 // Repo:    602401143452.dkr.ecr.us-west-2.amazonaws.com/amazon/appmesh-controller
-// Version: Latest is v1.5.0 (as of 06/22/22)
+// Version: Latest is v1.7.0 (as of 11/04/22)
 
 func NewApp() *application.Application {
 	app := &application.Application{
@@ -40,10 +40,10 @@ func NewApp() *application.Application {
 			Namespace:      "appmesh-system",
 			ServiceAccount: "appmesh-controller",
 			DefaultVersion: &application.LatestPrevious{
-				LatestChart:   "1.5.0",
-				Latest:        "v1.5.0",
-				PreviousChart: "1.4.3",
-				Previous:      "v1.4.3",
+				LatestChart:   "1.7.0",
+				Latest:        "v1.7.0",
+				PreviousChart: "1.5.0",
+				Previous:      "v1.5.0",
 			},
 		},
 
