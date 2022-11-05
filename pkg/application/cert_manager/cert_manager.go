@@ -13,7 +13,7 @@ import (
 // GitHub:  https://github.com/cert-manager/cert-manager
 // Helm:    https://github.com/cert-manager/cert-manager/tree/master/deploy/charts/cert-manager
 // Repo:    quay.io/jetstack/cert-manager-controller
-// Version: Latest is v1.8.1 (as of 06/22/22)
+// Version: Latest is v1.10.0 (as of 11/04/22)
 
 func NewApp() *application.Application {
 	app := &application.Application{
@@ -39,10 +39,10 @@ func NewApp() *application.Application {
 			Namespace:      "cert-manager",
 			ServiceAccount: "cert-manager",
 			DefaultVersion: &application.LatestPrevious{
-				LatestChart:   "1.8.1",
-				Latest:        "v1.8.1",
-				PreviousChart: "1.8.0",
-				Previous:      "v1.8.0",
+				LatestChart:   "1.10.0",
+				Latest:        "v1.10.0",
+				PreviousChart: "1.8.1",
+				Previous:      "v1.8.1",
 			},
 		},
 
