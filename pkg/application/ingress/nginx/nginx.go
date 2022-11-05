@@ -11,7 +11,7 @@ import (
 // GitHub:  https://github.com/kubernetes/ingress-nginx
 // Helm:    https://github.com/kubernetes/ingress-nginx/tree/main/charts/ingress-nginx
 // Repo:    registry.k8s.io/ingress-nginx/controller
-// Version: Latest is Chart 4.2.0 and App v1.3.0 (as of 07/20/22)
+// Version: Latest is Chart 4.3.0 and App v1.4.0 (as of 11/04/22)
 
 func NewApp() *application.Application {
 	app := &application.Application{
