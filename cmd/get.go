@@ -30,6 +30,8 @@ import (
 	"eksdemo/pkg/resource/log_group"
 	"eksdemo/pkg/resource/log_stream"
 	"eksdemo/pkg/resource/nat_gateway"
+	"eksdemo/pkg/resource/network_acl"
+	"eksdemo/pkg/resource/network_acl_rule"
 	"eksdemo/pkg/resource/network_interface"
 	"eksdemo/pkg/resource/node"
 	"eksdemo/pkg/resource/nodegroup"
@@ -113,6 +115,8 @@ func init() {
 	getCmd.AddCommand(log_group.NewResource().NewGetCmd())
 	getCmd.AddCommand(log_stream.NewResource().NewGetCmd())
 	getCmd.AddCommand(nat_gateway.NewResource().NewGetCmd())
+	getCmd.AddCommand(network_acl.NewResource().NewGetCmd())
+	getCmd.AddCommand(network_acl_rule.NewResource().NewGetCmd())
 	getCmd.AddCommand(network_interface.NewResource().NewGetCmd())
 	getCmd.AddCommand(node.NewResource().NewGetCmd())
 	getCmd.AddCommand(nodegroup.NewResource().NewGetCmd())

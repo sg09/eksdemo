@@ -30,6 +30,13 @@ func NewEC2NatGatewayFilter(natGatewayId string) types.Filter {
 	}
 }
 
+func NewEC2NetworkAclFilter(networkAclId string) types.Filter {
+	return types.Filter{
+		Name:   aws.String("network-acl-id"),
+		Values: []string{networkAclId},
+	}
+}
+
 func NewEC2SecurityGroupFilter(securityGroupId string) types.Filter {
 	return types.Filter{
 		Name:   aws.String("group-id"),
@@ -153,6 +160,26 @@ func (c *EC2Client) DescribeNATGateways(filters []types.Filter) ([]types.NatGate
 	}
 
 	return nats, nil
+}
+
+func (c *EC2Client) DescribeNetworkAcls(filters []types.Filter) ([]types.NetworkAcl, error) {
+	nacls := []types.NetworkAcl{}
+	pageNum := 0
+
+	paginator := ec2.NewDescribeNetworkAclsPaginator(c.Client, &ec2.DescribeNetworkAclsInput{
+		Filters: filters,
+	})
+
+	for paginator.HasMorePages() && pageNum < maxPages {
+		out, err := paginator.NextPage(context.Background())
+		if err != nil {
+			return nil, err
+		}
+		nacls = append(nacls, out.NetworkAcls...)
+		pageNum++
+	}
+
+	return nacls, nil
 }
 
 func (c *EC2Client) DescribeNetworkInterfaces(id, vpcId, description, instanceId, ip, securityGroupId string) ([]types.NetworkInterface, error) {
