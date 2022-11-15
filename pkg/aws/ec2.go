@@ -16,6 +16,13 @@ func NewEC2Client() *EC2Client {
 	return &EC2Client{ec2.NewFromConfig(GetConfig())}
 }
 
+func NewEC2ElasticIpFilter(eipId string) types.Filter {
+	return types.Filter{
+		Name:   aws.String("allocation-id"),
+		Values: []string{eipId},
+	}
+}
+
 func NewEC2InstanceFilter(instanceId string) types.Filter {
 	return types.Filter{
 		Name:   aws.String("instance-id"),
@@ -95,6 +102,17 @@ func (c *EC2Client) DeleteVolume(id string) error {
 	})
 
 	return err
+}
+
+func (c *EC2Client) DescribeAddresses(filters []types.Filter) ([]types.Address, error) {
+	result, err := c.Client.DescribeAddresses(context.Background(), &ec2.DescribeAddressesInput{
+		Filters: filters,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return result.Addresses, nil
 }
 
 func (c *EC2Client) DescribeAvailabilityZones(name string, all bool) ([]types.AvailabilityZone, error) {
