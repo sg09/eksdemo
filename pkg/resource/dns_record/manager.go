@@ -91,14 +91,14 @@ func (m *Manager) Delete(options resource.Options) error {
 
 	changes := make([]types.Change, 0, len(records))
 
-	for _, rec := range records {
+	for i, rec := range records {
 		if rec.Type == types.RRTypeNs || rec.Type == types.RRTypeSoa {
 			continue
 		}
 
 		change := types.Change{
 			Action:            types.ChangeActionDelete,
-			ResourceRecordSet: &rec,
+			ResourceRecordSet: &records[i],
 		}
 		changes = append(changes, change)
 		fmt.Printf("Deleting %s record %q...\n", string(rec.Type), strings.TrimSuffix(awssdk.ToString(rec.Name), "."))
