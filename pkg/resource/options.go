@@ -52,7 +52,8 @@ func (o *CommonOptions) AddCreateFlags(cobraCmd *cobra.Command, flags cmd.Flags)
 	flags = append(flags, o.NewDryRunFlag())
 
 	if !o.ClusterFlagDisabled {
-		flags = append(flags, o.NewClusterFlag(Create, true))
+		// Prepend cluster flag so cluster information can by used by other flag validators
+		flags = append(cmd.Flags{o.NewClusterFlag(Create, true)}, flags...)
 	}
 
 	if o.NamespaceFlag {

@@ -50,6 +50,12 @@ func NewOptions() (options *NodegroupOptions, createFlags, updateFlags cmd.Flags
 			CommandFlag: cmd.CommandFlag{
 				Name:        "containerd",
 				Description: "use containerd runtime",
+				Validate: func(cmd *cobra.Command, args []string) error {
+					if v := awssdk.ToString(options.Cluster.Version); v == "1.23" || v == "1.22" || v == "1.21" {
+						return nil
+					}
+					return fmt.Errorf("%q flag not supported for EKS versions 1.24 and later", "containerd")
+				},
 			},
 			Option: &options.Containerd,
 		},

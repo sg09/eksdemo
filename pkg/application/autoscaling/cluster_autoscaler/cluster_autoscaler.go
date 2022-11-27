@@ -40,17 +40,17 @@ func NewApp() *application.Application {
 			DefaultVersion: &application.KubernetesVersionDependent{
 				LatestChart: "9.21.0",
 				Latest: map[string]string{
+					"1.24": "v1.24.0",
 					"1.23": "v1.23.0",
 					"1.22": "v1.22.3",
 					"1.21": "v1.21.3",
-					"1.20": "v1.20.3",
 				},
 				PreviousChart: "9.21.0",
 				Previous: map[string]string{
+					"1.24": "v1.24.0",
 					"1.23": "v1.23.0",
 					"1.22": "v1.22.2",
 					"1.21": "v1.21.2",
-					"1.20": "v1.20.2",
 				},
 			},
 		},

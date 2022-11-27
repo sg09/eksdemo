@@ -40,7 +40,7 @@ func addOptions(res *resource.Resource) *resource.Resource {
 	options := &ClusterOptions{
 		CommonOptions: resource.CommonOptions{
 			ClusterFlagDisabled: true,
-			KubernetesVersion:   "1.23",
+			KubernetesVersion:   "1.24",
 		},
 
 		NodegroupOptions: ngOptions,
@@ -66,7 +66,7 @@ func addOptions(res *resource.Resource) *resource.Resource {
 				Description: "Kubernetes version",
 				Shorthand:   "v",
 			},
-			Choices: []string{"1.23", "1.22", "1.21", "1.20"},
+			Choices: []string{"1.24", "1.23", "1.22", "1.21"},
 			Option:  &options.KubernetesVersion,
 		},
 		&cmd.BoolFlag{
