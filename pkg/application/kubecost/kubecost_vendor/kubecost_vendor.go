@@ -1,4 +1,4 @@
-package kubecost
+package kubecost_vendor
 
 import (
 	"eksdemo/pkg/application"
@@ -15,8 +15,9 @@ import (
 func NewApp() *application.Application {
 	app := &application.Application{
 		Command: cmd.Command{
-			Name:        "kubecost",
-			Description: "Monitor & Reduce Kubernetes Spend",
+			Parent:      "kubecost",
+			Name:        "vendor",
+			Description: "Vendor distribution of Kubecost",
 		},
 
 		Options: &application.ApplicationOptions{
@@ -24,16 +25,16 @@ func NewApp() *application.Application {
 			Namespace:                    "kubecost",
 			ServiceAccount:               "kubecost-cost-analyzer",
 			DefaultVersion: &application.LatestPrevious{
-				LatestChart:   "1.95.0",
-				Latest:        "1.95.0",
-				PreviousChart: "1.94.3",
-				Previous:      "1.94.3",
+				LatestChart:   "1.98.0",
+				Latest:        "1.98.0",
+				PreviousChart: "1.95.0",
+				Previous:      "1.95.0",
 			},
 		},
 
 		Installer: &installer.HelmInstaller{
 			ChartName:     "cost-analyzer",
-			ReleaseName:   "kubecost",
+			ReleaseName:   "kubecost-vendor",
 			RepositoryURL: "https://kubecost.github.io/cost-analyzer/",
 			ValuesTemplate: &template.TextTemplate{
 				Template: valuesTemplate,
@@ -45,6 +46,11 @@ func NewApp() *application.Application {
 }
 
 const valuesTemplate = `---
+fullnameOverride: kubecost-cost-analyzer
+global:
+  grafana:
+    # Required due to fullnameOverride on grafana
+    fqdn: kubecost-grafana.{{ .Namespace }}
 {{- if .IngressHost }}
 ingress:
   enabled: true
@@ -67,7 +73,18 @@ service:
   type: {{ .ServiceType }}
   annotations: 
     {{- .ServiceAnnotations | nindent 4 }}
+prometheus:
+  kube-state-metrics:
+    fullnameOverride: kubecost-kube-state-metrics
+  nodeExporter:
+    fullnameOverride: kubecost-prometheus-node-exporter
+  server:
+    fullnameOverride: kubecost-prometheus-server
+    global:
+      external_labels:
+        cluster_id: {{ .ClusterName }} # Each cluster should have a unique ID
 grafana:
+  fullnameOverride: kubecost-grafana
   rbac:
     pspEnabled: false
 serviceAccount:

@@ -17,9 +17,9 @@ import (
 	"eksdemo/pkg/application/harbor"
 	"eksdemo/pkg/application/keycloak_amg"
 	"eksdemo/pkg/application/kube_prometheus"
-	"eksdemo/pkg/application/kubecost"
 	"eksdemo/pkg/application/metrics_server"
 	"eksdemo/pkg/application/prometheus_amp"
+	"eksdemo/pkg/application/storage/ebs_csi"
 	"eksdemo/pkg/application/velero"
 
 	"github.com/spf13/cobra"
@@ -67,7 +67,8 @@ func NewInstallCmd() *cobra.Command {
 	cmd.AddCommand(NewInstallAliasCmds(istioApps, "istio-")...)
 	cmd.AddCommand(keycloak_amg.NewApp().NewInstallCmd())
 	cmd.AddCommand(kube_prometheus.NewApp().NewInstallCmd())
-	cmd.AddCommand(kubecost.NewApp().NewInstallCmd())
+	cmd.AddCommand(NewInstallKubecostCmd())
+	cmd.AddCommand(NewInstallAliasCmds(kubecostApps, "kubecost-")...)
 	cmd.AddCommand(metrics_server.NewApp().NewInstallCmd())
 	cmd.AddCommand(NewInstallPolicyCmd())
 	cmd.AddCommand(NewInstallAliasCmds(policyApps, "policy-")...)
@@ -78,6 +79,7 @@ func NewInstallCmd() *cobra.Command {
 
 	// Hidden commands for popular apps without using the group
 	cmd.AddCommand(NewInstallAliasCmds([]func() *application.Application{cluster_autoscaler.NewApp}, "")...)
+	cmd.AddCommand(NewInstallAliasCmds([]func() *application.Application{ebs_csi.NewApp}, "")...)
 	cmd.AddCommand(NewInstallAliasCmds([]func() *application.Application{karpenter.NewApp}, "")...)
 
 	return cmd
