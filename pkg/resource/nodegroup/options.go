@@ -15,7 +15,7 @@ import (
 const eksOptmizedAmiPath = "/aws/service/eks/optimized-ami/%s/amazon-linux-2/recommended/image_id"
 
 type NodegroupOptions struct {
-	resource.CommonOptions
+	*resource.CommonOptions
 
 	AMI             string
 	InstanceType    string
@@ -36,6 +36,7 @@ type NodegroupOptions struct {
 
 func NewOptions() (options *NodegroupOptions, createFlags, updateFlags cmd.Flags) {
 	options = &NodegroupOptions{
+		CommonOptions:   &resource.CommonOptions{},
 		InstanceType:    "t3.large",
 		DesiredCapacity: 1,
 		MinSize:         0,
@@ -51,7 +52,10 @@ func NewOptions() (options *NodegroupOptions, createFlags, updateFlags cmd.Flags
 				Name:        "containerd",
 				Description: "use containerd runtime",
 				Validate: func(cmd *cobra.Command, args []string) error {
-					if v := awssdk.ToString(options.Cluster.Version); v == "1.23" || v == "1.22" || v == "1.21" {
+					if !options.Containerd {
+						return nil
+					}
+					if v := options.Common().KubernetesVersion; v == "1.23" || v == "1.22" || v == "1.21" {
 						return nil
 					}
 					return fmt.Errorf("%q flag not supported for EKS versions 1.24 and later", "containerd")

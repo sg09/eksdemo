@@ -34,8 +34,6 @@ type ClusterOptions struct {
 
 func addOptions(res *resource.Resource) *resource.Resource {
 	ngOptions, ngFlags, _ := nodegroup.NewOptions()
-	ngOptions.DesiredCapacity = 2
-	ngOptions.NodegroupName = "main"
 
 	options := &ClusterOptions{
 		CommonOptions: resource.CommonOptions{
@@ -56,6 +54,10 @@ func addOptions(res *resource.Resource) *resource.Resource {
 			Template: irsa.EksctlTemplate,
 		},
 	}
+
+	ngOptions.CommonOptions = options.Common()
+	ngOptions.DesiredCapacity = 2
+	ngOptions.NodegroupName = "main"
 
 	res.Options = options
 
