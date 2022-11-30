@@ -119,7 +119,12 @@ func (o *ApplicationOptions) AssignCommonResourceOptions(res *resource.Resource)
 	r.Namespace = o.Namespace
 	r.Partition = o.Partition
 	r.Region = o.Region
-	r.ServiceAccount = o.ServiceAccount
+
+	// Allow for multiple IRSA for an application
+	// By default will use the application service account, unless already set on the IRSA resource
+	if r.ServiceAccount == "" {
+		r.ServiceAccount = o.ServiceAccount
+	}
 }
 
 func (o *ApplicationOptions) Common() *ApplicationOptions {
@@ -134,6 +139,19 @@ func (o *ApplicationOptions) IrsaAnnotation() string {
 			Namespace:      o.Namespace,
 			Partition:      o.Partition,
 			ServiceAccount: o.ServiceAccount,
+		},
+	}
+	return irsaOptions.IrsaAnnotation()
+}
+
+func (o *ApplicationOptions) IrsaAnnotationFor(serviceAccount string) string {
+	irsaOptions := irsa.IrsaOptions{
+		CommonOptions: resource.CommonOptions{
+			Account:        o.Account,
+			ClusterName:    o.ClusterName,
+			Namespace:      o.Namespace,
+			Partition:      o.Partition,
+			ServiceAccount: serviceAccount,
 		},
 	}
 	return irsaOptions.IrsaAnnotation()
