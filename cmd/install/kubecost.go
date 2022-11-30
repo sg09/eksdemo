@@ -3,6 +3,7 @@ package install
 import (
 	"eksdemo/pkg/application"
 	"eksdemo/pkg/application/kubecost/kubecost_eks"
+	"eksdemo/pkg/application/kubecost/kubecost_eks_amp"
 	"eksdemo/pkg/application/kubecost/kubecost_vendor"
 
 	"github.com/spf13/cobra"
@@ -46,5 +47,6 @@ func init() {
 	kubecostApps = []func() *application.Application{
 		kubecost_vendor.NewApp,
 		kubecost_eks.NewApp,
+		kubecost_eks_amp.NewApp,
 	}
 }

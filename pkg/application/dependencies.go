@@ -10,7 +10,7 @@ func (a *Application) CreateDependencies() error {
 	}
 
 	for _, res := range a.Dependencies {
-		fmt.Printf("Creating dependency: %s\n", res.Common().Name)
+		fmt.Printf("\nCreating dependency: %s\n", res.Common().Name)
 
 		a.AssignCommonResourceOptions(res)
 
