@@ -30,6 +30,20 @@ func NewEC2InstanceFilter(instanceId string) types.Filter {
 	}
 }
 
+func NewEC2InternetGatewayFilter(internetGatewayId string) types.Filter {
+	return types.Filter{
+		Name:   aws.String("internet-gateway-id"),
+		Values: []string{internetGatewayId},
+	}
+}
+
+func NewEC2InternetGatewayVpcFilter(vpcId string) types.Filter {
+	return types.Filter{
+		Name:   aws.String("attachment.vpc-id"),
+		Values: []string{vpcId},
+	}
+}
+
 func NewEC2NatGatewayFilter(natGatewayId string) types.Filter {
 	return types.Filter{
 		Name:   aws.String("nat-gateway-id"),
@@ -158,6 +172,26 @@ func (c *EC2Client) DescribeInstances(filters []types.Filter) ([]types.Reservati
 	}
 
 	return reservations, nil
+}
+
+func (c *EC2Client) DescribeInternetGateways(filters []types.Filter) ([]types.InternetGateway, error) {
+	internetGateways := []types.InternetGateway{}
+	pageNum := 0
+
+	paginator := ec2.NewDescribeInternetGatewaysPaginator(c.Client, &ec2.DescribeInternetGatewaysInput{
+		Filters: filters,
+	})
+
+	for paginator.HasMorePages() && pageNum < maxPages {
+		out, err := paginator.NextPage(context.Background())
+		if err != nil {
+			return nil, err
+		}
+		internetGateways = append(internetGateways, out.InternetGateways...)
+		pageNum++
+	}
+
+	return internetGateways, nil
 }
 
 func (c *EC2Client) DescribeNATGateways(filters []types.Filter) ([]types.NatGateway, error) {

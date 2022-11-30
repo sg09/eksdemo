@@ -22,6 +22,7 @@ import (
 	"eksdemo/pkg/resource/hosted_zone"
 	"eksdemo/pkg/resource/iam_oidc"
 	"eksdemo/pkg/resource/iam_role"
+	"eksdemo/pkg/resource/internet_gateway"
 	"eksdemo/pkg/resource/irsa"
 	"eksdemo/pkg/resource/kms_key"
 	"eksdemo/pkg/resource/listener"
@@ -108,6 +109,7 @@ func init() {
 	getCmd.AddCommand(hosted_zone.NewResource().NewGetCmd())
 	getCmd.AddCommand(iam_oidc.NewResource().NewGetCmd())
 	getCmd.AddCommand(iam_role.NewResource().NewGetCmd())
+	getCmd.AddCommand(internet_gateway.NewResource().NewGetCmd())
 	getCmd.AddCommand(irsa.NewResource().NewGetCmd())
 	getCmd.AddCommand(kms_key.NewResource().NewGetCmd())
 	getCmd.AddCommand(listener.NewResource().NewGetCmd())
