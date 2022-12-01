@@ -43,9 +43,9 @@ managedNodeGroups:
   amiFamily: {{ .OperatingSystem }}
   iam:
     attachPolicyARNs:
-    - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
-    - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
-    - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+    - arn:{{ .Partition }}:iam::aws:policy/AmazonEKSWorkerNodePolicy
+    - arn:{{ .Partition }}:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+    - arn:{{ .Partition }}:iam::aws:policy/AmazonSSMManagedInstanceCore
 {{- if .Spot }}
   instanceSelector:
     vCPUs: {{ .SpotvCPUs }}
