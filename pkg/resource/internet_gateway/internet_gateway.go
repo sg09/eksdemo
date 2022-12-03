@@ -10,7 +10,7 @@ func NewResource() *resource.Resource {
 		Command: cmd.Command{
 			Name:        "internet-gateway",
 			Description: "Internet Gateway",
-			Aliases:     []string{"internet-gateways", "ig"},
+			Aliases:     []string{"internet-gateways", "igw", "ig"},
 			Args:        []string{"ID"},
 		},
 
