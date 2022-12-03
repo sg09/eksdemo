@@ -41,6 +41,7 @@ import (
 	"eksdemo/pkg/resource/s3_bucket"
 	"eksdemo/pkg/resource/security_group"
 	"eksdemo/pkg/resource/security_group_rule"
+	"eksdemo/pkg/resource/sqs_queue"
 	"eksdemo/pkg/resource/ssm_node"
 	"eksdemo/pkg/resource/ssm_session"
 	"eksdemo/pkg/resource/subnet"
@@ -128,6 +129,7 @@ func init() {
 	getCmd.AddCommand(s3_bucket.NewResource().NewGetCmd())
 	getCmd.AddCommand(security_group.NewResource().NewGetCmd())
 	getCmd.AddCommand(security_group_rule.NewResource().NewGetCmd())
+	getCmd.AddCommand(sqs_queue.NewResource().NewGetCmd())
 	getCmd.AddCommand(ssm_node.NewResource().NewGetCmd())
 	getCmd.AddCommand(ssm_session.NewResource().NewGetCmd())
 	getCmd.AddCommand(subnet.NewResource().NewGetCmd())
