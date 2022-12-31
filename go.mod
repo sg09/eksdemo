@@ -5,7 +5,7 @@ go 1.17
 require (
 	github.com/Masterminds/sprig/v3 v3.2.2
 	github.com/aws/SSMCLI v0.0.0-20220617200849-916aa5c1c241
-	github.com/aws/aws-sdk-go-v2 v1.17.1
+	github.com/aws/aws-sdk-go-v2 v1.17.3
 	github.com/aws/aws-sdk-go-v2/config v1.17.4
 	github.com/aws/aws-sdk-go-v2/service/acm v1.15.0
 	github.com/aws/aws-sdk-go-v2/service/amp v1.15.6
@@ -17,6 +17,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/eks v1.22.3
 	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancing v1.14.20
 	github.com/aws/aws-sdk-go-v2/service/elasticloadbalancingv2 v1.18.22
+	github.com/aws/aws-sdk-go-v2/service/eventbridge v1.16.22
 	github.com/aws/aws-sdk-go-v2/service/grafana v1.9.14
 	github.com/aws/aws-sdk-go-v2/service/iam v1.18.23
 	github.com/aws/aws-sdk-go-v2/service/kms v1.18.15
@@ -26,7 +27,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/sqs v1.19.15
 	github.com/aws/aws-sdk-go-v2/service/ssm v1.27.13
 	github.com/aws/aws-sdk-go-v2/service/sts v1.16.16
-	github.com/aws/smithy-go v1.13.4
+	github.com/aws/smithy-go v1.13.5
 	github.com/go-resty/resty/v2 v2.7.0
 	github.com/google/uuid v1.2.0
 	github.com/hako/durafmt v0.0.0-20210608085754-5c1018a4e16b
@@ -64,10 +65,10 @@ require (
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.4.9 // indirect
 	github.com/aws/aws-sdk-go-v2/credentials v1.12.17 // indirect
 	github.com/aws/aws-sdk-go-v2/feature/ec2/imds v1.12.14 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/configsources v1.1.25 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.4.19 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/configsources v1.1.27 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/endpoints/v2 v2.4.21 // indirect
 	github.com/aws/aws-sdk-go-v2/internal/ini v1.3.21 // indirect
-	github.com/aws/aws-sdk-go-v2/internal/v4a v1.0.16 // indirect
+	github.com/aws/aws-sdk-go-v2/internal/v4a v1.0.18 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/accept-encoding v1.9.10 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/checksum v1.1.20 // indirect
 	github.com/aws/aws-sdk-go-v2/service/internal/presigned-url v1.9.19 // indirect

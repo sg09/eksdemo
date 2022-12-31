@@ -18,6 +18,7 @@ import (
 	"eksdemo/pkg/resource/ec2_instance"
 	"eksdemo/pkg/resource/ecr_repository"
 	"eksdemo/pkg/resource/elastic_ip"
+	"eksdemo/pkg/resource/event_rule"
 	"eksdemo/pkg/resource/fargate_profile"
 	"eksdemo/pkg/resource/hosted_zone"
 	"eksdemo/pkg/resource/iam_oidc"
@@ -106,6 +107,7 @@ func init() {
 	getCmd.AddCommand(ec2_instance.NewResource().NewGetCmd())
 	getCmd.AddCommand(ecr_repository.NewResource().NewGetCmd())
 	getCmd.AddCommand(elastic_ip.NewResource().NewGetCmd())
+	getCmd.AddCommand(event_rule.NewResource().NewGetCmd())
 	getCmd.AddCommand(fargate_profile.NewResource().NewGetCmd())
 	getCmd.AddCommand(hosted_zone.NewResource().NewGetCmd())
 	getCmd.AddCommand(iam_oidc.NewResource().NewGetCmd())
