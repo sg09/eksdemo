@@ -114,7 +114,7 @@ func (o *ClusterOptions) PreCreate() error {
 			// Populate the IRSA Resource with Account, Cluster, Namespace, Partition, Region, ServiceAccount
 			app.Common().Account = o.Account
 			app.Common().ClusterName = o.ClusterName
-			app.Common().Region = o.ClusterName
+			app.Common().Region = o.Region
 			app.Common().Partition = o.Partition
 			app.AssignCommonResourceOptions(res)
 			res.SetName(app.Common().ServiceAccount)

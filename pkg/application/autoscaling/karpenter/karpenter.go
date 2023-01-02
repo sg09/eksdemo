@@ -15,7 +15,7 @@ import (
 // GitHub:  https://github.com/awslabs/karpenter
 // Helm:    https://github.com/awslabs/karpenter/tree/main/charts/karpenter
 // Repo:    https://gallery.ecr.aws/karpenter/controller
-// Version: Latest is v0.18.1 (as of 10/26/22)
+// Version: Latest is v0.21.1 (as of 12/31/22)
 
 func NewApp() *application.Application {
 	options, flags := newOptions()
@@ -38,12 +38,13 @@ func NewApp() *application.Application {
 				},
 			}),
 			karpenterNodeRole(),
+			karpenterSqsQueue(),
 			iam_auth.NewResourceWithOptions(&iam_auth.IamAuthOptions{
 				CommonOptions: resource.CommonOptions{
 					Name: "karpenter-node-iam-auth",
 				},
 				IamAuth: eksctl.IamAuth{
-					Arn:      "arn:aws:iam::{{ .Account }}:role/KarpenterNodeRole-{{ .ClusterName }}",
+					Arn:      "arn:{{ .Partition }}:iam::{{ .Account }}:role/KarpenterNodeRole-{{ .ClusterName }}",
 					Groups:   []string{"system:bootstrappers", "system:nodes"},
 					Username: "system:node:{{EC2PrivateDNSName}}",
 				},
@@ -97,6 +98,15 @@ Statement:
   - pricing:GetProducts
 - Effect: Allow
   Action:
+  # Write Operations
+  - sqs:DeleteMessage
+  # Read Operations
+  - sqs:GetQueueUrl
+  - sqs:GetQueueAttributes
+  - sqs:ReceiveMessage
+  Resource: arn:{{ .Partition }}:sqs:{{ .Region }}:{{ .Account }}:karpenter-{{ .ClusterName }}
+- Effect: Allow
+  Action:
   - iam:PassRole
   Resource: arn:{{ .Partition }}:iam::{{ .Account }}:role/KarpenterNodeRole-{{ .ClusterName }}
 `
@@ -110,8 +120,10 @@ serviceAccount:
 replicas: 1
 controller:
   image: public.ecr.aws/karpenter/controller:{{ .Version }}
-clusterName: {{ .ClusterName }}
-clusterEndpoint: {{ .Cluster.Endpoint }}
-aws:
-  defaultInstanceProfile: KarpenterNodeInstanceProfile-{{ .ClusterName }}
+settings:
+  aws:
+    clusterName: {{ .ClusterName }}
+    clusterEndpoint: {{ .Cluster.Endpoint }}
+    defaultInstanceProfile: KarpenterNodeInstanceProfile-{{ .ClusterName }}
+    interruptionQueueName: karpenter-{{ .ClusterName }}
 `

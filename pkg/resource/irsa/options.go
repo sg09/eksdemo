@@ -5,7 +5,6 @@ import (
 	"eksdemo/pkg/resource"
 	"eksdemo/pkg/template"
 	"fmt"
-	"hash/fnv"
 	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -125,17 +124,7 @@ func (o *IrsaOptions) PreDelete() error {
 }
 
 func (o *IrsaOptions) RoleName() string {
-	roleName := fmt.Sprintf("eksdemo.%s.%s.%s", o.ClusterName, o.Namespace, o.ServiceAccount)
-
-	nameinRunes := []rune(roleName)
-	if len(nameinRunes) <= 64 {
-		return roleName
-	}
-
-	hash := fnv.New32a()
-	hash.Write([]byte(roleName))
-
-	return fmt.Sprintf("%s-%x", string(nameinRunes[:55]), hash.Sum(nil))
+	return o.TruncateUnique(64, fmt.Sprintf("eksdemo.%s.%s.%s", o.ClusterName, o.Namespace, o.ServiceAccount))
 }
 
 func (o *IrsaOptions) SetName(name string) {

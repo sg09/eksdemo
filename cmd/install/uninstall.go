@@ -4,6 +4,8 @@ import (
 	"eksdemo/pkg/application"
 	"eksdemo/pkg/application/adot_operator"
 	"eksdemo/pkg/application/appmesh_controller"
+	"eksdemo/pkg/application/autoscaling/cluster_autoscaler"
+	"eksdemo/pkg/application/autoscaling/karpenter"
 	"eksdemo/pkg/application/aws_fluentbit"
 	"eksdemo/pkg/application/aws_lb_controller"
 	"eksdemo/pkg/application/cert_manager"
@@ -17,6 +19,7 @@ import (
 	"eksdemo/pkg/application/kube_prometheus"
 	"eksdemo/pkg/application/metrics_server"
 	"eksdemo/pkg/application/prometheus_amp"
+	"eksdemo/pkg/application/storage/ebs_csi"
 	"eksdemo/pkg/application/velero"
 
 	"github.com/spf13/cobra"
@@ -73,6 +76,11 @@ func NewUninstallCmd() *cobra.Command {
 	cmd.AddCommand(NewUninstallStorageCmd())
 	cmd.AddCommand(NewUninstallAliasCmds(storageApps, "storage-")...)
 	cmd.AddCommand(velero.NewApp().NewUninstallCmd())
+
+	// Hidden commands for popular apps without using the group
+	cmd.AddCommand(NewUninstallAliasCmds([]func() *application.Application{cluster_autoscaler.NewApp}, "")...)
+	cmd.AddCommand(NewUninstallAliasCmds([]func() *application.Application{ebs_csi.NewApp}, "")...)
+	cmd.AddCommand(NewUninstallAliasCmds([]func() *application.Application{karpenter.NewApp}, "")...)
 
 	return cmd
 }

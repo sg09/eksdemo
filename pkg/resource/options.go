@@ -2,6 +2,8 @@ package resource
 
 import (
 	"eksdemo/pkg/cmd"
+	"fmt"
+	"hash/fnv"
 
 	"github.com/aws/aws-sdk-go-v2/service/eks/types"
 	"github.com/spf13/cobra"
@@ -135,6 +137,18 @@ func (o *CommonOptions) PreDelete() error {
 
 func (o *CommonOptions) SetName(name string) {
 	o.Name = name
+}
+
+func (o *CommonOptions) TruncateUnique(max int, name string) string {
+	nameinRunes := []rune(name)
+	if len(nameinRunes) <= max {
+		return name
+	}
+
+	hash := fnv.New32a()
+	hash.Write([]byte(name))
+
+	return fmt.Sprintf("%s-%x", string(nameinRunes[:max-9]), hash.Sum(nil))
 }
 
 func (o *CommonOptions) Validate(args []string) error {
