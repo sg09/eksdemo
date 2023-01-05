@@ -1,7 +1,7 @@
 # `eksdemo` - kubectl-like CLI for Amazon EKS
 The easy button for testing, learning and demoing Amazon EKS:
 * Install complex applications and dependencies with a single command
-* Extensive application catalog (53 CNCF, open source and related projects)
+* Extensive application catalog (over 50 CNCF, open source and related projects)
 * Customize application installs easily with simple command line flags
 * Query and search AWS resources with kubectl-like get commands
 
@@ -80,7 +80,7 @@ The application catalog includes:
     * `eks-workshop` — EKS Workshop Example Microservices
     * `game-2048` — Example Game 2048
     * `kube-ops-view` — Kubernetes Operational View
-    * `podinfo` -- Go app w/microservices best practices
+    * `podinfo` — Go app w/microservices best practices
     * `wordpress` — WordPress Blog
 * `external-dns` — ExternalDNS
 * `falco` — Cloud Native Runtime Security
@@ -98,7 +98,10 @@ The application catalog includes:
     * `istiod` — Istio Control Plane
 * `keycloak-amg` — Keycloak SAML iDP for Amazon Managed Grafana
 * `kube-prometheus` — Kube Prometheus Stack
-* `kubecost` — Monitor & Reduce Kubernetes Spend
+* `kubecost` — Visibility Into Kubernetes Spend
+    * `eks` — EKS optimized bundle of Kubecost
+    * `eks-amp` — EKS optimized Kubecost using Amazon Managed Prometheus
+    * `vendor` — Vendor distribution of Kubecost
 * `metrics-server` — Kubernetes Metric Server
 * `policy` — Kubernetes Policy Controllers
     * `kyverno` — Kubernetes Native Policy Management
