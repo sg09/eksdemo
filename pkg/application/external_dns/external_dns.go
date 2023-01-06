@@ -28,8 +28,10 @@ func NewApp() *application.Application {
 				CommonOptions: resource.CommonOptions{
 					Name: "external-dns-irsa",
 				},
-				PolicyType: irsa.WellKnown,
-				Policy:     []string{"externalDNS"},
+				PolicyType: irsa.PolicyDocument,
+				PolicyDocTemplate: &template.TextTemplate{
+					Template: policyDocument,
+				},
 			}),
 		},
 
@@ -55,6 +57,22 @@ func NewApp() *application.Application {
 	}
 	return app
 }
+
+const policyDocument = `
+Version: '2012-10-17'
+Statement:
+- Effect: Allow
+  Action:
+  - route53:ChangeResourceRecordSets
+  Resource:
+  - arn:aws:route53:::hostedzone/*
+- Effect: Allow
+  Action:
+  - route53:ListHostedZones
+  - route53:ListResourceRecordSets
+  Resource:
+  - "*"
+`
 
 const valuesTemplate = `---
 image:
