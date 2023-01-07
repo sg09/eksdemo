@@ -44,10 +44,12 @@ func (g *Getter) Get(name string, output printer.Output, options resource.Option
 
 	if name != "" {
 		role, err = g.GetRoleByName(name)
+	} else if roleOptions.NameSearch != "" {
+		roles, err = g.GetRolesByNameSearch(roleOptions.NameSearch)
 	} else if roleOptions.Cluster != nil {
 		roles, err = g.GetIrsaRolesForCluster(roleOptions.Cluster, roleOptions.LastUsed)
 	} else {
-		roles, err = g.GetAllRoles(roleOptions.All, roleOptions.LastUsed)
+		roles, err = g.GetAllRoles(roleOptions.LastUsed)
 	}
 
 	if err != nil {
@@ -61,20 +63,10 @@ func (g *Getter) Get(name string, output printer.Output, options resource.Option
 	return output.Print(os.Stdout, NewPrinter(roles, roleOptions.LastUsed))
 }
 
-func (g *Getter) GetAllRoles(includeServiceRoles, getRoleDetails bool) (roles []types.Role, err error) {
+func (g *Getter) GetAllRoles(getRoleDetails bool) (roles []types.Role, err error) {
 	roles, err = g.iamClient.ListRoles()
 	if err != nil {
 		return nil, err
-	}
-
-	if !includeServiceRoles {
-		filtered := []types.Role{}
-		for _, r := range roles {
-			if !strings.HasPrefix(awssdk.ToString(r.Path), "/aws-service-role/") {
-				filtered = append(filtered, r)
-			}
-		}
-		roles = filtered
 	}
 
 	if getRoleDetails {
@@ -90,7 +82,7 @@ func (g *Getter) GetIrsaRolesForCluster(cluster *ekstypes.Cluster, getRoleDetail
 		return []types.Role{}, err
 	}
 
-	roles, err := g.GetAllRoles(false, getRoleDetails)
+	roles, err := g.GetAllRoles(getRoleDetails)
 	if err != nil {
 		return []types.Role{}, err
 	}
@@ -121,6 +113,28 @@ func (g *Getter) GetRoleByName(name string) (*types.Role, error) {
 	}
 
 	return role, nil
+}
+
+func (g *Getter) GetRolesByNameSearch(nameSearch string) ([]types.Role, error) {
+	roles, err := g.iamClient.ListRoles()
+	if err != nil {
+		return nil, err
+	}
+
+	filtered := []types.Role{}
+	n := strings.ToLower(nameSearch)
+
+	for _, r := range roles {
+		if strings.Contains(strings.ToLower(awssdk.ToString(r.RoleName)), n) {
+			filtered = append(filtered, r)
+		}
+	}
+
+	if len(filtered) == 0 {
+		return nil, resource.NotFoundError(fmt.Sprintf("no iam-role found searching for %q", nameSearch))
+	}
+
+	return filtered, nil
 }
 
 func (g *Getter) getDetailedRoles(roles []types.Role) ([]types.Role, error) {

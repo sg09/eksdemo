@@ -11,8 +11,8 @@ import (
 type IamRoleOptions struct {
 	resource.CommonOptions
 
-	All      bool
-	LastUsed bool
+	LastUsed   bool
+	NameSearch string
 }
 
 func NewOptions() (options *IamRoleOptions, getFlags cmd.Flags) {
@@ -33,14 +33,6 @@ func NewOptions() (options *IamRoleOptions, getFlags cmd.Flags) {
 	}
 
 	getFlags = cmd.Flags{
-		&cmd.BoolFlag{
-			CommandFlag: cmd.CommandFlag{
-				Name:        "all",
-				Description: "show all roles including service roles",
-				Shorthand:   "A",
-			},
-			Option: &options.All,
-		},
 		clusterFlag,
 		&cmd.BoolFlag{
 			CommandFlag: cmd.CommandFlag{
@@ -49,6 +41,19 @@ func NewOptions() (options *IamRoleOptions, getFlags cmd.Flags) {
 				Shorthand:   "L",
 			},
 			Option: &options.LastUsed,
+		},
+		&cmd.StringFlag{
+			CommandFlag: cmd.CommandFlag{
+				Name:        "search",
+				Description: "case-insensitive name search",
+				Validate: func(cmd *cobra.Command, args []string) error {
+					if options.NameSearch != "" && len(args) > 0 {
+						return fmt.Errorf("%q flag cannot be used with NAME argument", "search")
+					}
+					return nil
+				},
+			},
+			Option: &options.NameSearch,
 		},
 	}
 
