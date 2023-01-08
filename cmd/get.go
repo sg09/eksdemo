@@ -22,6 +22,7 @@ import (
 	"eksdemo/pkg/resource/fargate_profile"
 	"eksdemo/pkg/resource/hosted_zone"
 	"eksdemo/pkg/resource/iam_oidc"
+	"eksdemo/pkg/resource/iam_policy"
 	"eksdemo/pkg/resource/iam_role"
 	"eksdemo/pkg/resource/internet_gateway"
 	"eksdemo/pkg/resource/irsa"
@@ -111,6 +112,7 @@ func init() {
 	getCmd.AddCommand(fargate_profile.NewResource().NewGetCmd())
 	getCmd.AddCommand(hosted_zone.NewResource().NewGetCmd())
 	getCmd.AddCommand(iam_oidc.NewResource().NewGetCmd())
+	getCmd.AddCommand(iam_policy.NewResource().NewGetCmd())
 	getCmd.AddCommand(iam_role.NewResource().NewGetCmd())
 	getCmd.AddCommand(internet_gateway.NewResource().NewGetCmd())
 	getCmd.AddCommand(irsa.NewResource().NewGetCmd())
