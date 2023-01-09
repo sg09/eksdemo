@@ -13,7 +13,7 @@ import (
 // GitHub:  https://github.com/kubernetes/autoscaler/tree/master/cluster-autoscaler/cloudprovider/aws
 // Helm:    https://github.com/kubernetes/autoscaler/tree/master/charts/cluster-autoscaler
 // Repo:    k8s.gcr.io/autoscaling/cluster-autoscaler
-// Version: Latest for k8s 1.23 is v1.23.0 (as of 11/04/22)
+// Version: Latest for k8s 1.24 is v1.24.0 (as of 1/06/23)
 
 func NewApp() *application.Application {
 	app := &application.Application{
@@ -29,8 +29,10 @@ func NewApp() *application.Application {
 				CommonOptions: resource.CommonOptions{
 					Name: "cluster-autoscaler-irsa",
 				},
-				PolicyType: irsa.WellKnown,
-				Policy:     []string{"autoScaler"},
+				PolicyType: irsa.PolicyDocument,
+				PolicyDocTemplate: &template.TextTemplate{
+					Template: policyDocument,
+				},
 			}),
 		},
 
@@ -66,6 +68,41 @@ func NewApp() *application.Application {
 	}
 	return app
 }
+
+// Policy Notes
+//
+// autoscaling:DescribeScalingActivities        v1.24 https://github.com/kubernetes/autoscaler/pull/4489
+// autoscaling:DescribeTags          removed in v1.25 https://github.com/kubernetes/autoscaler/pull/4424
+// ec2:DescribeImages                           v1.26 https://github.com/kubernetes/autoscaler/pull/4588
+// ec2:DescribeInstanceTypes                    v1.23 https://github.com/kubernetes/autoscaler/pull/4468
+// ec2:GetInstanceTypesFromInstanceRequirements v1.26 https://github.com/kubernetes/autoscaler/pull/4588
+// eks:DescribeNodegroup                              https://github.com/kubernetes/autoscaler/pull/4491
+
+const policyDocument = `
+Version: '2012-10-17'
+Statement:
+- Effect: Allow
+  Action:
+  - autoscaling:DescribeAutoScalingGroups
+  - autoscaling:DescribeAutoScalingInstances
+  - autoscaling:DescribeLaunchConfigurations
+  - autoscaling:DescribeScalingActivities
+  - autoscaling:DescribeTags
+  - ec2:DescribeImages
+  - ec2:DescribeInstanceTypes
+  - ec2:DescribeLaunchTemplateVersions
+  - ec2:GetInstanceTypesFromInstanceRequirements
+  - eks:DescribeNodegroup
+  Resource: "*"
+- Effect: Allow
+  Action:
+  - autoscaling:SetDesiredCapacity
+  - autoscaling:TerminateInstanceInAutoScalingGroup
+  Resource: "*"
+  Condition:
+    StringEquals:
+      aws:ResourceTag/k8s.io/cluster-autoscaler/{{ .ClusterName }}: owned
+`
 
 const valuesTemplate = `---
 autoDiscovery:
