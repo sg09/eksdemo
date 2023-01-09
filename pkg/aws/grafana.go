@@ -38,7 +38,7 @@ func (c *GrafanaClient) CreateWorkspace(name string, auth []string, roleArn stri
 
 	err = NewWorkspaceActiveWaiter(c.Client).Wait(context.Background(),
 		&grafana.DescribeWorkspaceInput{WorkspaceId: result.Workspace.Id},
-		1*time.Minute,
+		5*time.Minute,
 	)
 
 	return result.Workspace, err
@@ -168,7 +168,7 @@ func NewWorkspaceActiveWaiter(client DescribeWorkspaceAPIClient, optFns ...func(
 	options := WorkspaceActiveWaiterOptions{}
 	options.APIOptions = append(options.APIOptions, WaiterLogger{}.AddLogger)
 	options.MinDelay = 2 * time.Second
-	options.MaxDelay = 120 * time.Second
+	options.MaxDelay = 5 * time.Second
 	options.Retryable = workspaceActiveStateRetryable
 
 	for _, fn := range optFns {
