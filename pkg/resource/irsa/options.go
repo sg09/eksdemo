@@ -18,7 +18,6 @@ type IrsaOptions struct {
 	Policy []string
 
 	// Used for flags
-	WellKnownPolicy   string
 	PolicyARNs        []string
 	PolicyDocTemplate template.Template
 }
@@ -27,7 +26,6 @@ type PolicyType int
 
 const (
 	None PolicyType = iota
-	WellKnown
 	PolicyARNs
 	PolicyDocument
 )
@@ -64,27 +62,6 @@ func addOptions(res *resource.Resource) *resource.Resource {
 			},
 			Option: &options.PolicyARNs,
 		},
-		&cmd.StringFlag{
-			CommandFlag: cmd.CommandFlag{
-				Name:        "well-known",
-				Description: "eksctl well known policy",
-				Validate: func(cmd *cobra.Command, args []string) error {
-					if options.WellKnownPolicy == "" {
-						return nil
-					}
-
-					if len(options.Policy) > 0 {
-						return fmt.Errorf("can only use one policy flag")
-					}
-
-					options.PolicyType = WellKnown
-					options.Policy = []string{options.WellKnownPolicy}
-
-					return nil
-				},
-			},
-			Option: &options.WellKnownPolicy,
-		},
 	}
 
 	return res
@@ -111,16 +88,6 @@ func (o *IrsaOptions) IsPolicyDocument(t PolicyType) bool {
 
 func (o *IrsaOptions) IsPolicyARN(t PolicyType) bool {
 	return t == PolicyARNs
-}
-
-func (o *IrsaOptions) IsWellKnownPolicy(t PolicyType) bool {
-	return t == WellKnown
-}
-
-func (o *IrsaOptions) PreDelete() error {
-	o.PolicyType = WellKnown
-	o.Policy = []string{"autoScaler"}
-	return nil
 }
 
 func (o *IrsaOptions) RoleName() string {

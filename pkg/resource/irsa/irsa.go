@@ -54,10 +54,4 @@ const EksctlTemplate = `
     - {{ . }}
   {{- end }}
 {{- end }}
-{{- if .PolicyType | .IsWellKnownPolicy }}
-    wellKnownPolicies:
-    {{- range .Policy }}
-      {{ . }}: true
-    {{- end }}
-{{- end -}}
 `
