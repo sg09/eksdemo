@@ -35,6 +35,15 @@ func (c *IAMClient) CreateRole(assumeRolePolicy, name, path string) (*types.Role
 	return result.Role, nil
 }
 
+// Creates an IAM role that is linked to a specific AWS service.
+func (c *IAMClient) CreateServiceLinkedRole(name string) error {
+	_, err := c.Client.CreateServiceLinkedRole(context.Background(), &iam.CreateServiceLinkedRoleInput{
+		AWSServiceName: aws.String(name),
+	})
+
+	return err
+}
+
 // Deletes the specified role. Unlike the AWS Management Console, when you delete a role programmatically,
 // you must delete the items attached to the role manually, or the deletion fails.
 func (c *IAMClient) DeleteRole(name string) error {

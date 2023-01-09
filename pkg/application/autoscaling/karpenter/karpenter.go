@@ -8,6 +8,7 @@ import (
 	"eksdemo/pkg/resource"
 	"eksdemo/pkg/resource/iam_auth"
 	"eksdemo/pkg/resource/irsa"
+	"eksdemo/pkg/resource/service_linked_role"
 	"eksdemo/pkg/template"
 )
 
@@ -28,6 +29,13 @@ func NewApp() *application.Application {
 		},
 
 		Dependencies: []*resource.Resource{
+			service_linked_role.NewResourceWithOptions(&service_linked_role.ServiceLinkedRoleOptions{
+				CommonOptions: resource.CommonOptions{
+					Name: "ec2-spot-service-linked-role",
+				},
+				RoleName:    "AWSServiceRoleForEC2Spot",
+				ServiceName: "spot.amazonaws.com",
+			}),
 			irsa.NewResourceWithOptions(&irsa.IrsaOptions{
 				CommonOptions: resource.CommonOptions{
 					Name: "karpenter-irsa",
