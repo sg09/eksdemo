@@ -86,6 +86,13 @@ func NewEC2TagKeyFilter(tagKey string) types.Filter {
 	}
 }
 
+func NewEC2VpcEndpointFilter(vpcEndpointId string) types.Filter {
+	return types.Filter{
+		Name:   aws.String("vpc-endpoint-id"),
+		Values: []string{vpcEndpointId},
+	}
+}
+
 func NewEC2VpcFilter(vpcId string) types.Filter {
 	return types.Filter{
 		Name:   aws.String("vpc-id"),
@@ -93,6 +100,10 @@ func NewEC2VpcFilter(vpcId string) types.Filter {
 	}
 }
 
+// Adds or overwrites only the specified tags for the specified Amazon EC2 resource or resources.
+// When you specify an existing tag key, the value is overwritten with the new value.
+// Each resource can have a maximum of 50 tags. Each tag consists of a key and optional value.
+// Tag keys must be unique per resource.
 func (c *EC2Client) CreateTags(resources []string, tags map[string]string) error {
 	_, err := c.Client.CreateTags(context.Background(), &ec2.CreateTagsInput{
 		Resources: resources,
@@ -102,6 +113,7 @@ func (c *EC2Client) CreateTags(resources []string, tags map[string]string) error
 	return err
 }
 
+// Deletes a security group.
 func (c *EC2Client) DeleteSecurityGroup(id string) error {
 	_, err := c.Client.DeleteSecurityGroup(context.Background(), &ec2.DeleteSecurityGroupInput{
 		GroupId: aws.String(id),
@@ -110,6 +122,7 @@ func (c *EC2Client) DeleteSecurityGroup(id string) error {
 	return err
 }
 
+// Deletes the specified EBS volume. The volume must be in the available state (not attached to an instance).
 func (c *EC2Client) DeleteVolume(id string) error {
 	_, err := c.Client.DeleteVolume(context.Background(), &ec2.DeleteVolumeInput{
 		VolumeId: aws.String(id),
@@ -118,6 +131,7 @@ func (c *EC2Client) DeleteVolume(id string) error {
 	return err
 }
 
+// Describes the specified Elastic IP addresses or all of your Elastic IP addresses.
 func (c *EC2Client) DescribeAddresses(filters []types.Filter) ([]types.Address, error) {
 	result, err := c.Client.DescribeAddresses(context.Background(), &ec2.DescribeAddressesInput{
 		Filters: filters,
@@ -129,6 +143,8 @@ func (c *EC2Client) DescribeAddresses(filters []types.Filter) ([]types.Address, 
 	return result.Addresses, nil
 }
 
+// Describes the Availability Zones, Local Zones, and Wavelength Zones that are available to you.
+// If there is an event impacting a zone, you can use this request to view the state and any provided messages for that zone.
 func (c *EC2Client) DescribeAvailabilityZones(name string, all bool) ([]types.AvailabilityZone, error) {
 	filters := []types.Filter{}
 	input := ec2.DescribeAvailabilityZonesInput{
@@ -154,6 +170,7 @@ func (c *EC2Client) DescribeAvailabilityZones(name string, all bool) ([]types.Av
 	return result.AvailabilityZones, nil
 }
 
+// Describes the specified instances or all instances.
 func (c *EC2Client) DescribeInstances(filters []types.Filter) ([]types.Reservation, error) {
 	reservations := []types.Reservation{}
 	pageNum := 0
@@ -174,6 +191,7 @@ func (c *EC2Client) DescribeInstances(filters []types.Filter) ([]types.Reservati
 	return reservations, nil
 }
 
+// Describes one or more of your internet gateways.
 func (c *EC2Client) DescribeInternetGateways(filters []types.Filter) ([]types.InternetGateway, error) {
 	internetGateways := []types.InternetGateway{}
 	pageNum := 0
@@ -194,6 +212,7 @@ func (c *EC2Client) DescribeInternetGateways(filters []types.Filter) ([]types.In
 	return internetGateways, nil
 }
 
+// Describes one or more of your NAT gateways.
 func (c *EC2Client) DescribeNATGateways(filters []types.Filter) ([]types.NatGateway, error) {
 	nats := []types.NatGateway{}
 	pageNum := 0
@@ -214,6 +233,7 @@ func (c *EC2Client) DescribeNATGateways(filters []types.Filter) ([]types.NatGate
 	return nats, nil
 }
 
+// Describes one or more of your network ACLs.
 func (c *EC2Client) DescribeNetworkAcls(filters []types.Filter) ([]types.NetworkAcl, error) {
 	nacls := []types.NetworkAcl{}
 	pageNum := 0
@@ -234,6 +254,7 @@ func (c *EC2Client) DescribeNetworkAcls(filters []types.Filter) ([]types.Network
 	return nacls, nil
 }
 
+// Describes one or more of your network interfaces.
 func (c *EC2Client) DescribeNetworkInterfaces(id, vpcId, description, instanceId, ip, securityGroupId string) ([]types.NetworkInterface, error) {
 	filters := []types.Filter{}
 	networkInterfaces := []types.NetworkInterface{}
@@ -301,6 +322,7 @@ func (c *EC2Client) DescribeNetworkInterfaces(id, vpcId, description, instanceId
 	return networkInterfaces, nil
 }
 
+// Describes one or more of your security group rules.
 func (c *EC2Client) DescribeSecurityGroupRules(id, securityGroupId string) ([]types.SecurityGroupRule, error) {
 	filters := []types.Filter{}
 	securityGroupRules := []types.SecurityGroupRule{}
@@ -340,6 +362,7 @@ func (c *EC2Client) DescribeSecurityGroupRules(id, securityGroupId string) ([]ty
 	return securityGroupRules, nil
 }
 
+// Describes the specified security groups or all of your security groups.
 func (c *EC2Client) DescribeSecurityGroups(id, vpcId string, ids []string) ([]types.SecurityGroup, error) {
 	filters := []types.Filter{}
 	securityGroups := []types.SecurityGroup{}
@@ -383,6 +406,7 @@ func (c *EC2Client) DescribeSecurityGroups(id, vpcId string, ids []string) ([]ty
 	return securityGroups, nil
 }
 
+// Describes one or more of your subnets.
 func (c *EC2Client) DescribeSubnets(filters []types.Filter) ([]types.Subnet, error) {
 	subnets := []types.Subnet{}
 	pageNum := 0
@@ -403,6 +427,7 @@ func (c *EC2Client) DescribeSubnets(filters []types.Filter) ([]types.Subnet, err
 	return subnets, nil
 }
 
+// Describes the specified tags for your EC2 resources.
 func (c *EC2Client) DescribeTags(resources, tagsFilter []string) ([]types.TagDescription, error) {
 	tags := []types.TagDescription{}
 	pageNum := 0
@@ -437,26 +462,7 @@ func (c *EC2Client) DescribeTags(resources, tagsFilter []string) ([]types.TagDes
 	return tags, nil
 }
 
-func (c *EC2Client) DescribeVpcs(filters []types.Filter) ([]types.Vpc, error) {
-	vpcs := []types.Vpc{}
-	pageNum := 0
-
-	paginator := ec2.NewDescribeVpcsPaginator(c.Client, &ec2.DescribeVpcsInput{
-		Filters: filters,
-	})
-
-	for paginator.HasMorePages() && pageNum < maxPages {
-		out, err := paginator.NextPage(context.Background())
-		if err != nil {
-			return nil, err
-		}
-		vpcs = append(vpcs, out.Vpcs...)
-		pageNum++
-	}
-
-	return vpcs, nil
-}
-
+// Describes the specified EBS volumes or all of your EBS volumes.
 func (c *EC2Client) DescribeVolumes(id string) ([]types.Volume, error) {
 	filters := []types.Filter{}
 	volumes := []types.Volume{}
@@ -489,6 +495,50 @@ func (c *EC2Client) DescribeVolumes(id string) ([]types.Volume, error) {
 	return volumes, nil
 }
 
+// Describes your VPC endpoints.
+func (c *EC2Client) DescribeVpcEndpoints(filters []types.Filter) ([]types.VpcEndpoint, error) {
+	vpcEndpoints := []types.VpcEndpoint{}
+	pageNum := 0
+
+	paginator := ec2.NewDescribeVpcEndpointsPaginator(c.Client, &ec2.DescribeVpcEndpointsInput{
+		Filters: filters,
+	})
+
+	for paginator.HasMorePages() && pageNum < maxPages {
+		out, err := paginator.NextPage(context.Background())
+		if err != nil {
+			return nil, err
+		}
+		vpcEndpoints = append(vpcEndpoints, out.VpcEndpoints...)
+		pageNum++
+	}
+
+	return vpcEndpoints, nil
+}
+
+// Describes one or more of your VPCs.
+func (c *EC2Client) DescribeVpcs(filters []types.Filter) ([]types.Vpc, error) {
+	vpcs := []types.Vpc{}
+	pageNum := 0
+
+	paginator := ec2.NewDescribeVpcsPaginator(c.Client, &ec2.DescribeVpcsInput{
+		Filters: filters,
+	})
+
+	for paginator.HasMorePages() && pageNum < maxPages {
+		out, err := paginator.NextPage(context.Background())
+		if err != nil {
+			return nil, err
+		}
+		vpcs = append(vpcs, out.Vpcs...)
+		pageNum++
+	}
+
+	return vpcs, nil
+}
+
+// Shuts down the specified instances.
+// This operation is idempotent; if you terminate an instance more than once, each call succeeds.
 func (c *EC2Client) TerminateInstances(id string) error {
 	_, err := c.Client.TerminateInstances(context.Background(), &ec2.TerminateInstancesInput{
 		InstanceIds: []string{id},

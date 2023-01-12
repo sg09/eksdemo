@@ -52,6 +52,7 @@ import (
 	"eksdemo/pkg/resource/target_health"
 	"eksdemo/pkg/resource/volume"
 	"eksdemo/pkg/resource/vpc"
+	"eksdemo/pkg/resource/vpc_endpoint"
 	"fmt"
 	"os"
 
@@ -143,6 +144,7 @@ func init() {
 	getCmd.AddCommand(target_health.NewResource().NewGetCmd())
 	getCmd.AddCommand(volume.NewResource().NewGetCmd())
 	getCmd.AddCommand(vpc.NewResource().NewGetCmd())
+	getCmd.AddCommand(vpc_endpoint.NewResource().NewGetCmd())
 
 	// Don't show flag errors for install without a subcommand
 	getCmd.DisableFlagParsing = true
