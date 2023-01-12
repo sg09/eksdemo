@@ -33,6 +33,7 @@ import (
 	"eksdemo/pkg/resource/log_event"
 	"eksdemo/pkg/resource/log_group"
 	"eksdemo/pkg/resource/log_stream"
+	"eksdemo/pkg/resource/metric"
 	"eksdemo/pkg/resource/nat_gateway"
 	"eksdemo/pkg/resource/network_acl"
 	"eksdemo/pkg/resource/network_acl_rule"
@@ -123,6 +124,7 @@ func init() {
 	getCmd.AddCommand(log_event.NewResource().NewGetCmd())
 	getCmd.AddCommand(log_group.NewResource().NewGetCmd())
 	getCmd.AddCommand(log_stream.NewResource().NewGetCmd())
+	getCmd.AddCommand(metric.NewResource().NewGetCmd())
 	getCmd.AddCommand(nat_gateway.NewResource().NewGetCmd())
 	getCmd.AddCommand(network_acl.NewResource().NewGetCmd())
 	getCmd.AddCommand(network_acl_rule.NewResource().NewGetCmd())

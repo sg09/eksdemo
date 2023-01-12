@@ -11,6 +11,7 @@ require (
 	github.com/aws/aws-sdk-go-v2/service/amp v1.15.6
 	github.com/aws/aws-sdk-go-v2/service/autoscaling v1.23.17
 	github.com/aws/aws-sdk-go-v2/service/cloudformation v1.22.11
+	github.com/aws/aws-sdk-go-v2/service/cloudwatch v1.24.0
 	github.com/aws/aws-sdk-go-v2/service/cloudwatchlogs v1.15.22
 	github.com/aws/aws-sdk-go-v2/service/ec2 v1.63.3
 	github.com/aws/aws-sdk-go-v2/service/ecr v1.17.20
