@@ -58,6 +58,13 @@ func NewEC2NetworkAclFilter(networkAclId string) types.Filter {
 	}
 }
 
+func NewEC2RouteTableFilter(routeTableId string) types.Filter {
+	return types.Filter{
+		Name:   aws.String("route-table-id"),
+		Values: []string{routeTableId},
+	}
+}
+
 func NewEC2SecurityGroupFilter(securityGroupId string) types.Filter {
 	return types.Filter{
 		Name:   aws.String("group-id"),
@@ -320,6 +327,27 @@ func (c *EC2Client) DescribeNetworkInterfaces(id, vpcId, description, instanceId
 	}
 
 	return networkInterfaces, nil
+}
+
+// Describes one or more of your route tables.
+func (c *EC2Client) DescribeRouteTables(filters []types.Filter) ([]types.RouteTable, error) {
+	routeTables := []types.RouteTable{}
+	pageNum := 0
+
+	paginator := ec2.NewDescribeRouteTablesPaginator(c.Client, &ec2.DescribeRouteTablesInput{
+		Filters: filters,
+	})
+
+	for paginator.HasMorePages() && pageNum < maxPages {
+		out, err := paginator.NextPage(context.Background())
+		if err != nil {
+			return nil, err
+		}
+		routeTables = append(routeTables, out.RouteTables...)
+		pageNum++
+	}
+
+	return routeTables, nil
 }
 
 // Describes one or more of your security group rules.
