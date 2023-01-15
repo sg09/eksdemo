@@ -13,6 +13,7 @@ import (
 	"eksdemo/pkg/resource/auto_scaling_group"
 	"eksdemo/pkg/resource/availability_zone"
 	"eksdemo/pkg/resource/cloudformation"
+	"eksdemo/pkg/resource/cloudtrail_event"
 	"eksdemo/pkg/resource/cluster"
 	"eksdemo/pkg/resource/dns_record"
 	"eksdemo/pkg/resource/ec2_instance"
@@ -106,6 +107,7 @@ func init() {
 	getCmd.AddCommand(auto_scaling_group.NewResource().NewGetCmd())
 	getCmd.AddCommand(availability_zone.NewResource().NewGetCmd())
 	getCmd.AddCommand(cloudformation.NewResource().NewGetCmd())
+	getCmd.AddCommand(cloudtrail_event.NewResource().NewGetCmd())
 	getCmd.AddCommand(cluster.NewResource().NewGetCmd())
 	getCmd.AddCommand(dns_record.NewResource().NewGetCmd())
 	getCmd.AddCommand(ec2_instance.NewResource().NewGetCmd())
