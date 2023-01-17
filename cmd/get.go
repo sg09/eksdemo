@@ -14,6 +14,7 @@ import (
 	"eksdemo/pkg/resource/availability_zone"
 	"eksdemo/pkg/resource/cloudformation"
 	"eksdemo/pkg/resource/cloudtrail_event"
+	"eksdemo/pkg/resource/cloudtrail_trail"
 	"eksdemo/pkg/resource/cluster"
 	"eksdemo/pkg/resource/dns_record"
 	"eksdemo/pkg/resource/ec2_instance"
@@ -108,6 +109,7 @@ func init() {
 	getCmd.AddCommand(availability_zone.NewResource().NewGetCmd())
 	getCmd.AddCommand(cloudformation.NewResource().NewGetCmd())
 	getCmd.AddCommand(cloudtrail_event.NewResource().NewGetCmd())
+	getCmd.AddCommand(cloudtrail_trail.NewResource().NewGetCmd())
 	getCmd.AddCommand(cluster.NewResource().NewGetCmd())
 	getCmd.AddCommand(dns_record.NewResource().NewGetCmd())
 	getCmd.AddCommand(ec2_instance.NewResource().NewGetCmd())

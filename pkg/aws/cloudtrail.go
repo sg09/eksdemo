@@ -3,25 +3,51 @@ package aws
 import (
 	"context"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/cloudtrail"
 	"github.com/aws/aws-sdk-go-v2/service/cloudtrail/types"
 )
 
 type CloudtrailClient struct {
 	*cloudtrail.Client
+	Region string
 }
 
 func NewCloudtrailClient() *CloudtrailClient {
-	return &CloudtrailClient{cloudtrail.NewFromConfig(GetConfig())}
+	config := GetConfig()
+
+	return &CloudtrailClient{cloudtrail.NewFromConfig(config), config.Region}
 }
 
-// func NewCloudtrailEventFilter(eventId string) types.LookupAttribute {
-// 	return types.LookupAttribute{
-// 		AttributeKey:   types.LookupAttributeKeyEventId,
-// 		AttributeValue: aws.String(eventId),
-// 	}
-// }
+// Returns settings information for a specified trail.
+func (c *CloudtrailClient) GetTrail(trailNameOrArn string) (*types.Trail, error) {
+	result, err := c.Client.GetTrail(context.Background(), &cloudtrail.GetTrailInput{
+		Name: aws.String(trailNameOrArn),
+	})
 
+	if err != nil {
+		return nil, err
+	}
+
+	return result.Trail, nil
+}
+
+// Returns a JSON-formatted list of information about the specified trail.
+// Fields include information on delivery errors, Amazon SNS and Amazon S3 errors,
+// and start and stop logging times for each trail.
+func (c *CloudtrailClient) GetTrailStatus(trailNameOrArn string) (*cloudtrail.GetTrailStatusOutput, error) {
+	result, err := c.Client.GetTrailStatus(context.Background(), &cloudtrail.GetTrailStatusInput{
+		Name: aws.String(trailNameOrArn),
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+// Lists trails that are in the current account.
 func (c *CloudtrailClient) ListTrails() ([]types.TrailInfo, error) {
 	trails := []types.TrailInfo{}
 	pageNum := 0
