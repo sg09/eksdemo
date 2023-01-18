@@ -62,4 +62,9 @@ iam:
 kubernetesNetworkConfig:
   ipFamily: IPv6
 {{- end }}
+{{- if .Private }}
+
+privateCluster:
+  enabled: true
+{{- end }}
 `

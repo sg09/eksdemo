@@ -26,6 +26,7 @@ type ClusterOptions struct {
 	Fargate bool
 	IPv6    bool
 	NoRoles bool
+	Private bool
 
 	appsForIrsa  []*application.Application
 	IrsaTemplate *template.TextTemplate
@@ -91,6 +92,13 @@ func addOptions(res *resource.Resource) *resource.Resource {
 				Description: "don't create IAM roles",
 			},
 			Option: &options.NoRoles,
+		},
+		&cmd.BoolFlag{
+			CommandFlag: cmd.CommandFlag{
+				Name:        "private",
+				Description: "private cluster (includes ECR, S3, and other VPC endpoints)",
+			},
+			Option: &options.Private,
 		},
 	}
 
