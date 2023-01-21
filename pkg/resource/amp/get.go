@@ -11,6 +11,11 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/amp/types"
 )
 
+type AmpWorkspace struct {
+	Workspace        *types.WorkspaceDescription
+	WorkspaceLogging *types.LoggingConfigurationMetadata
+}
+
 type Getter struct {
 	prometheusClient *aws.AMPClient
 }
@@ -34,13 +39,13 @@ func (g *Getter) Get(alias string, output printer.Output, options resource.Optio
 	return output.Print(os.Stdout, NewPrinter(workspaces))
 }
 
-func (g *Getter) GetAll(alias string) ([]*types.WorkspaceDescription, error) {
+func (g *Getter) GetAll(alias string) ([]AmpWorkspace, error) {
 	ampSummaries, err := g.prometheusClient.ListWorkspaces(alias)
 	if err != nil {
 		return nil, err
 	}
 
-	workspaces := make([]*types.WorkspaceDescription, 0, len(ampSummaries))
+	workspaces := make([]AmpWorkspace, 0, len(ampSummaries))
 
 	for _, summary := range ampSummaries {
 		// ListWorkspaces API will return workspaces that begin with alias, so drop those that don't match exactly
@@ -52,7 +57,13 @@ func (g *Getter) GetAll(alias string) ([]*types.WorkspaceDescription, error) {
 		if err != nil {
 			return nil, err
 		}
-		workspaces = append(workspaces, result)
+
+		logging, err := g.prometheusClient.DescribeLoggingConfiguration(awssdk.ToString(summary.WorkspaceId))
+		if err != nil {
+			return nil, err
+		}
+
+		workspaces = append(workspaces, AmpWorkspace{result, logging})
 	}
 
 	if alias != "" && len(workspaces) == 0 {
@@ -62,26 +73,26 @@ func (g *Getter) GetAll(alias string) ([]*types.WorkspaceDescription, error) {
 	return workspaces, nil
 }
 
-func (g *Getter) GetAmpByAlias(alias string) (*types.WorkspaceDescription, error) {
+func (g *Getter) GetAmpByAlias(alias string) (AmpWorkspace, error) {
 	workspaces, err := g.GetAll(alias)
 	if err != nil {
-		return nil, err
+		return AmpWorkspace{}, err
 	}
 
-	found := []*types.WorkspaceDescription{}
+	found := []AmpWorkspace{}
 
 	for _, w := range workspaces {
-		if w.Status.StatusCode != types.WorkspaceStatusCodeDeleting {
+		if w.Workspace.Status.StatusCode != types.WorkspaceStatusCodeDeleting {
 			found = append(found, w)
 		}
 	}
 
 	if len(found) == 0 {
-		return nil, resource.NotFoundError(fmt.Sprintf("workspace alias %q not found", alias))
+		return AmpWorkspace{}, resource.NotFoundError(fmt.Sprintf("workspace alias %q not found", alias))
 	}
 
 	if len(found) > 1 {
-		return nil, fmt.Errorf("multiple workspaces found with alias: %s", alias)
+		return AmpWorkspace{}, fmt.Errorf("multiple workspaces found with alias: %s", alias)
 	}
 
 	return found[0], nil

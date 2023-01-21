@@ -28,17 +28,16 @@ func (m *Manager) Create(options resource.Options) error {
 		return fmt.Errorf("internal error, unable to cast options to AmpOptions")
 	}
 
-	workspace, err := m.prometheusGetter.GetAmpByAlias(ampOptions.Alias)
-	if err != nil {
-		if _, ok := err.(resource.NotFoundError); !ok {
-			// Return an error if it's anything other than resource not found
-			return err
-		}
-	}
-
-	if workspace != nil {
+	_, err := m.prometheusGetter.GetAmpByAlias(ampOptions.Alias)
+	// Return if the Workspace already exists
+	if err == nil {
 		fmt.Printf("AMP Workspace Alias %q already exists\n", ampOptions.Alias)
 		return nil
+	}
+
+	// Return the error if it's anything other than resource not found
+	if _, ok := err.(resource.NotFoundError); !ok {
+		return err
 	}
 
 	if m.DryRun {
@@ -72,7 +71,7 @@ func (m *Manager) Delete(options resource.Options) error {
 			}
 			return err
 		}
-		id = awssdk.ToString(amp.WorkspaceId)
+		id = awssdk.ToString(amp.Workspace.WorkspaceId)
 	}
 
 	err := m.ampClient.DeleteWorkspace(id)

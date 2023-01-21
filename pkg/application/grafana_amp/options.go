@@ -57,7 +57,7 @@ func (o *GrafanaAmpOptions) PreDependencies(action application.Action) error {
 		return fmt.Errorf("failed to lookup AMP endpoint, install prometheus-amp first: %w", err)
 	}
 
-	o.AmpEndpoint = *workspace.PrometheusEndpoint
+	o.AmpEndpoint = *workspace.Workspace.PrometheusEndpoint
 
 	return nil
 }

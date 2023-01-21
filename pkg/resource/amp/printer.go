@@ -6,16 +6,15 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
-	"github.com/aws/aws-sdk-go-v2/service/amp/types"
 	"github.com/hako/durafmt"
 )
 
 type AmpPrinter struct {
-	Workspaces []*types.WorkspaceDescription
+	Workspaces []AmpWorkspace
 }
 
-func NewPrinter(Workspaces []*types.WorkspaceDescription) *AmpPrinter {
-	return &AmpPrinter{Workspaces}
+func NewPrinter(workspaces []AmpWorkspace) *AmpPrinter {
+	return &AmpPrinter{workspaces}
 }
 
 func (p *AmpPrinter) PrintTable(writer io.Writer) error {
@@ -24,13 +23,13 @@ func (p *AmpPrinter) PrintTable(writer io.Writer) error {
 
 	for _, w := range p.Workspaces {
 
-		age := durafmt.ParseShort(time.Since(aws.ToTime(w.CreatedAt)))
+		age := durafmt.ParseShort(time.Since(aws.ToTime(w.Workspace.CreatedAt)))
 
 		table.AppendRow([]string{
 			age.String(),
-			string(w.Status.StatusCode),
-			aws.ToString(w.Alias),
-			aws.ToString(w.WorkspaceId),
+			string(w.Workspace.Status.StatusCode),
+			aws.ToString(w.Workspace.Alias),
+			aws.ToString(w.Workspace.WorkspaceId),
 		})
 	}
 

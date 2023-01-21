@@ -17,6 +17,9 @@ func NewAMPClient() *AMPClient {
 	return &AMPClient{amp.NewFromConfig(GetConfig())}
 }
 
+// The CreateWorkspace operation creates a workspace. A workspace is a logical space
+// dedicated to the storage and querying of Prometheus metrics.
+// You can have one or more workspaces in each Region in your account.
 func (c *AMPClient) CreateWorkspace(alias string) (*amp.CreateWorkspaceOutput, error) {
 	input := amp.CreateWorkspaceInput{}
 
@@ -37,6 +40,7 @@ func (c *AMPClient) CreateWorkspace(alias string) (*amp.CreateWorkspaceOutput, e
 	return result, err
 }
 
+// The DeleteWorkspace operation deletes an existing workspace.
 func (c *AMPClient) DeleteWorkspace(id string) error {
 	_, err := c.Client.DeleteWorkspace(context.Background(), &amp.DeleteWorkspaceInput{
 		WorkspaceId: aws.String(id),
@@ -45,6 +49,21 @@ func (c *AMPClient) DeleteWorkspace(id string) error {
 	return err
 }
 
+// The DescribeLoggingConfiguration operation returns complete information about
+// the current logging configuration of the workspace.
+func (c *AMPClient) DescribeLoggingConfiguration(workspaceId string) (*types.LoggingConfigurationMetadata, error) {
+	out, err := c.Client.DescribeLoggingConfiguration(context.Background(), &amp.DescribeLoggingConfigurationInput{
+		WorkspaceId: aws.String(workspaceId),
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return out.LoggingConfiguration, nil
+}
+
+// The DescribeWorkspace operation displays information about an existing workspace.
 func (c *AMPClient) DescribeWorkspace(workspaceId string) (*types.WorkspaceDescription, error) {
 	out, err := c.Client.DescribeWorkspace(context.Background(), &amp.DescribeWorkspaceInput{
 		WorkspaceId: aws.String(workspaceId),
@@ -57,6 +76,8 @@ func (c *AMPClient) DescribeWorkspace(workspaceId string) (*types.WorkspaceDescr
 	return out.Workspace, nil
 }
 
+// The ListWorkspaces operation lists all of the Amazon Managed Service for Prometheus workspaces in your account.
+//  This includes workspaces being created or deleted.
 func (c *AMPClient) ListWorkspaces(alias string) ([]types.WorkspaceSummary, error) {
 	workspaces := []types.WorkspaceSummary{}
 	pageNum := 0

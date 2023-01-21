@@ -70,8 +70,8 @@ func (o *KubecostEksAmpOptions) PreInstall() error {
 		return fmt.Errorf("failed to lookup AMP to use in Helm chart values file: %w", err)
 	}
 
-	o.AmpEndpoint = awssdk.ToString(workspace.PrometheusEndpoint)
-	o.AmpId = awssdk.ToString(workspace.WorkspaceId)
+	o.AmpEndpoint = awssdk.ToString(workspace.Workspace.PrometheusEndpoint)
+	o.AmpId = awssdk.ToString(workspace.Workspace.WorkspaceId)
 
 	return nil
 }

@@ -51,7 +51,7 @@ func (o *PrometheusAmpOptions) PreInstall() error {
 		return fmt.Errorf("failed to lookup AMP endpoint to use in Helm chart for remoteWrite url: %w", err)
 	}
 
-	o.AmpEndpoint = *workspace.PrometheusEndpoint
+	o.AmpEndpoint = *workspace.Workspace.PrometheusEndpoint
 
 	return nil
 }
