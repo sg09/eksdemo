@@ -20,7 +20,13 @@ func (m *Manager) Init() {
 }
 
 func (m *Manager) Create(options resource.Options) error {
-	return fmt.Errorf("feature not supported")
+	_, err := m.cloudwatchlogsClient.CreateLogGroup(options.Common().Name)
+	if err != nil {
+		return aws.FormatError(err)
+	}
+	fmt.Println("Created Log Group successfully")
+
+	return nil
 }
 
 func (m *Manager) Delete(options resource.Options) error {
