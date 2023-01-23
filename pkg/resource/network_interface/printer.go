@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"strings"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/ec2/types"
@@ -42,12 +43,14 @@ func (p *NetworkInterfacePrinter) PrintTable(writer io.Writer) error {
 				instanceId = "elb"
 			}
 
-			// Identify EKS Control Plane cross-account ENI
+			// Identify EKS Control Plane cross-account and Fargate ENIs
 			// This identifies any interface ENI that is attached to EC2 but owned by a different account
-			_, err := strconv.Atoi(aws.ToString(eni.Attachment.InstanceOwnerId))
 			if string(eni.InterfaceType) == "interface" && string(eni.Attachment.Status) == "attached" {
-				if err == nil && aws.ToString(eni.Attachment.InstanceOwnerId) != p.accountId {
+				if aws.ToString(eni.Attachment.InstanceOwnerId) != p.accountId {
 					instanceId = "eks_control_plane"
+					if !strings.HasPrefix(aws.ToString(eni.Description), "Amazon EKS") {
+						instanceId = "fargate_pod"
+					}
 				}
 			}
 		}
