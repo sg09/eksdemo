@@ -16,7 +16,7 @@ import (
 // GitHub:  https://github.com/awslabs/karpenter
 // Helm:    https://github.com/awslabs/karpenter/tree/main/charts/karpenter
 // Repo:    https://gallery.ecr.aws/karpenter/controller
-// Version: Latest is v0.21.1 (as of 12/31/22)
+// Version: Latest is v0.22.1 (as of 01/23/23)
 
 func NewApp() *application.Application {
 	options, flags := newOptions()
@@ -86,31 +86,31 @@ Statement:
   Resource: "*"
   Action:
   # Write Operations
-  - ec2:CreateLaunchTemplate
   - ec2:CreateFleet
-  - ec2:RunInstances
+  - ec2:CreateLaunchTemplate
   - ec2:CreateTags
-  - ec2:TerminateInstances
   - ec2:DeleteLaunchTemplate
+  - ec2:RunInstances
+  - ec2:TerminateInstances
   # Read Operations
-  - ec2:DescribeLaunchTemplates
-  - ec2:DescribeInstances
-  - ec2:DescribeSecurityGroups
-  - ec2:DescribeSubnets
-  - ec2:DescribeImages
-  - ec2:DescribeInstanceTypes
-  - ec2:DescribeInstanceTypeOfferings
   - ec2:DescribeAvailabilityZones
+  - ec2:DescribeImages
+  - ec2:DescribeInstances
+  - ec2:DescribeInstanceTypeOfferings
+  - ec2:DescribeInstanceTypes
+  - ec2:DescribeLaunchTemplates
+  - ec2:DescribeSecurityGroups
   - ec2:DescribeSpotPriceHistory
-  - ssm:GetParameter
+  - ec2:DescribeSubnets
   - pricing:GetProducts
+  - ssm:GetParameter
 - Effect: Allow
   Action:
   # Write Operations
   - sqs:DeleteMessage
   # Read Operations
-  - sqs:GetQueueUrl
   - sqs:GetQueueAttributes
+  - sqs:GetQueueUrl
   - sqs:ReceiveMessage
   Resource: arn:{{ .Partition }}:sqs:{{ .Region }}:{{ .Account }}:karpenter-{{ .ClusterName }}
 - Effect: Allow
@@ -125,7 +125,7 @@ serviceAccount:
   name: {{ .ServiceAccount }}
   annotations:
     {{ .IrsaAnnotation }}
-replicas: 1
+replicas: {{ .Replicas }}
 controller:
   image: public.ecr.aws/karpenter/controller:{{ .Version }}
 settings:

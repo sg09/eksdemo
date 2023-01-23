@@ -12,6 +12,7 @@ type KarpenterOptions struct {
 	application.ApplicationOptions
 
 	AMIFamily            string
+	Replicas             int
 	TTLSecondsAfterEmpty int
 }
 
@@ -21,13 +22,14 @@ func newOptions() (options *KarpenterOptions, flags cmd.Flags) {
 			Namespace:      "karpenter",
 			ServiceAccount: "karpenter",
 			DefaultVersion: &application.LatestPrevious{
-				LatestChart:   "v0.21.1",
-				Latest:        "v0.21.1",
-				PreviousChart: "v0.18.1",
-				Previous:      "v0.18.1",
+				LatestChart:   "v0.22.1",
+				Latest:        "v0.22.1",
+				PreviousChart: "v0.21.1",
+				Previous:      "v0.21.1",
 			},
 		},
 		AMIFamily: "AL2",
+		Replicas:  1,
 	}
 
 	flags = cmd.Flags{
@@ -54,6 +56,13 @@ func newOptions() (options *KarpenterOptions, flags cmd.Flags) {
 			},
 			Option:  &options.AMIFamily,
 			Choices: []string{"AL2", "Bottlerocket", "Ubuntu"},
+		},
+		&cmd.IntFlag{
+			CommandFlag: cmd.CommandFlag{
+				Name:        "replicas",
+				Description: "number of replicas for the controller deployment",
+			},
+			Option: &options.Replicas,
 		},
 		&cmd.IntFlag{
 			CommandFlag: cmd.CommandFlag{

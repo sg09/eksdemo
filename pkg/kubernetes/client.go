@@ -43,7 +43,7 @@ func CreateResources(kubeContext, manifest string) error {
 	// https://github.com/cert-manager/cert-manager/issues/2908
 	tenSecondRetry := wait.Backoff{
 		Steps:    5,
-		Duration: 1 * time.Second,
+		Duration: 2 * time.Second,
 	}
 
 	for _, info := range infos {
