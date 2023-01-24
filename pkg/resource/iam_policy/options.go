@@ -27,7 +27,7 @@ func NewOptions() (options *IamPolicyOptions, getFlags cmd.Flags) {
 			CommandFlag: cmd.CommandFlag{
 				Name:        "role",
 				Description: "filter by role name, includes policy document in json/yaml output",
-				Shorthand:   "R",
+				Shorthand:   "r",
 			},
 			Option: &options.Role,
 		},
