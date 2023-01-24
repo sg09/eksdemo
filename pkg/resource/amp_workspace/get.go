@@ -1,4 +1,4 @@
-package amp
+package amp_workspace
 
 import (
 	"eksdemo/pkg/aws"
@@ -53,7 +53,7 @@ func (g *Getter) GetAll(alias string) ([]AmpWorkspace, error) {
 			continue
 		}
 
-		result, err := g.prometheusClient.DescribeWorkspace(awssdk.ToString(summary.WorkspaceId))
+		workspace, err := g.prometheusClient.DescribeWorkspace(awssdk.ToString(summary.WorkspaceId))
 		if err != nil {
 			return nil, err
 		}
@@ -63,7 +63,7 @@ func (g *Getter) GetAll(alias string) ([]AmpWorkspace, error) {
 			return nil, err
 		}
 
-		workspaces = append(workspaces, AmpWorkspace{result, logging})
+		workspaces = append(workspaces, AmpWorkspace{workspace, logging})
 	}
 
 	if alias != "" && len(workspaces) == 0 {

@@ -1,4 +1,4 @@
-package amp
+package amp_workspace
 
 import (
 	"eksdemo/pkg/printer"
@@ -9,15 +9,15 @@ import (
 	"github.com/hako/durafmt"
 )
 
-type AmpPrinter struct {
+type AmpWorkspacePrinter struct {
 	Workspaces []AmpWorkspace
 }
 
-func NewPrinter(workspaces []AmpWorkspace) *AmpPrinter {
-	return &AmpPrinter{workspaces}
+func NewPrinter(workspaces []AmpWorkspace) *AmpWorkspacePrinter {
+	return &AmpWorkspacePrinter{workspaces}
 }
 
-func (p *AmpPrinter) PrintTable(writer io.Writer) error {
+func (p *AmpWorkspacePrinter) PrintTable(writer io.Writer) error {
 	table := printer.NewTablePrinter()
 	table.SetHeader([]string{"Age", "Status", "Alias", "Workspace Id"})
 
@@ -38,10 +38,10 @@ func (p *AmpPrinter) PrintTable(writer io.Writer) error {
 	return nil
 }
 
-func (p *AmpPrinter) PrintJSON(writer io.Writer) error {
+func (p *AmpWorkspacePrinter) PrintJSON(writer io.Writer) error {
 	return printer.EncodeJSON(writer, p.Workspaces)
 }
 
-func (p *AmpPrinter) PrintYAML(writer io.Writer) error {
+func (p *AmpWorkspacePrinter) PrintYAML(writer io.Writer) error {
 	return printer.EncodeYAML(writer, p.Workspaces)
 }

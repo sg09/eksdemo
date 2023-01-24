@@ -1,4 +1,4 @@
-package amp
+package amp_workspace
 
 import (
 	"eksdemo/pkg/aws"
@@ -23,7 +23,7 @@ func (m *Manager) Init() {
 }
 
 func (m *Manager) Create(options resource.Options) error {
-	ampOptions, ok := options.(*AmpOptions)
+	ampOptions, ok := options.(*AmpWorkspaceOptions)
 	if !ok {
 		return fmt.Errorf("internal error, unable to cast options to AmpOptions")
 	}
@@ -55,7 +55,7 @@ func (m *Manager) Create(options resource.Options) error {
 }
 
 func (m *Manager) Delete(options resource.Options) error {
-	ampOptions, ok := options.(*AmpOptions)
+	ampOptions, ok := options.(*AmpWorkspaceOptions)
 	if !ok {
 		return fmt.Errorf("internal error, unable to cast options to AmpOptions")
 	}
@@ -91,7 +91,7 @@ func (m *Manager) Update(options resource.Options, cmd *cobra.Command) error {
 	return fmt.Errorf("feature not supported")
 }
 
-func (m *Manager) dryRun(options *AmpOptions) error {
+func (m *Manager) dryRun(options *AmpWorkspaceOptions) error {
 	fmt.Printf("\nAMP Resource Manager Dry Run:\n")
 	fmt.Printf("Amazon Managed Service for Prometheus API Call %q with request parameters:\n", "CreateWorkspace")
 	fmt.Printf("alias: %q\n", options.Alias)

@@ -5,7 +5,7 @@ import (
 	"eksdemo/pkg/resource/acm_certificate"
 	"eksdemo/pkg/resource/addon"
 	"eksdemo/pkg/resource/amg"
-	"eksdemo/pkg/resource/amp"
+	"eksdemo/pkg/resource/amp_workspace"
 	"eksdemo/pkg/resource/cluster"
 	"eksdemo/pkg/resource/dns_record"
 	"eksdemo/pkg/resource/fargate_profile"
@@ -32,7 +32,7 @@ func NewCreateCmd() *cobra.Command {
 	cmd.AddCommand(acm_certificate.NewResource().NewCreateCmd())
 	cmd.AddCommand(addon.NewResource().NewCreateCmd())
 	cmd.AddCommand(amg.NewResource().NewCreateCmd())
-	cmd.AddCommand(amp.NewResource().NewCreateCmd())
+	cmd.AddCommand(amp_workspace.NewResource().NewCreateCmd())
 	cmd.AddCommand(cluster.NewResource().NewCreateCmd())
 	cmd.AddCommand(dns_record.NewResource().NewCreateCmd())
 	cmd.AddCommand(fargate_profile.NewResource().NewCreateCmd())

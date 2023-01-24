@@ -5,7 +5,7 @@ import (
 	"eksdemo/pkg/aws"
 	"eksdemo/pkg/cmd"
 	"eksdemo/pkg/resource"
-	"eksdemo/pkg/resource/amp"
+	"eksdemo/pkg/resource/amp_workspace"
 	"fmt"
 
 	awssdk "github.com/aws/aws-sdk-go-v2/aws"
@@ -18,7 +18,7 @@ type KubecostEksAmpOptions struct {
 
 	AmpEndpoint string
 	AmpId       string
-	*amp.AmpOptions
+	*amp_workspace.AmpWorkspaceOptions
 }
 
 func newOptions() (options *KubecostEksAmpOptions, flags cmd.Flags) {
@@ -34,7 +34,7 @@ func newOptions() (options *KubecostEksAmpOptions, flags cmd.Flags) {
 				Previous:      "1.97.0",
 			},
 		},
-		AmpOptions: &amp.AmpOptions{
+		AmpWorkspaceOptions: &amp_workspace.AmpWorkspaceOptions{
 			CommonOptions: resource.CommonOptions{
 				Name: "kubecost-amazon-managed-prometheus",
 			},
@@ -54,7 +54,7 @@ func newOptions() (options *KubecostEksAmpOptions, flags cmd.Flags) {
 }
 
 func (o *KubecostEksAmpOptions) PreDependencies(application.Action) error {
-	o.AmpOptions.Alias = fmt.Sprintf("%s-%s", o.ClusterName, AmpAliasSuffix)
+	o.AmpWorkspaceOptions.Alias = fmt.Sprintf("%s-%s", o.ClusterName, AmpAliasSuffix)
 	return nil
 }
 
@@ -62,7 +62,7 @@ func (o *KubecostEksAmpOptions) PreInstall() error {
 	o.AmpEndpoint = "<-amp_endpoint_url_will_go_here->"
 	o.AmpId = "<-amp_id_will_go_here->"
 
-	workspace, err := amp.NewGetter(aws.NewAMPClient()).GetAmpByAlias(fmt.Sprintf("%s-%s", o.ClusterName, AmpAliasSuffix))
+	workspace, err := amp_workspace.NewGetter(aws.NewAMPClient()).GetAmpByAlias(fmt.Sprintf("%s-%s", o.ClusterName, AmpAliasSuffix))
 	if err != nil {
 		if o.DryRun {
 			return nil

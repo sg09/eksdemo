@@ -5,7 +5,7 @@ import (
 	"eksdemo/pkg/cmd"
 	"eksdemo/pkg/installer"
 	"eksdemo/pkg/resource"
-	"eksdemo/pkg/resource/amp"
+	"eksdemo/pkg/resource/amp_workspace"
 	"eksdemo/pkg/resource/irsa"
 	"eksdemo/pkg/template"
 )
@@ -20,7 +20,7 @@ import (
 
 func NewApp() *application.Application {
 	options, flags := NewOptions()
-	options.AmpOptions = &amp.AmpOptions{
+	options.AmpWorkspaceOptions = &amp_workspace.AmpWorkspaceOptions{
 		CommonOptions: resource.CommonOptions{
 			Name: "amazon-managed-prometheus",
 		},
@@ -43,7 +43,7 @@ func NewApp() *application.Application {
 					Template: irsaPolicyDocument,
 				},
 			}),
-			amp.NewResourceWithOptions(options.AmpOptions),
+			amp_workspace.NewResourceWithOptions(options.AmpWorkspaceOptions),
 		},
 
 		Installer: &installer.HelmInstaller{

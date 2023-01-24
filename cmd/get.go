@@ -9,7 +9,7 @@ import (
 	"eksdemo/pkg/resource/acm_certificate"
 	"eksdemo/pkg/resource/addon"
 	"eksdemo/pkg/resource/amg"
-	"eksdemo/pkg/resource/amp"
+	"eksdemo/pkg/resource/amp_workspace"
 	"eksdemo/pkg/resource/auto_scaling_group"
 	"eksdemo/pkg/resource/availability_zone"
 	"eksdemo/pkg/resource/cloudformation"
@@ -104,7 +104,7 @@ func init() {
 	getCmd.AddCommand(addon.NewResource().NewGetCmd())
 	getCmd.AddCommand(addon.NewVersionsResource().NewGetCmd())
 	getCmd.AddCommand(amg.NewResource().NewGetCmd())
-	getCmd.AddCommand(amp.NewResource().NewGetCmd())
+	getCmd.AddCommand(amp_workspace.NewResource().NewGetCmd())
 	getCmd.AddCommand(auto_scaling_group.NewResource().NewGetCmd())
 	getCmd.AddCommand(availability_zone.NewResource().NewGetCmd())
 	getCmd.AddCommand(cloudformation.NewResource().NewGetCmd())

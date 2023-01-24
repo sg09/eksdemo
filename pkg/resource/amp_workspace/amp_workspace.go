@@ -1,4 +1,4 @@
-package amp
+package amp_workspace
 
 import (
 	"eksdemo/pkg/cmd"
@@ -13,7 +13,7 @@ func NewResource() *resource.Resource {
 	return res
 }
 
-func NewResourceWithOptions(options *AmpOptions) *resource.Resource {
+func NewResourceWithOptions(options *AmpWorkspaceOptions) *resource.Resource {
 	res := &resource.Resource{
 		Command: cmd.Command{
 			Name:        "amp-workspace",

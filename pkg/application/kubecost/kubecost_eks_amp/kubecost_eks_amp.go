@@ -5,7 +5,7 @@ import (
 	"eksdemo/pkg/cmd"
 	"eksdemo/pkg/installer"
 	"eksdemo/pkg/resource"
-	"eksdemo/pkg/resource/amp"
+	"eksdemo/pkg/resource/amp_workspace"
 	"eksdemo/pkg/resource/irsa"
 	"eksdemo/pkg/template"
 )
@@ -53,7 +53,7 @@ func NewApp() *application.Application {
 					"arn:aws:iam::aws:policy/AmazonPrometheusRemoteWriteAccess",
 				},
 			}),
-			amp.NewResourceWithOptions(options.AmpOptions),
+			amp_workspace.NewResourceWithOptions(options.AmpWorkspaceOptions),
 		},
 
 		Options: options,

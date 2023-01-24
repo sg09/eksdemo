@@ -5,7 +5,7 @@ import (
 	"eksdemo/pkg/application/prometheus_amp"
 	"eksdemo/pkg/aws"
 	"eksdemo/pkg/cmd"
-	"eksdemo/pkg/resource/amp"
+	"eksdemo/pkg/resource/amp_workspace"
 	"fmt"
 )
 
@@ -50,7 +50,7 @@ func (o *GrafanaAmpOptions) PreDependencies(action application.Action) error {
 		return nil
 	}
 
-	ampGetter := amp.NewGetter(aws.NewAMPClient())
+	ampGetter := amp_workspace.NewGetter(aws.NewAMPClient())
 
 	workspace, err := ampGetter.GetAmpByAlias(fmt.Sprintf("%s-%s", o.ClusterName, prometheus_amp.AmpAliasSuffix))
 	if err != nil {

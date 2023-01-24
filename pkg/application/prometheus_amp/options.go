@@ -4,7 +4,7 @@ import (
 	"eksdemo/pkg/application"
 	"eksdemo/pkg/aws"
 	"eksdemo/pkg/cmd"
-	"eksdemo/pkg/resource/amp"
+	"eksdemo/pkg/resource/amp_workspace"
 	"fmt"
 )
 
@@ -15,7 +15,7 @@ type PrometheusAmpOptions struct {
 
 	AmpEndpoint string
 	PushGateway bool
-	*amp.AmpOptions
+	*amp_workspace.AmpWorkspaceOptions
 }
 
 func NewOptions() (options *PrometheusAmpOptions, flags cmd.Flags) {
@@ -35,7 +35,7 @@ func NewOptions() (options *PrometheusAmpOptions, flags cmd.Flags) {
 }
 
 func (o *PrometheusAmpOptions) PreDependencies(application.Action) error {
-	o.AmpOptions.Alias = fmt.Sprintf("%s-%s", o.ClusterName, AmpAliasSuffix)
+	o.AmpWorkspaceOptions.Alias = fmt.Sprintf("%s-%s", o.ClusterName, AmpAliasSuffix)
 	return nil
 }
 
@@ -44,7 +44,7 @@ func (o *PrometheusAmpOptions) PreInstall() error {
 		o.AmpEndpoint = "<amp-endpoint-goes-here>"
 		return nil
 	}
-	ampGetter := amp.NewGetter(aws.NewAMPClient())
+	ampGetter := amp_workspace.NewGetter(aws.NewAMPClient())
 
 	workspace, err := ampGetter.GetAmpByAlias(fmt.Sprintf("%s-%s", o.ClusterName, AmpAliasSuffix))
 	if err != nil {

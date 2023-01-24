@@ -1,18 +1,18 @@
-package amp
+package amp_workspace
 
 import (
 	"eksdemo/pkg/cmd"
 	"eksdemo/pkg/resource"
 )
 
-type AmpOptions struct {
+type AmpWorkspaceOptions struct {
 	resource.CommonOptions
 
 	Alias string
 }
 
-func NewOptions() (options *AmpOptions, flags cmd.Flags) {
-	options = &AmpOptions{
+func NewOptions() (options *AmpWorkspaceOptions, flags cmd.Flags) {
+	options = &AmpWorkspaceOptions{
 		CommonOptions: resource.CommonOptions{
 			Name:                "amazon-managed-prometheus",
 			ArgumentOptional:    true,
@@ -26,6 +26,6 @@ func NewOptions() (options *AmpOptions, flags cmd.Flags) {
 	return
 }
 
-func (o *AmpOptions) SetName(name string) {
+func (o *AmpWorkspaceOptions) SetName(name string) {
 	o.Alias = name
 }
