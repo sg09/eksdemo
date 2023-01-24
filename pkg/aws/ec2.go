@@ -23,10 +23,17 @@ func NewEC2ElasticIpFilter(eipId string) types.Filter {
 	}
 }
 
-func NewEC2InstanceFilter(instanceId string) types.Filter {
+func NewEC2InstanceIdFilter(instanceId string) types.Filter {
 	return types.Filter{
 		Name:   aws.String("instance-id"),
 		Values: []string{instanceId},
+	}
+}
+
+func NewEC2InstanceStateFilter(states []string) types.Filter {
+	return types.Filter{
+		Name:   aws.String("instance-state-name"),
+		Values: states,
 	}
 }
 

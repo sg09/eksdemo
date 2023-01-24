@@ -17,11 +17,9 @@ func NewResource() *resource.Resource {
 		Getter: &Getter{},
 
 		Manager: &Manager{},
-
-		Options: &resource.CommonOptions{
-			ClusterFlagOptional: true,
-		},
 	}
+
+	res.Options, res.GetFlags = newOptions()
 
 	return res
 }

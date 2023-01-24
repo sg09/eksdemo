@@ -26,13 +26,24 @@ func (g *Getter) Init() {
 }
 
 func (g *Getter) Get(id string, output printer.Output, options resource.Options) error {
-	cluster := options.Common().Cluster
-	filters := []types.Filter{}
-
-	if id != "" {
-		filters = append(filters, aws.NewEC2InstanceFilter(id))
+	ec2Options, ok := options.(*EC2InstanceOptions)
+	if !ok {
+		return fmt.Errorf("internal error, unable to cast options to EC2InstanceOptions")
 	}
 
+	filters := []types.Filter{}
+
+	if ec2Options.HideTerminated {
+		filters = append(filters,
+			aws.NewEC2InstanceStateFilter([]string{"pending", "running", "shutting-down", "stopping", "stopped"}),
+		)
+	}
+
+	if id != "" {
+		filters = append(filters, aws.NewEC2InstanceIdFilter(id))
+	}
+
+	cluster := options.Common().Cluster
 	if cluster != nil {
 		filters = append(filters, aws.NewEC2VpcFilter(awssdk.ToString(cluster.ResourcesVpcConfig.VpcId)))
 	}
@@ -46,7 +57,7 @@ func (g *Getter) Get(id string, output printer.Output, options resource.Options)
 }
 
 func (g *Getter) GetInstanceById(id string) (types.Instance, error) {
-	reservations, err := g.ec2Client.DescribeInstances([]types.Filter{aws.NewEC2InstanceFilter(id)})
+	reservations, err := g.ec2Client.DescribeInstances([]types.Filter{aws.NewEC2InstanceIdFilter(id)})
 	if err != nil {
 		return types.Instance{}, err
 	}
