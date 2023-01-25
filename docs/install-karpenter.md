@@ -17,6 +17,7 @@ This tutorial walks through the installation of the Karpenter Autoscaler and the
 3. [Test Automatic Node Provisioning](#test-automatic-node-provisioning)
 4. [Test Node Consolidation](#test-node-consolidation)
 5. [(Optional) Inspect Karpenter IAM Roles](#optional-inspect-karpenter-iam-roles)
+6. [(Optional) Inspect Karpenter SQS Queue and EventBridge Rules](#optional-inspect-karpenter-sqs-queue-and-eventbridge-rules)
 
 ## Prerequisites
 
@@ -66,7 +67,7 @@ The `eksdemo` install of Karpenter is identical to the [Getting Started with eks
 * The Karpenter instructions create a cluster with `karpenter.sh/discovery: <cluster-name>` tags. This is not required and any `eksctl` or `eksdemo` created EKS cluster will work.
 * The IRSA role, Node IAM Role, SQS Queue and EventBridge rules are in separate CloudFormation stacks. The IRSA role is created using `eksctl`.
 * The SQS Queue name is `karpenter-<cluster-name>` instead of `<cluster-name>`.
-* The four EventBridge rule names follow the pattern `karpenter-<cluster-name>-<rule-name>` instead of the automated CloudFormation generated name.
+* The four EventBridge rule names follow the pattern `karpenter-<cluster-name>-<rule-name>` instead of the automated CloudFormation generated names.
 * The Karpenter controller deployment defaults to 1 replica instead of 2.
 * There are a few changes to the  default Karpenter `Provisioner` and `AWSNodeTemplate` Custom Resources:
     * Support for both `on-demand` and `spot` nodes is configured instead of only `spot`. It will still default to using Spot  nodes but you can request `on-demand` using the `karpenter.sh/capacity-type` label selector.
@@ -84,7 +85,36 @@ Helm Installer Dry Run:
 <snip>
 Creating 1 post-install resources for autoscaling-karpenter
 Creating post-install resource: karpenter-default-provisioner
-<snip>
+
+Kubernetes Resource Manager Dry Run:
+---
+apiVersion: karpenter.sh/v1alpha5
+kind: Provisioner
+metadata:
+  name: default
+spec:
+  requirements:
+    - key: karpenter.sh/capacity-type
+      operator: In
+      values: ["on-demand", "spot"]
+  limits:
+    resources:
+      cpu: 1000
+  providerRef:
+    name: default
+  consolidation:
+    enabled: true
+---
+apiVersion: karpenter.k8s.aws/v1alpha1
+kind: AWSNodeTemplate
+metadata:
+  name: default
+spec:
+  amiFamily: AL2
+  subnetSelector:
+    Name: eksctl-blue-cluster/SubnetPrivate*
+  securityGroupSelector:
+    aws:eks:cluster-name: blue
 ```
 
 Now, install Karpenter.
@@ -171,7 +201,7 @@ spec:
             app: inflate
 ```
 
-Now, remove the `--dry-run` flag and instal the Inflate app to trigger an autoscaling event.
+Now, remove the `--dry-run` flag and install the Inflate app to trigger an autoscaling event.
 
 ```
 » eksdemo install autoscaling-inflate -c <cluster-name> --replicas 10 --spread
@@ -209,7 +239,7 @@ To test consolidation, let's reduce the number of replicas for the Inflate deplo
 deployment.apps/inflate scaled
 ```
 
-You may need to wait a few minutes for Karpenter's consolidation logic to make a decision to replace or terminate nodes. Again, use the `eksdemo get ec2` command to view the EC2 instances. This time we will use the shorthand alias `ec2`.
+You may need to wait a few minutes for Karpenter's consolidation logic to make a decision to replace or terminate nodes. Again, use the `eksdemo get ec2-instances` command to view the EC2 instances. This time we will use the shorthand alias `ec2`.
 
 ```
 » eksdemo get ec2 -c <cluster-name>
@@ -225,7 +255,7 @@ You may need to wait a few minutes for Karpenter's consolidation logic to make a
 * Indicates Spot Instance
 ```
 
-In the example above, Karpenter decided to terminated one of the Spot instances in `us-west-2b` because there is already a Managed Node Group node running in `us-west-2b` so the deployment is still spread across AZ's.
+In the example above, Karpenter decided to terminate one of the Spot instances in `us-west-2b` because there is already a Managed Node Group node running in `us-west-2b` so the deployment is still spread across AZ's.
 
 ## (Optional) Inspect Karpenter IAM Roles 
 
@@ -344,3 +374,70 @@ Next, let's inspect the Karpenter Node IAM Role. Replace `<cluster-name>` with t
 ```
 
 If you want to view the policy document details you can run the above command again adding `-o yaml`.
+
+```
+» eksdemo get iam-policy --role KarpenterNodeRole-<cluster-name> -o yaml
+```
+
+## (Optional) Inspect Karpenter SQS Queue and EventBridge Rules
+
+The Karpenter install process creates an SQS queue with EventBridge rules to support Native Spot Termination Handling. Use the `eksdemo get sqs-queue` command to inspect the SQS queue that was created.
+
+```
+» eksdemo get sqs-queue
++-----------+----------------+----------+----------+-----------+
+|    Age    |      Name      |   Type   | Messages | In Flight |
++-----------+----------------+----------+----------+-----------+
+| 7 minutes | karpenter-blue | Standard |        0 |         0 |
++-----------+----------------+----------+----------+-----------+
+```
+
+To view all the attributes of the SQS queue use the `-o yaml` output option. Replace `<cluster-name>` with the name of your EKS cluster.
+
+```
+» eksdemo get sqs-queue karpenter-<cluster-name> -o yaml
+- Attributes:
+    ApproximateNumberOfMessages: "0"
+    ApproximateNumberOfMessagesDelayed: "0"
+    ApproximateNumberOfMessagesNotVisible: "0"
+    CreatedTimestamp: "1674667831"
+    DelaySeconds: "0"
+    LastModifiedTimestamp: "1674667907"
+    MaximumMessageSize: "262144"
+    MessageRetentionPeriod: "300"
+    Policy: '{"Version":"2008-10-17","Id":"EC2InterruptionPolicy","Statement":[{"Effect":"Allow","Principal":{"Service":["events.amazonaws.com","sqs.amazonaws.com"]},"Action":"sqs:SendMessage","Resource":"arn:aws:sqs:us-west-2:012345679012:karpenter-blue"}]}'
+    QueueArn: arn:aws:sqs:us-west-2:012345679012:karpenter-blue
+    ReceiveMessageWaitTimeSeconds: "0"
+    SqsManagedSseEnabled: "true"
+    VisibilityTimeout: "30"
+  Url: https://sqs.us-west-2.amazonaws.com/012345679012/karpenter-blue
+```
+
+To support Native Node Termination Handling, four EventBridge event patterns are routed the SQS queue. Use the `eksdemo get event-rule [NAME_PREFIX]` command to inspect the rules that were created.
+
+```
+» eksdemo get event-rule karpenter
++---------+-------------------------------------+----------+
+| Status  |                Name                 |   Type   |
++---------+-------------------------------------+----------+
+| ENABLED | karpenter-blue-InstanceStateChange  | Standard |
+| ENABLED | karpenter-blue-Rebalance            | Standard |
+| ENABLED | karpenter-blue-ScheduledChange      | Standard |
+| ENABLED | karpenter-blue-SpotInterruption     | Standard |
++---------+-------------------------------------+----------+
+```
+
+To see more details about the event pattern filter, use the `-o yaml` output option. Let's take a look at the InstanceStateChange rule. Replace `<cluster-name>` with the name of your EKS cluster.
+
+```
+» eksdemo get event-rule karpenter-<cluster-name>-InstanceStateChange -o yaml
+- Arn: arn:aws:events:us-west-2:012345679012:rule/karpenter-blue-InstanceStateChange
+  Description: null
+  EventBusName: default
+  EventPattern: '{"detail-type":["EC2 Instance State-change Notification"],"source":["aws.ec2"]}'
+  ManagedBy: null
+  Name: karpenter-blue-InstanceStateChange
+  RoleArn: null
+  ScheduleExpression: null
+  State: ENABLED
+```
