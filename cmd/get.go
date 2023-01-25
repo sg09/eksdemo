@@ -28,7 +28,6 @@ import (
 	"eksdemo/pkg/resource/iam_policy"
 	"eksdemo/pkg/resource/iam_role"
 	"eksdemo/pkg/resource/internet_gateway"
-	"eksdemo/pkg/resource/irsa"
 	"eksdemo/pkg/resource/kms_key"
 	"eksdemo/pkg/resource/listener"
 	"eksdemo/pkg/resource/listener_rule"
@@ -124,7 +123,6 @@ func init() {
 	getCmd.AddCommand(iam_policy.NewResource().NewGetCmd())
 	getCmd.AddCommand(iam_role.NewResource().NewGetCmd())
 	getCmd.AddCommand(internet_gateway.NewResource().NewGetCmd())
-	getCmd.AddCommand(irsa.NewResource().NewGetCmd())
 	getCmd.AddCommand(kms_key.NewResource().NewGetCmd())
 	getCmd.AddCommand(listener.NewResource().NewGetCmd())
 	getCmd.AddCommand(listener_rule.NewResource().NewGetCmd())
