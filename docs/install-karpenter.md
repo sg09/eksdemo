@@ -12,10 +12,22 @@ With `eksdemo`, it’s very easy to setup, install and test Karpenter autoscalin
 
 This tutorial walks through the installation of the Karpenter Autoscaler and the example Inflate application to trigger an autoscaling event. It also tests Node Consolidation.
 
-1. [Install Karpenter Autoscaler](#install-karpenter-autoscaler)
-2. [Test Automatic Node Provisioning](#test-automatic-node-provisioning)
-3. [Test Node Consolidation](#test-node-consolidation)
-4. [(Optional) Inspect Karpenter IAM Roles](#optional-inspect-karpenter-iam-roles)
+1. [Prerequisites](#prerequisites)
+2. [Install Karpenter Autoscaler](#install-karpenter-autoscaler)
+3. [Test Automatic Node Provisioning](#test-automatic-node-provisioning)
+4. [Test Node Consolidation](#test-node-consolidation)
+5. [(Optional) Inspect Karpenter IAM Roles](#optional-inspect-karpenter-iam-roles)
+
+## Prerequisites
+
+This tutorial requires an EKS cluster with an [IAM OIDC provider configured](https://docs.aws.amazon.com/eks/latest/userguide/enable-iam-roles-for-service-accounts.html) to support IAM Roles for Service accounts (IRSA).
+
+You can use any `eksctl` created cluster or create your cluster with `eksdemo`.
+```
+» eksdemo create cluster blue
+```
+
+See the [Create Cluster documentation](/docs/basics-create-cluster.md) for configuration options.
 
 ## Install Karpenter Autoscaler
 
@@ -52,7 +64,7 @@ The Karpenter specific flags are:
 
 The `eksdemo` install of Karpenter is identical to the [Getting Started with eksctl](https://karpenter.sh/docs/getting-started/getting-started-with-eksctl/) instructions with the following small differences:
 * The Karpenter instructions create a cluster with `karpenter.sh/discovery: <cluster-name>` tags. This is not required and any `eksctl` or `eksdemo` created EKS cluster will work.
-* The SQS Queue and EventBridge rules to support native Spot Termination are in a separate CloudFormation stack.
+* The IRSA role, Node IAM Role, SQS Queue and EventBridge rules are in separate CloudFormation stacks. The IRSA role is created using `eksctl`.
 * The SQS Queue name is `karpenter-<cluster-name>` instead of `<cluster-name>`.
 * The four EventBridge rule names follow the pattern `karpenter-<cluster-name>-<rule-name>` instead of the automated CloudFormation generated name.
 * The Karpenter controller deployment defaults to 1 replica instead of 2.

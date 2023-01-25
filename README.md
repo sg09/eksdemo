@@ -3,12 +3,13 @@ The easy button for testing, learning and demoing Amazon EKS:
 * Install complex applications and dependencies with a single command
 * Extensive application catalog (over 50 CNCF, open source and related projects)
 * Customize application installs easily with simple command line flags
-* Query and search AWS resources with kubectl-like get commands
+* Query and search AWS resources with over 50 kubectl-like get commands
 
 ## Table of Contents
 * [Why `eksdemo`?](#why-eksdemo)
 * [No Magic](#no-magic)
 * [Application Catalog](#application-catalog)
+* [Kubectl-like get commands](#kubectl-like-get-commands)
 * [`eksdemo` vs EKS Blueprints](#eksdemo-vs-eks-blueprints)
 * [Prerequisites](#prerequisites)
 * [Install eksdemo](#install-eksdemo)
@@ -22,13 +23,14 @@ The easy button for testing, learning and demoing Amazon EKS:
 ## Why `eksdemo`?
 While creating an EKS cluster is fairly easy thanks to [`eksctl`](https://eksctl.io/), manually installing and configuring applications on EKS is complex, time consuming and error-prone. One of the most powerful feature of `eksdemo` is its extensive application catalog that can installed (including dependencies) with a single command.
 
-For example, the command: **`eksdemo install autoscaling-karpenter -c <cluster-name>`**
-will:
-* Create the Karpenter Node IAM Role
-* Create the Karpenter Controller IAM Role (IRSA)
-* Add an entry to the `aws-auth` ConfigMap for the Karpenter Node IAM Role
-* Install Karpenter
-* Create a default Karpenter Provisioner
+For example, the command: **`eksdemo install autoscaling-karpenter -c <cluster-name>`** will:
+1. Create the EC2 Spot Service Linked Role (if it doesn't already exist)
+2. Create the Karpenter Controller IAM Role (IRSA)
+3. Create the Karpenter Node IAM Role
+4. Create an SQS Queue and EventBridge rules for native Spot Termination Handling
+5. Add an entry to the `aws-auth` ConfigMap for the Karpenter Node IAM Role
+6. Install the Karpenter Helm Chart
+7. Create default Karpenter `Provisioner` and `AWSNodeTemplate` Custom Resources
 
 ## No Magic
 Application installs are:
@@ -117,6 +119,64 @@ The application catalog includes:
     * `openebs` — Kubernetes storage simplified
 * `velero` — Backup and migrate Kubernetes applications
 
+## Kubectl-like get commands
+`eksdemo` makes it easy to view AWS resources from the command line with commands that are very similar to how `kubectl get` works. Output defaults to a table, but raw AWS API output can be viewed with `-o yaml` and `-o json` flag options.
+
+Almost all of the command have shorthand alaises to make it easier to type. For example `get ec2` an alias for `get ec2-instance`. You can find the aliases using the help command, `eksdemo get ec2-instance -h`.
+
+* `acm-certificate` — ACM Cerificate
+* `addon` — EKS Managed Addon
+* `addon-versions` — EKS Managed Addon Versions
+* `amg-workspace` — Amazon Managed Grafana Workspace
+* `amp-rule` — Amazon Managed Prometheus Rule Namespace
+* `amp-workspace` — Amazon Managed Prometheus Workspace
+* `application` — Installed Applications
+* `auto-scaling-group` — Auto Scaling Group
+* `availability-zone` — Availability Zone
+* `cloudformation` — CloudFormation Stack
+* `cloudtrail-event` — CloudTrail Event History
+* `cloudtrail-trail` — CloudTrail Trail
+* `cluster` — EKS Cluster
+* `dns-record` — Route53 Resource Record Set
+* `ec2-instance` — EC2 Instance
+* `ecr-repository` — ECR Repository
+* `elastic-ip` — Elastic IP Address
+* `event-rule` — EventBridge Rule
+* `fargate-profile` — EKS Fargate Profile
+* `hosted-zone` — Route53 Hosted Zone
+* `iam-oidc` — IAM OIDC Identity Provider
+* `iam-policy` — IAM Policy
+* `iam-role` — IAM Role
+* `internet-gateway` — Internet Gateway
+* `kms-key` — KMS Key
+* `listener` — Load Balancer Listener
+* `listener-rule` — Load Balancer Listener Rule
+* `load-balancer` — Elastic Load Balancer
+* `log-event` — CloudWatch Log Events
+* `log-group` — CloudWatch Log Group
+* `log-stream` — CloudWatch Log Stream
+* `metric` — CloudWatch Metric
+* `nat-gateway` — NAT Gateway
+* `network-acl` — Network ACL
+* `network-acl-rule` — Network ACL
+* `network-interface` — Elastic Network Interface
+* `node` — Kubernetes Node
+* `nodegroup` — EKS Managed Nodegroup
+* `organization` — AWS Organization
+* `route-table` — Route Table
+* `s3-bucket` — Amazon S3 Bucket
+* `security-group` — Security Group
+* `security-group-rule` — Security Group Rule
+* `sqs-queue` — SQS Queue
+* `ssm-node` — SSM Managed Node
+* `ssm-session` — SSM Session
+* `subnet` — VPC Subnet
+* `target-group` — Target Group
+* `target-health` — Target Health
+* `volume` — EBS Volume
+* `vpc` — Virtual Private Cloud
+* `vpc-endpoint` — VPC Endpoint
+
 ## `eksdemo` vs EKS Blueprints
 
 Both `eksdemo` and [EKS Blueprints](https://aws.amazon.com/blogs/containers/bootstrapping-clusters-with-eks-blueprints/) automate the creation of EKS clusters and install commonly used applications. Why would you use `eksdemo` for testing, learning and demoing EKS?
@@ -161,10 +221,10 @@ Open https://github.com/aaroniscode/eksdemo/releases/latest in your browser, nav
 
 ### Set the AWS Region
 
-`eksdemo` requires that a default AWS region is configured. There are 2 ways to configure this:
+For most `eksdemo` commands, it requires either a default AWS region is configured or the `--region` flag is used. There are 2 ways to configure a default region, either:
 
-1. Using the [AWS CLI Configuration file](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html). On Linux and MacOS this file is located in ~/.aws/config. You can use the aws configure command to set the region.
-2. Set the `AWS_REGION` environment variable to the desired default region. Unless you set the environment variable in your shell profile, you will need to set this every time you open a new terminal.
+* Set in the the [AWS CLI Configuration file](https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html). On Linux and MacOS this file is located in ~/.aws/config. You can use the aws configure command to set the region.
+* Set the `AWS_REGION` environment variable to the desired default region. Unless you set the environment variable in your shell profile, you will need to set this every time you open a new terminal.
 
 ### Validate Install
 
@@ -172,7 +232,7 @@ To validate installation you can run the **`eksdemo version`** command and confi
 
 ```
 » eksdemo version
-eksdemo version info: cmd.Version{Version:"0.2.0", Date:"2022-08-31T05:20:29Z", Commit:"b9d662f"}
+eksdemo version info: cmd.Version{Version:"0.4.0", Date:"2023-01-25T04:55:53Z", Commit:"ab9dd9c"}
 ```
 
 To validate the AWS region is set, you can run **`eksdemo get cluster`** which will list running EKS clusters in the default region. If you don’t have any EKS clusters in the region, you will get the response: `No resources found.`
@@ -182,7 +242,7 @@ To validate the AWS region is set, you can run **`eksdemo get cluster`** which w
 +-------+--------+---------+---------+----------+----------+---------+
 |  Age  | Status | Cluster | Version | Platform | Endpoint | Logging |
 +-------+--------+---------+---------+----------+----------+---------+
-| 1 day | ACTIVE | *blue   |    1.23 | eks.1    | Public   | true    |
+| 1 day | ACTIVE | *blue   |    1.24 | eks.3    | Public   | true    |
 +-------+--------+---------+---------+----------+----------+---------+
 * Indicates current context in local kubeconfig
 ```

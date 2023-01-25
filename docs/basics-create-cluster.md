@@ -38,7 +38,8 @@ Flags:
       --no-roles          don't create IAM roles
   -N, --nodes int         desired number of nodes (default 2)
       --os string         Operating System (default "AmazonLinux2")
-  -v, --version string    Kubernetes version (default "1.23")
+      --private           private cluster (includes ECR, S3, and other VPC endpoints)
+  -v, --version string    Kubernetes version (default "1.24")
 
 Global Flags:
       --profile string   use the specific profile from your credential file
@@ -46,17 +47,17 @@ Global Flags:
   ```
 
 In this example, we would like the following customizations:
-* Name our cluster “test”
+* Name our cluster “blue”
 * Use Bottlerocket nodes instead of Amazon Linux 2
 * Use `t3.xlarge` instances instead t3.large
 * Create a Managed Node Group with 3 nodes instances instead of 2
 
-The command for this is **`eksdemo create cluster test --os bottlerocket -i t3.xlarge -N 3`**
+The command for this is **`eksdemo create cluster blue --os bottlerocket -i t3.xlarge -N 3`**
 
 Before you run the command, let’s dive a bit deeper and understand exactly how `eksdemo` will use and configure `eksctl` to create the cluster. We can do that with the `--dry-run` flag.
 
 ```
-» eksdemo create cluster test --os bottlerocket -i t3.xlarge -N 3 --dry-run
+» eksdemo create cluster blue --os bottlerocket -i t3.xlarge -N 3 --dry-run
 
 Eksctl Resource Manager Dry Run:
 eksctl create cluster -f -
@@ -65,9 +66,9 @@ apiVersion: eksctl.io/v1alpha5
 kind: ClusterConfig
 
 metadata:
-  name: test
+  name: blue
   region: us-west-2
-  version: "1.22"
+  version: "1.24"
 
 addons:
 - name: vpc-cni
@@ -80,17 +81,33 @@ iam:
   withOIDC: true
   serviceAccounts:
   - metadata:
-    name: aws-load-balancer-controller
-    <snip>
+      name: aws-load-balancer-controller
+      namespace: awslb
+    roleName: eksdemo.blue.awslb.aws-load-balancer-controller
+    roleOnly: true
+    attachPolicy:
+      <snip>
   - metadata:
-    name: cluster-autoscaler
-    <snip>
+      name: cluster-autoscaler
+      namespace: kube-system
+    roleName: eksdemo.blue.kube-system.cluster-autoscaler
+    roleOnly: true
+    attachPolicy:
+      <snip>
   - metadata:
-    name: external-dns
-    <snip>
+      name: external-dns
+      namespace: external-dns
+    roleName: eksdemo.blue.external-dns.external-dns
+    roleOnly: true
+    attachPolicy:
+      <snip>
   - metadata:
-    name: karpenter
-    <snip>
+      name: karpenter
+      namespace: karpenter
+    roleName: eksdemo.blue.karpenter.karpenter
+    roleOnly: true
+    attachPolicy:
+      <snip>
 
 managedNodeGroups:
 - name: main
@@ -113,63 +130,63 @@ You’ll notice that `eksdemo` automatically creates the IAM Roles used for IRSA
 After reviewing the output above, go ahead and create your cluster.
 
 ```
-» eksdemo create cluster test --os bottlerocket -i t3.xlarge -N 3
-2022-07-11 23:06:06 [ℹ]  eksctl version 0.105.0
-2022-07-11 23:06:06 [ℹ]  using region us-west-2
-2022-07-11 23:06:06 [ℹ]  setting availability zones to [us-west-2c us-west-2d us-west-2b]
-2022-07-11 23:06:06 [ℹ]  subnets for us-west-2c - public:192.168.0.0/19 private:192.168.96.0/19
-2022-07-11 23:06:06 [ℹ]  subnets for us-west-2d - public:192.168.32.0/19 private:192.168.128.0/19
-2022-07-11 23:06:06 [ℹ]  subnets for us-west-2b - public:192.168.64.0/19 private:192.168.160.0/19
-2022-07-11 23:06:06 [ℹ]  nodegroup "main" will use "" [Bottlerocket/1.22]
-2022-07-11 23:06:06 [ℹ]  using Kubernetes version 1.22
-2022-07-11 23:06:06 [ℹ]  creating EKS cluster "test" in "us-west-2" region with managed nodes
-2022-07-11 23:06:06 [ℹ]  1 nodegroup (main) was included (based on the include/exclude rules)
+» eksdemo create cluster blue --os bottlerocket -i t3.xlarge -N 3
+2023-01-25 09:04:24 [ℹ]  eksctl version 0.126.0
+2023-01-25 09:04:24 [ℹ]  using region us-west-2
+2023-01-25 09:04:24 [ℹ]  setting availability zones to [us-west-2d us-west-2b us-west-2a]
+2023-01-25 09:04:24 [ℹ]  subnets for us-west-2d - public:192.168.0.0/19 private:192.168.96.0/19
+2023-01-25 09:04:24 [ℹ]  subnets for us-west-2b - public:192.168.32.0/19 private:192.168.128.0/19
+2023-01-25 09:04:24 [ℹ]  subnets for us-west-2a - public:192.168.64.0/19 private:192.168.160.0/19
+2023-01-25 09:04:24 [ℹ]  nodegroup "main" will use "" [Bottlerocket/1.24]
+2023-01-25 09:04:24 [ℹ]  using Kubernetes version 1.24
+2023-01-25 09:04:24 [ℹ]  creating EKS cluster "blue" in "us-west-2" region with managed nodes
+2023-01-25 09:04:24 [ℹ]  1 nodegroup (main) was included (based on the include/exclude rules)
 <snip>
-2022-07-11 23:25:22 [ℹ]  waiting for CloudFormation stack "eksctl-test-nodegroup-main"
-2022-07-11 23:25:22 [ℹ]  waiting for the control plane availability...
-2022-07-11 23:25:22 [✔]  saved kubeconfig as "/Users/awsuser/.kube/config"
-2022-07-11 23:25:22 [ℹ]  no tasks
-2022-07-11 23:25:22 [✔]  all EKS cluster resources for "test" have been created
-2022-07-11 23:25:23 [ℹ]  kubectl command should work with "/Users/awsuser/.kube/config", try 'kubectl get nodes'
-2022-07-11 23:25:23 [✔]  EKS cluster "test" in "us-west-2" region is ready
+2023-01-25 09:23:26 [ℹ]  waiting for CloudFormation stack "eksctl-blue-nodegroup-main"
+2023-01-25 09:23:26 [ℹ]  waiting for the control plane to become ready
+2023-01-25 09:23:28 [✔]  saved kubeconfig as "/Users/awsuser/.kube/config"
+2023-01-25 09:23:28 [ℹ]  no tasks
+2023-01-25 09:23:28 [✔]  all EKS cluster resources for "blue" have been created
+2023-01-25 09:23:29 [ℹ]  kubectl command should work with "/Users/awsuser/.kube/config", try 'kubectl get nodes'
+2023-01-25 09:23:29 [✔]  EKS cluster "blue" in "us-west-2" region is ready
 ```
 
 To view the status and info about your cluster you can run the **`eksdemo get cluster`** command.
 
 ```
 » eksdemo get cluster
-+----------+--------+---------+---------+----------+----------+---------+
-|   Age    | Status | Cluster | Version | Platform | Endpoint | Logging |
-+----------+--------+---------+---------+----------+----------+---------+
-| 17 hours | ACTIVE | blue    |    1.22 | eks.4    | Public   | true    |
-| 10 hours | ACTIVE | *test   |    1.22 | eks.4    | Public   | true    |
-+----------+--------+---------+---------+----------+----------+---------+
++------------+--------+---------+---------+----------+----------+---------+
+|    Age     | Status | Cluster | Version | Platform | Endpoint | Logging |
++------------+--------+---------+---------+----------+----------+---------+
+| 3 weeks    | ACTIVE | green   |    1.23 | eks.5    | Public   | true    |
+| 20 minutes | ACTIVE | *blue   |    1.24 | eks.3    | Public   | true    |
++------------+--------+---------+---------+----------+----------+---------+
 * Indicates current context in local kubeconfig
 ```
 
 To view detail on the node group, use the **`eksdemo get nodegroup`** command. For this get command and many others, there is a required `--cluster <cluster-name>` flag.
 
 ```
-» eksdemo get nodegroup --cluster test
-+----------+--------+------+-------+-----+-----+----------------+-----------+-------------+
-|   Age    | Status | Name | Nodes | Min | Max |    Version     |   Type    | Instance(s) |
-+----------+--------+------+-------+-----+-----+----------------+-----------+-------------+
-| 10 hours | ACTIVE | main |     3 |   0 |  10 | 1.8.0-a6233c22 | ON_DEMAND | t3.xlarge   |
-+----------+--------+------+-------+-----+-----+----------------+-----------+-------------+
+» eksdemo get nodegroup --cluster blue
++-----------+--------+------+-------+-----+-----+-----------------+-----------+-------------+
+|    Age    | Status | Name | Nodes | Min | Max |     Version     |   Type    | Instance(s) |
++-----------+--------+------+-------+-----+-----+-----------------+-----------+-------------+
+| 5 minutes | ACTIVE | main |     3 |   0 |  10 | 1.11.1-104f8e0f | ON_DEMAND | t3.xlarge   |
++-----------+--------+------+-------+-----+-----+-----------------+-----------+-------------+
 ```
 
-To view detail on the nodes, use the **`eksdemo get nodes`** command. Here we’ll use the `-c` flag which is the shorthand version of the `--cluster` flag.
+To view detail on the nodes, use the **`eksdemo get node`** command. Here we’ll use the `-c` flag which is the shorthand version of the `--cluster` flag.
 
 ```
-» eksdemo get nodes -c test
-+----------+--------------------+---------------------+------------+-----------+-----------+
-|   Age    |        Name        |     Instance Id     |    Zone    | Nodegroup |   Type    |
-+----------+--------------------+---------------------+------------+-----------+-----------+
-| 10 hours | ip-192-168-110-154 | i-0091caca84b3f86fe | us-west-2c | main      | t3.xlarge |
-| 10 hours | ip-192-168-142-85  | i-0e5f24935921f0256 | us-west-2d | main      | t3.xlarge |
-| 10 hours | ip-192-168-172-58  | i-0676551dbd61b7bc7 | us-west-2b | main      | t3.xlarge |
-+----------+--------------------+---------------------+------------+-----------+-----------+
-* Names end with ".us-west-2.compute.internal"
+» eksdemo get node -c blue
++-----------+----------------------+---------------------+-----------+------------+-----------+
+|    Age    |         Name         |     Instance Id     |   Type    |    Zone    | Nodegroup |
++-----------+----------------------+---------------------+-----------+------------+-----------+
+| 5 minutes | ip-192-168-112-160.* | i-01049dccf2e58d265 | t3.xlarge | us-west-2d | main      |
+| 5 minutes | ip-192-168-141-119.* | i-003139b73a29ff1b7 | t3.xlarge | us-west-2b | main      |
+| 5 minutes | ip-192-168-186-156.* | i-0583cab4366088ac2 | t3.xlarge | us-west-2a | main      |
++-----------+----------------------+---------------------+-----------+------------+-----------+
+* Names end with "us-west-2.compute.internal"
 ```
 
-Congratulations, your EKS cluster with 3 Bottlerocket `t3.xlarge` nodes is now ready!  In the future if you want to see more detail from a get command you can use `-o yaml` or `-o json` and you will see the raw AWS API response in full. For example, you can try running **`eksdemo get cluster test -o yaml`**. You can also run **`eksdemo get`** to see all the options available.
+Congratulations, your EKS cluster with 3 Bottlerocket `t3.xlarge` nodes is now ready!  In the future if you want to see more detail from a get command you can use `-o yaml` or `-o json` and you will see the raw AWS API response in full. For example, you can try running **`eksdemo get cluster blue -o yaml`**. You can also run **`eksdemo get`** to see all the options available.

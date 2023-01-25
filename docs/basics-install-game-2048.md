@@ -86,7 +86,7 @@ apiVersion: eksctl.io/v1alpha5
 kind: ClusterConfig
 
 metadata:
-  name: test
+  name: blue
   region: us-west-2
 
 iam:
@@ -95,10 +95,10 @@ iam:
   - metadata:
       name: aws-load-balancer-controller
       namespace: awslb
-    roleName: eksdemo.test.awslb.aws-load-balancer-controller
+    roleName: eksdemo.blue.awslb.aws-load-balancer-controller
     roleOnly: true
-    wellKnownPolicies:
-      awsLoadBalancerController: true
+    attachPolicy:
+      <snip>
 
 Helm Installer Dry Run:
 +---------------------+----------------------------------+
@@ -117,10 +117,10 @@ replicaCount: 1
 image:
   tag: v2.4.4
 fullnameOverride: aws-load-balancer-controller
-clusterName: test
+clusterName: blue
 serviceAccount:
   annotations:
-    eks.amazonaws.com/role-arn: arn:aws:iam::123456789012:role/eksdemo.test.awslb.aws-load-balancer-controller
+    eks.amazonaws.com/role-arn: arn:aws:iam::123456789012:role/eksdemo.blue.awslb.aws-load-balancer-controller
   name: aws-load-balancer-controller
 region: us-west-2
 vpcId: vpc-08a68dc8b440fec75
@@ -139,7 +139,7 @@ With this application and with many others, a number of values file settings are
 With a thorough understanding of how the application install process works, let’s install the AWS Load Balancer controller.
 
 ```
-» eksdemo install aws-lb-controller -c test
+» eksdemo install aws-lb-controller -c blue
 Creating 1 dependencies for aws-lb-controller
 Creating dependency: aws-lb-controller-irsa
 2022-11-13 08:27:36 [ℹ]  4 existing iamserviceaccount(s) (awslb/aws-load-balancer-controller,external-dns/external-dns,karpenter/karpenter,kube-system/cluster-autoscaler) will be excluded
@@ -166,12 +166,12 @@ In this section we will walk through the process of installing ExternalDNS. The 
 **`eksdemo install external-dns -c <cluster-name>`**
 
 Before you continue with the installation, you are encouraged to explore the help for external-dns with the `-h` flag and the dry run output with the `--dry-run` flag. The exact syntax for the commands are:
-**`eksdemo install external-dns -h`** and **`eksdemo install external-dns -c test --dry-run`**
+**`eksdemo install external-dns -h`** and **`eksdemo install external-dns -c blue --dry-run`**
 
 When you are ready to continue, proceed with installing ExternalDNS.
 
 ```
-» eksdemo install external-dns -c test
+» eksdemo install external-dns -c blue
 Creating 1 dependencies for external-dns
 Creating dependency: external-dns-irsa
 2022-11-13 12:56:23 [ℹ]  4 existing iamserviceaccount(s) (awslb/aws-load-balancer-controller,external-dns/external-dns,karpenter/karpenter,kube-system/cluster-autoscaler) will be excluded
@@ -196,7 +196,7 @@ NOTES:
 Let’s verify that the applications were installed properly with the **`eksdemo get application`** command. Since this command is specific to a given EKS cluster, the `-c <cluster-name>` flag is required.
 
 ```
-» eksdemo get application -c test
+» eksdemo get application -c blue
 +-------------------+--------------+---------+----------+--------+
 |       Name        |  Namespace   | Version |  Status  | Chart  |
 +-------------------+--------------+---------+----------+--------+
@@ -205,21 +205,21 @@ Let’s verify that the applications were installed properly with the **`eksdemo
 +-------------------+--------------+---------+----------+--------+
 ```
 
-From the output above we can see that both applications are successfully deployed in the EKS cluster named `test`. `eksdemo` is using Helm as a Golang client library and the output above is very similar to running a `helm list --all-namespaces` command. Because Helm is bundled as a part of `eksdemo`, that you don’t need to have Helm installed on your system to install or manage any of the applications in the `eksdemo` application catalog.
+From the output above we can see that both applications are successfully deployed in the EKS cluster named `blue`. `eksdemo` is using Helm as a Golang client library and the output above is very similar to running a `helm list --all-namespaces` command. Because Helm is bundled as a part of `eksdemo`, that you don’t need to have Helm installed on your system to install or manage any of the applications in the `eksdemo` application catalog.
 
 When ExternalDNS is deployed on AWS, it will query Route 53 for a list of Hosted Zones. IAM Roles for Service Accounts (IRSA) is used to give permissions to access Route 53. You can quickly see all the IAM Roles configured for IRSA by using the **`eksdemo get iam-role -c <cluster-name>`** command. Include the `--last-used` or `-L` shorthand flag to see when the role was last used.
 
 ```
-» eksdemo get iam-role -c test -L
+» eksdemo get iam-role -c blue -L
 oidc.eks.us-west-2.amazonaws.com%2Fid%2F84D3CFB801297D007D945709D8F1C0F6
 +----------+-------------------------------------------------+------------+
 |   Age    |                      Role                       | Last Used  |
 +----------+-------------------------------------------------+------------+
-| 14 hours | eksctl-test-addon-vpc-cni-Role1-1PXCY1L5F2C05   | 1 hour     |
-| 14 hours | eksdemo.test.awslb.aws-load-balancer-controller | -          |
-| 14 hours | eksdemo.test.external-dns.external-dns          | 29 minutes |
-| 14 hours | eksdemo.test.karpenter.karpenter                | -          |
-| 14 hours | eksdemo.test.kube-system.cluster-autoscaler     | -          |
+| 14 hours | eksctl-blue-addon-vpc-cni-Role1-1PXCY1L5F2C05   | 1 hour     |
+| 14 hours | eksdemo.blue.awslb.aws-load-balancer-controller | -          |
+| 14 hours | eksdemo.blue.external-dns.external-dns          | 29 minutes |
+| 14 hours | eksdemo.blue.karpenter.karpenter                | -          |
+| 14 hours | eksdemo.blue.kube-system.cluster-autoscaler     | -          |
 +----------+-------------------------------------------------+------------+
 ```
 
@@ -267,7 +267,7 @@ You’ll notice above there is an optional `--ingress-host` flag with a `-I` sho
 Since Game 2048 is included in the EKS documentation as a manifest file, let’s use the the `--dry-run` flag to understand how the application will be installed. **Replace `example.com` with your Hosted Zone.**
 
 ```
-» eksdemo install example-game-2048 -c test -I game2048.example.com --dry-run
+» eksdemo install example-game-2048 -c blue -I game2048.example.com --dry-run
 
 Manifest Installer Dry Run:
 ---
@@ -344,7 +344,7 @@ One of the benefits of using a Helm chart is that applications can be easily man
 Now that you know how a manifest install works, let’s install the Game 2048 example application. **Replace `example.com` with your Hosted Zone.**
 
 ```
-» eksdemo install example-game-2048 -c test -I game2048.example.com
+» eksdemo install example-game-2048 -c blue -I game2048.example.com
 Helm installing...
 2022/11/15 19:45:20 creating 1 resource(s)
 2022/11/15 19:45:20 creating 3 resource(s)
@@ -354,7 +354,7 @@ Using chart version "n/a", installed "example-game-2048" version "latest" in nam
 Let’s check the status of all three of our installed applications, understanding that they are all installed as Helm charts.
 
 ```
-» eksdemo get application -c test
+» eksdemo get application -c blue
 +-------------------+--------------+---------+----------+--------+
 |       Name        |  Namespace   | Version |  Status  | Chart  |
 +-------------------+--------------+---------+----------+--------+
@@ -364,10 +364,10 @@ Let’s check the status of all three of our installed applications, understandi
 +-------------------+--------------+---------+----------+--------+
 ```
 
-The Ingress resource that is created as part the Game 2048 example application install will trigger the AWS Load Balancer Controller to create an ALB. This will take a few minutes to provision. You can check on the status of the ALB by using the **`eksdemo get load-balancer`** command. For this command, the `-c <cluster-name>` flag is optional, and if used it will filter the query to ELB’s in the same VPC as the `test` EKS cluster.
+The Ingress resource that is created as part the Game 2048 example application install will trigger the AWS Load Balancer Controller to create an ALB. This will take a few minutes to provision. You can check on the status of the ALB by using the **`eksdemo get load-balancer`** command. For this command, the `-c <cluster-name>` flag is optional, and if used it will filter the query to ELB’s in the same VPC as the `blue` EKS cluster.
 
 ```
-» eksdemo get load-balancer -c test
+» eksdemo get load-balancer -c blue
 +-----------+--------+----------------------------------+------+-------+-----+-----+
 |    Age    | State  |               Name               | Type | Stack | AZs | SGs |
 +-----------+--------+----------------------------------+------+-------+-----+-----+
@@ -394,9 +394,9 @@ Next let’s confirm that ExternalDNS has created a Route 53 resource record for
 | example.com                | SOA  | ns-1855.awsdns-39.co.uk.                                            |
 |                            |      | awsdns-hostmaster.amazon.com.                                       |
 |                            |      | 1 7200 900 1209600 86400                                            |
-| cname-game2048.example.com | TXT  | "heritage=external-dns,external-dns/owner=test,external-dns/reso... |
+| cname-game2048.example.com | TXT  | "heritage=external-dns,external-dns/owner=blue,external-dns/reso... |
 | game2048.example.com       | A    | k8s-game2048-ingress2-0d50dcef8e-334176506.us-west-2.elb.amazona... |
-| game2048.example.com       | TXT  | "heritage=external-dns,external-dns/owner=test,external-dns/reso... |
+| game2048.example.com       | TXT  | "heritage=external-dns,external-dns/owner=blue,external-dns/reso... |
 +----------------------------+------+---------------------------------------------------------------------+
 ```
 
@@ -416,7 +416,7 @@ Tips:
 
 ## (Optional) Game 2048 Installation Configurations
 
-If you don’t have a Hosted Zone or want to deploy the Game 2048 example application unencrypted over HTTP, you can run the command without the `--ingress-host` flag or `-I` shorthand flag: **`eksdemo install example-game-2048 -c test`**
+If you don’t have a Hosted Zone or want to deploy the Game 2048 example application unencrypted over HTTP, you can run the command without the `--ingress-host` flag or `-I` shorthand flag: **`eksdemo install example-game-2048 -c blue`**
 
 By default, the application will deployed with a Service of type `LoadBalancer`, which will deploy a Classic Load Balancer (CLB). There are a number of flags that allow you to choose more options:
 
@@ -430,9 +430,9 @@ Flags:
 ```
 
 To expose the application unencrypted as a Service using an NLB in Instance mode, the command is:
-**`eksdemo install example-game-2048 -c test --nlb --target-type instance`**
+**`eksdemo install example-game-2048 -c blue --nlb --target-type instance`**
 
 To expose the application encrypted as an Ingress using Nginx Ingress, the command is:
-**`eksdemo install example-game-2048 -c test -I game2048.example.com --ingress-class nginx`**
+**`eksdemo install example-game-2048 -c blue -I game2048.example.com --ingress-class nginx`**
 
 If exposing using a Service and NLB, you will need to have AWS Load Balancer Controller installed. If exposing using an Ingress, you will need to have the Ingress Controller and ExternalDNS installed. Also, if using an IngressClass other than `alb`, you will need to have cert-manager installed.
