@@ -63,6 +63,21 @@ func (c *AMPClient) DescribeLoggingConfiguration(workspaceId string) (*types.Log
 	return out.LoggingConfiguration, nil
 }
 
+// The DescribeRuleGroupsNamespace operation returns complete information about one rule groups namespace.
+// To retrieve a list of rule groups namespaces, use ListRuleGroupsNamespaces.
+func (c *AMPClient) DescribeRuleGroupsNamespace(name, workspaceId string) (*types.RuleGroupsNamespaceDescription, error) {
+	out, err := c.Client.DescribeRuleGroupsNamespace(context.Background(), &amp.DescribeRuleGroupsNamespaceInput{
+		Name:        aws.String(name),
+		WorkspaceId: aws.String(workspaceId),
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	return out.RuleGroupsNamespace, nil
+}
+
 // The DescribeWorkspace operation displays information about an existing workspace.
 func (c *AMPClient) DescribeWorkspace(workspaceId string) (*types.WorkspaceDescription, error) {
 	out, err := c.Client.DescribeWorkspace(context.Background(), &amp.DescribeWorkspaceInput{
@@ -74,6 +89,27 @@ func (c *AMPClient) DescribeWorkspace(workspaceId string) (*types.WorkspaceDescr
 	}
 
 	return out.Workspace, nil
+}
+
+// The ListRuleGroupsNamespaces operation returns a list of rule groups namespaces in a workspace.
+func (c *AMPClient) ListRuleGroupsNamespaces(workspaceId string) ([]types.RuleGroupsNamespaceSummary, error) {
+	rules := []types.RuleGroupsNamespaceSummary{}
+	pageNum := 0
+
+	paginator := amp.NewListRuleGroupsNamespacesPaginator(c.Client, &amp.ListRuleGroupsNamespacesInput{
+		WorkspaceId: aws.String(workspaceId),
+	})
+
+	for paginator.HasMorePages() && pageNum < maxPages {
+		out, err := paginator.NextPage(context.Background())
+		if err != nil {
+			return nil, err
+		}
+		rules = append(rules, out.RuleGroupsNamespaces...)
+		pageNum++
+	}
+
+	return rules, nil
 }
 
 // The ListWorkspaces operation lists all of the Amazon Managed Service for Prometheus workspaces in your account.
