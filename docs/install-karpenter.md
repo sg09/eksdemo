@@ -61,7 +61,7 @@ Flags:
 The Karpenter specific flags are:
 * `--ami-family` -- This sets the AMI Family on the default `AWSNodeTemplate`. Options include AL2, Bottlerocket and Ubuntu.
 * `--replicas` -- `eksdemo` defaults to only 1 replica for easier log viewing in a demo environment. You can use this flag to increase to the default Karpenter Helm chart value of 2 replicas for high availability.
-* `--ttl-after-emty` -- `eksdemo` enables [Consolidation](https://karpenter.sh/docs/concepts/#consolidation) on the default `Provisioner` and this option disables consolidation and sets a Time To Live (TTL) instead.
+* `--ttl-after-empty` -- `eksdemo` enables [Consolidation](https://karpenter.sh/docs/concepts/#consolidation) on the default `Provisioner` and this option disables consolidation and sets a Time To Live (TTL) instead.
 
 The `eksdemo` install of Karpenter is identical to the [Getting Started with eksctl](https://karpenter.sh/docs/getting-started/getting-started-with-eksctl/) instructions with the following small differences:
 * The Karpenter instructions create a cluster with `karpenter.sh/discovery: <cluster-name>` tags. This is not required and any `eksctl` or `eksdemo` created EKS cluster will work.
@@ -211,8 +211,12 @@ Helm installing...
 Using chart version "n/a", installed "autoscaling-inflate" version "n/a" in namespace "inflate"
 ```
 
-Wait a few moments and then list the EC2 instances in your EKS cluster's VPC using the `eksdemo get ec2-instances` command. The `-c` shorthard cluster flag is optional and filters the instance list to your EKS Cluster VPC.
+[Optional] If you want an interactive way of watching the workload changes, install the EKS Node Viewer from here: https://github.com/awslabs/eks-node-viewer
 
+After that it should show the output of eks-node-viewer like below:
+![Alt text](../images/eks_node_viewer1.jpg?raw=true "eks_node_viewer_workload_changes")
+
+Wait a few moments and then list the EC2 instances in your EKS cluster's VPC using the `eksdemo get ec2-instances` command. The `-c` shorthard cluster flag is optional and filters the instance list to your EKS Cluster VPC.
 
 ```
 » eksdemo get ec2-instances -c <cluster-name>
@@ -241,6 +245,9 @@ deployment.apps/inflate scaled
 
 You may need to wait a few minutes for Karpenter's consolidation logic to make a decision to replace or terminate nodes. Again, use the `eksdemo get ec2-instances` command to view the EC2 instances. This time we will use the shorthand alias `ec2`.
 
+
+If you have installed the eks-node-viewer, the output would be like below:
+![Alt text](../images/eks_node_viewer2.jpg?raw=true "eks_node_viewer_workload_changes")
 ```
 » eksdemo get ec2 -c <cluster-name>
 +------------+------------+---------------------+--------------------------------+--------------+------------+
