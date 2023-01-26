@@ -214,7 +214,7 @@ Using chart version "n/a", installed "autoscaling-inflate" version "n/a" in name
 [Optional] If you want an interactive way of watching the workload changes, install the EKS Node Viewer from here: https://github.com/awslabs/eks-node-viewer
 
 After that it should show the output of eks-node-viewer like below:
-![Alt text](../images/eks_node_viewer1.jpg?raw=true "eks_node_viewer_workload_changes")
+![Alt text](../images/eks_node_viewer1.png?raw=true "eks_node_viewer_workload_changes")
 
 Wait a few moments and then list the EC2 instances in your EKS cluster's VPC using the `eksdemo get ec2-instances` command. The `-c` shorthard cluster flag is optional and filters the instance list to your EKS Cluster VPC.
 
@@ -247,7 +247,7 @@ You may need to wait a few minutes for Karpenter's consolidation logic to make a
 
 
 If you have installed the eks-node-viewer, the output would be like below:
-![Alt text](../images/eks_node_viewer2.jpg?raw=true "eks_node_viewer_workload_changes")
+![Alt text](../images/eks_node_viewer2.png?raw=true "eks_node_viewer_workload_changes")
 ```
 » eksdemo get ec2 -c <cluster-name>
 +------------+------------+---------------------+--------------------------------+--------------+------------+
